@@ -29,16 +29,30 @@ public class WebServer {
         this.httpHandlers = new HandlerRegistry<>();
     }
 
+    public void registerHttpContext(String path, HttpRequestHandler<InputStream> handler){
+        log.debug("Registered new http handler for path [{}]", path);
+        if(!httpHandlers.insertCtx(path, handler)) {
+            throw new CustomException("An http handler for path [" + path + "] already exists");
+        }
+    }
+
     public void registerHttpHandler(String path, HttpRequestHandler<InputStream> handler){
         log.debug("Registered new http handler for path [{}]", path);
-        if(!httpHandlers.register(path, handler)) {
+        if(!httpHandlers.insertExact(path, handler)) {
             throw new CustomException("An http handler for path [" + path + "] already exists");
+        }
+    }
+
+    public void registerWebSocketContext(String path, WebsocketConnectionHandler handler){
+        log.debug("Registered new websocket handler for path [{}]", path);
+        if(!websocketHandlers.insertCtx(path, handler)) {
+            throw new CustomException("A websocket context for path [" + path + "] already exists");
         }
     }
 
     public void registerWebSocketHandler(String path, WebsocketConnectionHandler handler){
         log.debug("Registered new websocket handler for path [{}]", path);
-        if(!websocketHandlers.register(path, handler)) {
+        if(!websocketHandlers.insertExact(path, handler)) {
             throw new CustomException("A websocket handler for path [" + path + "] already exists");
         }
     }
@@ -105,7 +119,7 @@ public class WebServer {
 
         private void handleRequest(HttpRequest<InputStream> req) throws IOException {
             log.debug("Incoming http request [{}]", req);
-            HttpRequestHandler<InputStream> httpHandler = httpHandlers.get(req.getResource());
+            var httpHandler = httpHandlers.getHandler(req.getResource());
             if(httpHandler != null) {
                 httpHandler.handle(req, outputStream);
             } else {
@@ -126,7 +140,7 @@ public class WebServer {
 
         private void handoffConnection(HttpRequest<Void> req) throws IOException {
             log.debug("Incoming websocket connection [{}]", req);
-            WebsocketConnectionHandler wsHandler = websocketHandlers.get(req.getResource());
+            var wsHandler = websocketHandlers.getHandler(req.getResource());
             if(wsHandler != null) {
                 //Complete websocket handshake
                 String wsSec = req.getHeaders().getFirst("Sec-WebSocket-Key");
@@ -136,8 +150,7 @@ public class WebServer {
                 outputStream.writeHeader("Connection", "Upgrade");
                 outputStream.writeHeader("Sec-WebSocket-Accept", wsAccept);
                 outputStream.end();
-                wsHandler.newConnection(req, client, inputStream, outputStream);
-                //TODO add a layer to handle the packaging of the websocket packets
+                wsHandler.newConnection(new WebSocket(req, client, inputStream, outputStream));
                 //setting the connection to null to avoid closing the socket as it is now owned by the wsHandler
                 client = null;
             } else {

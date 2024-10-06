@@ -6,40 +6,87 @@ import java.util.*;
  * Handler registry holds the registered handlers.
  */
 class HandlerRegistry<T> {
-    private final TreeMap<String, T> handlers;
 
-    public HandlerRegistry() {
-        this.handlers = new TreeMap<>();
+    private final PrefixTreeNode<T> tree = new PrefixTreeNode<>();
+
+    //public record HandlerMatch<T>(String path, T handler){}
+
+    private static class PrefixTreeNode<T> {
+        //context handlers handler
+        T contextHandler;
+        //exact handlers
+        T exactHandler;
+        HashMap<String, PrefixTreeNode<T>> children;
+
+        PrefixTreeNode<T> computeIfAbsent(String path) {
+            return children().computeIfAbsent(path, k -> new PrefixTreeNode<>());
+        }
+
+        PrefixTreeNode<T> get(String path) {
+            if(children == null) return null;
+            return children.get(path);
+        }
+
+        HashMap<String, PrefixTreeNode<T>> children() {
+            if(children == null) {
+                children = new HashMap<>();
+            }
+            return children;
+        }
+
     }
 
-    /**
-     * Registers the handler under the selected registration path
-     *
-     * @param path    the registration path
-     * @param handler the handler to register
-     */
-    public boolean register(String path, T handler) {
-        return handlers.putIfAbsent(path, handler) == null;
+    private PrefixTreeNode<T> getOrCreateNode(String path) {
+        Objects.requireNonNull(path);
+        final String[] parts = path.split("/");
+        PrefixTreeNode<T> target = tree;
+        for(String part : parts) {
+            if(part.isEmpty()) continue;
+            target = target.computeIfAbsent(part);
+        }
+        return target;
     }
 
-    /**
-     * Searches for a handler matching the input path.
-     * Returns a handler registered
-     * or null if no registered handler matches
-     * If the registry is not indexed it gets indexed first
-     *
-     * @param path the path to match
-     * @return a handler registered under a path that is either equal or a prefix of the input path
-     *          or null if no registered handler matched
-     */
-    public T get(String path) {
-        final Map.Entry<String, T> handlerentry = handlers.floorEntry(path);
-        if(handlerentry == null) return null;
-        String entryKey = handlerentry.getKey();
-        if(path.startsWith(entryKey)) {
-            return handlerentry.getValue();
+    public boolean insertCtx(String path, T handler) {
+        var node = getOrCreateNode(path);
+        if(node.contextHandler != null) {
+            return false;
+        }
+        node.contextHandler = handler;
+        return true;
+    }
+
+    public boolean insertExact(String path, T handler) {
+        var node = getOrCreateNode(path);
+        if(node.exactHandler != null) {
+            return false;
+        }
+        node.exactHandler = handler;
+        return true;
+    }
+
+    public T getHandler(String path) {
+        Objects.requireNonNull(path);
+        final String[] parts = path.split("/");
+        PrefixTreeNode<T> target = tree;
+        T lastCtxHandler = null;
+        for(String part : parts) {
+            if(part.isEmpty()) continue;
+            if(target.contextHandler != null) {
+                lastCtxHandler = target.contextHandler;
+            }
+            var child = target.get(part);
+            if(child == null) {
+                return lastCtxHandler;
+            }
+            target = child;
+        }
+        if(target.exactHandler != null) {
+            return target.exactHandler;
+        } else if(target.contextHandler != null){
+            return target.contextHandler;
         } else {
-            return null;
+            return lastCtxHandler;
         }
     }
 

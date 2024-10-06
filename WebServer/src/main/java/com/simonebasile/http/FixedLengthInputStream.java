@@ -5,8 +5,9 @@ import java.io.InputStream;
 
 public class FixedLengthInputStream extends InputStream {
     private final InputStream source;
-    private int length;
-    public FixedLengthInputStream(InputStream source, int length) {
+    private long length;
+
+    public FixedLengthInputStream(InputStream source, long length) {
         this.source = source;
         this.length = length;
     }
@@ -25,7 +26,7 @@ public class FixedLengthInputStream extends InputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        len = Math.min(len, this.length);
+        len = (int)Math.min(len, this.length);
         int read = source.read(b, off, len);
         if(read > 0) {
             length -= read;
@@ -35,7 +36,7 @@ public class FixedLengthInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
-        return Math.min(length, this.source.available());
+        return (int) Math.min(length, this.source.available());
     }
 
     @Override
