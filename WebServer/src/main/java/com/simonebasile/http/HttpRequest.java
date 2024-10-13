@@ -5,19 +5,14 @@ import com.simonebasile.CustomException;
 import java.io.IOException;
 import java.util.List;
 
-public class HttpRequest<T>{
+public class HttpRequest<T> extends HttpMessage<T> {
     protected final String method;
     protected final String resource;
-    protected final HttpVersion version;
-    protected final HttpHeaders headers;
-    protected final T body;
 
     public HttpRequest(String method, String resource, HttpVersion version, HttpHeaders headers, T body) {
+        super(version, headers, body);
         this.method = method;
         this.resource = resource;
-        this.version = version;
-        this.headers = headers;
-        this.body = body;
     }
 
     @Override

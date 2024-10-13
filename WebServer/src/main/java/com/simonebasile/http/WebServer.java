@@ -17,30 +17,32 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 
-public class WebServer {
+public class WebServer implements HttpHandlerContext<InputStream>{
     private static final Logger log = LoggerFactory.getLogger(WebServer.class);
     private final int port;
-    private final HandlerRegistry<HttpRequestHandler<InputStream>> httpHandlers;
+
+    private final HttpRoutingContext routingContext;
+
     private final HandlerRegistry<WebsocketConnectionHandler> websocketHandlers;
 
     public WebServer(int port) {
         this.port = port;
         this.websocketHandlers = new HandlerRegistry<>();
-        this.httpHandlers = new HandlerRegistry<>();
+        this.routingContext = new HttpRoutingContext();
     }
 
     public void registerHttpContext(String path, HttpRequestHandler<InputStream> handler){
-        log.debug("Registered new http handler for path [{}]", path);
-        if(!httpHandlers.insertCtx(path, handler)) {
-            throw new CustomException("An http handler for path [" + path + "] already exists");
-        }
+        routingContext.registerHttpContext(path, handler);
     }
 
     public void registerHttpHandler(String path, HttpRequestHandler<InputStream> handler){
-        log.debug("Registered new http handler for path [{}]", path);
-        if(!httpHandlers.insertExact(path, handler)) {
-            throw new CustomException("An http handler for path [" + path + "] already exists");
-        }
+        routingContext.registerHttpHandler(path, handler);
+    }
+
+    @Override
+    public void registerPreprocessor(HttpRequestPreprocessor<InputStream> preprocessor) {
+        //TODO register preprocessors
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void registerWebSocketContext(String path, WebsocketConnectionHandler handler){
@@ -57,8 +59,8 @@ public class WebServer {
         }
     }
 
-    class HttpHandler implements Runnable, AutoCloseable {
-        private static final Logger log = LoggerFactory.getLogger(HttpHandler.class);
+    class HttpProtocolHandler implements Runnable, AutoCloseable {
+        private static final Logger log = LoggerFactory.getLogger(HttpProtocolHandler.class);
         private static final String MAGIC = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         private static final MessageDigest SHA1 = initSha1();
 
@@ -74,7 +76,7 @@ public class WebServer {
         private HttpInputStream inputStream;
         private HttpOutputStream outputStream;
 
-        public HttpHandler(Socket client) throws IOException {
+        public HttpProtocolHandler(Socket client) throws IOException {
             this.client = Objects.requireNonNull(client);
             try {
                 this.inputStream = new HttpInputStream(client.getInputStream());
@@ -102,11 +104,13 @@ public class WebServer {
             try {
                 while(true) {
                     HttpRequest<InputStream> req = HttpRequest.parse(inputStream, FixedLengthInputStream::new);
+                    //TODO preprocess here
                     if(req.isWebSocketConnection()) {
                         handoffConnection(discardBody(req));
                         break;
                     } else {
-                        handleRequest(req);
+                        HttpResponse<?> response = routingContext.handle(req);
+                        response.write(outputStream);
                     }
                     //TODO handle connection and keep-alive header, handle timeouts, handle max amt of requests
                 }
@@ -114,16 +118,6 @@ public class WebServer {
                 log.error("An exception occurred while handling http protocol. Closing socket [{}]", client, t);
             } finally {
                 closeClient();
-            }
-        }
-
-        private void handleRequest(HttpRequest<InputStream> req) throws IOException {
-            log.debug("Incoming http request [{}]", req);
-            var httpHandler = httpHandlers.getHandler(req.getResource());
-            if(httpHandler != null) {
-                httpHandler.handle(req, outputStream);
-            } else {
-                notFound(req);
             }
         }
 
@@ -171,11 +165,11 @@ public class WebServer {
             s = new ServerSocket(port);
             log.info("Server started on port {}", port);
             while(true) {
-                HttpHandler handler;
+                HttpProtocolHandler handler;
                 try {
                     Socket c = s.accept();
                     //TODO add timeout c.setSoTimeout();
-                    handler = new HttpHandler(c);
+                    handler = new HttpProtocolHandler(c);
                 } catch (IOException e) {
                     log.error("An exception occurred while accepting the socket", e);
                     continue;

@@ -1,5 +1,5 @@
 package com.simonebasile.http;
 
 public interface HttpRequestHandler<T> {
-    void handle(HttpRequest<T> r, HttpOutputStream out);
+    HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<T> r);
 }

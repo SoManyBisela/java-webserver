@@ -7,8 +7,12 @@ import java.util.*;
 public class HttpHeaders {
     private final HashMap<String, List<String>> headers;
 
-    HttpHeaders() {
+    public HttpHeaders() {
         this.headers = new HashMap<>();
+    }
+
+    HttpHeaders(HttpHeaders other) {
+        this.headers = new HashMap<>(other.headers);
     }
 
     private static String norm(String s) {
@@ -35,7 +39,6 @@ public class HttpHeaders {
         if(vs.size() == 1) return vs.get(0);
         throw new CustomException("Multiple values for key: " + key);
     }
-
 
     void parseLine(String line) {
         int length = line.length();
@@ -79,6 +82,10 @@ public class HttpHeaders {
         final String connection = getExact("Connection");
         if(connection == null) return null;
         return Arrays.stream(connection.split(",")).map(String::trim).map(String::toUpperCase).toList();
+    }
+
+    Iterable<Map.Entry<String, List<String>>> entries() {
+        return headers.entrySet();
     }
 
 }
