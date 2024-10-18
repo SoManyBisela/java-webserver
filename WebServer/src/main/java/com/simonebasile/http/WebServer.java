@@ -1,6 +1,7 @@
 package com.simonebasile.http;
 
 import com.simonebasile.CustomException;
+import com.simonebasile.http.response.ByteResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,9 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,10 +28,13 @@ public class WebServer implements HttpHandlerContext<InputStream>{
 
     private final HandlerRegistry<WebsocketConnectionHandler> websocketHandlers;
 
+    private final List<HttpInterceptor<InputStream>> interceptors;
+
     public WebServer(int port) {
         this.port = port;
         this.websocketHandlers = new HandlerRegistry<>();
         this.routingContext = new HttpRoutingContext();
+        this.interceptors = new ArrayList<>();
     }
 
     public void registerHttpContext(String path, HttpRequestHandler<InputStream> handler){
@@ -40,9 +46,8 @@ public class WebServer implements HttpHandlerContext<InputStream>{
     }
 
     @Override
-    public void registerPreprocessor(HttpRequestPreprocessor<InputStream> preprocessor) {
-        //TODO register preprocessors
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void registerInterceptor(HttpInterceptor<InputStream> preprocessor) {
+        this.interceptors.add(preprocessor);
     }
 
     public void registerWebSocketContext(String path, WebsocketConnectionHandler handler){
@@ -75,9 +80,11 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         private Socket client;
         private HttpInputStream inputStream;
         private HttpOutputStream outputStream;
+        private Handoff handoff;
 
         public HttpProtocolHandler(Socket client) throws IOException {
             this.client = Objects.requireNonNull(client);
+            this.handoff = null;
             try {
                 this.inputStream = new HttpInputStream(client.getInputStream());
                 this.outputStream = new HttpOutputStream(client.getOutputStream());
@@ -104,13 +111,21 @@ public class WebServer implements HttpHandlerContext<InputStream>{
             try {
                 while(true) {
                     HttpRequest<InputStream> req = HttpRequest.parse(inputStream, FixedLengthInputStream::new);
-                    //TODO preprocess here
-                    if(req.isWebSocketConnection()) {
-                        handoffConnection(discardBody(req));
+                    HttpResponse<?> res = new InterceptorChainImpl<>(interceptors, r -> {
+                        if(req.isWebSocketConnection()) {
+                            try {
+                                return prepareHandoff(discardBody(req));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        } else {
+                            return routingContext.handle(req);
+                        }
+                    }).handle(req);
+                    res.write(outputStream);
+                    if(this.handoff != null) {
+                        completeHandoff();
                         break;
-                    } else {
-                        HttpResponse<?> response = routingContext.handle(req);
-                        response.write(outputStream);
                     }
                     //TODO handle connection and keep-alive header, handle timeouts, handle max amt of requests
                 }
@@ -121,40 +136,44 @@ public class WebServer implements HttpHandlerContext<InputStream>{
             }
         }
 
-        private void notFound(HttpRequest<?> req) throws IOException {
-            outputStream.writeStatus(req.getVersion(), 404, "Not found");
-            outputStream.writeHeader("Content-Type", "text/plain; charset=utf-8");
-            outputStream.writeBody("Resource not found".getBytes(StandardCharsets.UTF_8));
-        }
-
         private HttpRequest<Void> discardBody(HttpRequest<InputStream> req) throws IOException {
             req.body.close();
             return new HttpRequest<>(req.method, req.resource, req.version, req.headers, null);
         }
 
-        private void handoffConnection(HttpRequest<Void> req) throws IOException {
+        private HttpResponse<? extends HttpResponse.ResponseBody> prepareHandoff(HttpRequest<Void> req) throws IOException {
             log.debug("Incoming websocket connection [{}]", req);
-            var wsHandler = websocketHandlers.getHandler(req.getResource());
+            WebsocketConnectionHandler wsHandler = websocketHandlers.getHandler(req.getResource());
+            //TODO The websocket handler should have a way of reading the request and responding with some additional info
             if(wsHandler != null) {
+                this.handoff = new Handoff(wsHandler, req);
                 //Complete websocket handshake
                 String wsSec = req.getHeaders().getFirst("Sec-WebSocket-Key");
                 String wsAccept = Base64.getEncoder().encodeToString(SHA1.digest((wsSec + MAGIC).getBytes(StandardCharsets.UTF_8)));
-                outputStream.writeStatus(req.getVersion(), 101, "Switching Protocols");
-                outputStream.writeHeader("Upgrade",  "websocket");
-                outputStream.writeHeader("Connection", "Upgrade");
-                outputStream.writeHeader("Sec-WebSocket-Accept", wsAccept);
-                outputStream.end();
-                wsHandler.newConnection(new WebSocket(req, client, inputStream, outputStream));
-                //setting the connection to null to avoid closing the socket as it is now owned by the wsHandler
-                client = null;
+                final HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.add("Upgrade",  "websocket");
+                httpHeaders.add("Connection", "Upgrade");
+                httpHeaders.add("Sec-WebSocket-Accept", wsAccept);
+                return new HttpResponse<>(req.getVersion(), 101, httpHeaders, null);
             } else {
-                notFound(req);
+                return new HttpResponse<>(req.getVersion(), 404,
+                        new HttpHeaders(), new ByteResponseBody("Resource not found"));
             }
         }
+
+        private void completeHandoff() {
+            handoff.wsHandler.newConnection(new WebSocket(handoff.req, client, inputStream, outputStream));
+            //setting the connection to null to avoid closing the socket as it is now owned by the wsHandler
+            client = null;
+        }
+
 
         @Override
         public void close() {
             closeClient();
+        }
+
+        private record Handoff(WebsocketConnectionHandler wsHandler, HttpRequest<Void> req) {
         }
     }
 

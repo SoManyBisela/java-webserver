@@ -10,7 +10,6 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
     private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
     protected final int statusCode;
     public interface ResponseBody{
-
         /**
          * Implementation must write the response in the output stream.
          * Number of bytes must match the return value of contentLength().
@@ -40,7 +39,7 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
         String contentType();
     }
 
-    public HttpResponse(HttpVersion version,int statusCode, HttpHeaders headers, T body) {
+    public HttpResponse(HttpVersion version, int statusCode, HttpHeaders headers, T body) {
         super(version, headers, body);
         this.statusCode = statusCode;
     }
@@ -66,18 +65,17 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
                 writingHeaders.add("Content-Length", Long.toString(cl));
                 writingBody = body;
             }
-        } else {
-            outputStream.end();
         }
 
         outputStream.writeStatus(version, statusCode, getStatusString(statusCode));
-        for(var header : headers.entries()) {
+        for(var header : writingHeaders.entries()) {
             for(var value: header.getValue()) {
                 outputStream.writeHeader(header.getKey(), value);
             }
         }
 
         if(writingBody != null) {
+            outputStream.endHeaders();
             writingBody.write(out);
         }
         outputStream.end();
@@ -86,6 +84,7 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
 
     public static String getStatusString(int statusCode) {
         return switch (statusCode) {
+            case 101 -> "Switching Protocols";
             case 200 -> "OK";
             case 201 -> "Created";
             case 204 -> "No Content";

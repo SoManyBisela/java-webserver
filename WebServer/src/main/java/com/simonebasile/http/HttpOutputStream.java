@@ -42,6 +42,9 @@ public class HttpOutputStream extends BufferedOutputStream {
         flush();
     }
 
+    public void endHeaders() throws IOException {
+        nl();
+    }
     public void end() throws IOException {
         nl();
         flush();

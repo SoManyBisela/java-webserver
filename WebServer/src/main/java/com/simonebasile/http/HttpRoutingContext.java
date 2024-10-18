@@ -14,7 +14,7 @@ public class HttpRoutingContext implements HttpRequestHandler<InputStream>, Http
     private static final Logger log = LoggerFactory.getLogger(HttpRoutingContext.class);
 
     private final HandlerRegistry<HttpRequestHandler<InputStream>> handlers;
-    private final List<HttpRequestPreprocessor<InputStream>> preprocessors = new ArrayList<>();
+    private final List<HttpInterceptor<InputStream>> preprocessors = new ArrayList<>();
 
     public HttpRoutingContext() {
         this.handlers = new HandlerRegistry<>();
@@ -35,7 +35,7 @@ public class HttpRoutingContext implements HttpRequestHandler<InputStream>, Http
     }
 
     @Override
-    public void registerPreprocessor(HttpRequestPreprocessor<InputStream> preprocessor) {
+    public void registerInterceptor(HttpInterceptor<InputStream> preprocessor) {
         preprocessors.add(preprocessor);
 
     }

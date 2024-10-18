@@ -7,6 +7,20 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
+class SeCuRiTyInTeRcEpToR_XD implements HttpInterceptor<InputStream> {
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
+    @Override
+    public HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<InputStream> request, HttpRequestHandler<InputStream> next) {
+        log.info("Received request at {}", request.getResource());
+        if(!"Miao".equals(request.getHeaders().getFirst("X-Super-Secure-Header"))) {
+            return new HttpResponse<>(request.getVersion(), 403, new HttpHeaders(), new ByteResponseBody("Forbidden"));
+        }
+        final HttpResponse<? extends HttpResponse.ResponseBody> handle = next.handle(request);
+        log.info("Service finished for request at {}", request.getResource());
+        return handle;
+    }
+}
+
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     public static void main(String[] args) {
@@ -14,6 +28,7 @@ public class Main {
         webServer.registerHttpContext("/miao", req -> handle(req, "miao context"));
         webServer.registerHttpHandler("/miao", req -> handle(req, "miao handler"));
         webServer.registerWebSocketHandler("/wsh", ((s) -> log.info("Received websocket connection")));
+        webServer.registerInterceptor(new SeCuRiTyInTeRcEpToR_XD());
         webServer.start();
     }
 
