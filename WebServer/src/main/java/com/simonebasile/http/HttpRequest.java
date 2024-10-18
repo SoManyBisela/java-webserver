@@ -9,6 +9,9 @@ public class HttpRequest<T> extends HttpMessage<T> {
     protected final String method;
     protected final String resource;
 
+    public HttpRequest(HttpRequest<?> source, T body) {
+        this(source.method, source.resource, source.version, source.headers, body);
+    }
     public HttpRequest(String method, String resource, HttpVersion version, HttpHeaders headers, T body) {
         super(version, headers, body);
         this.method = method;
@@ -58,18 +61,6 @@ public class HttpRequest<T> extends HttpMessage<T> {
 
     public String getResource() {
         return resource;
-    }
-
-    public HttpVersion getVersion() {
-        return version;
-    }
-
-    public HttpHeaders getHeaders() {
-        return headers;
-    }
-
-    public T getBody() {
-        return body;
     }
 
     public String getMethod() {

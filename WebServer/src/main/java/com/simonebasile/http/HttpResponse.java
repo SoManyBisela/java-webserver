@@ -44,6 +44,16 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
         this.statusCode = statusCode;
     }
 
+    public HttpResponse(HttpResponse<?> source, T body) {
+        this(source, source.statusCode, body);
+    }
+
+    public HttpResponse(HttpMessage<?> source, int statusCode, T body) {
+        super(source, body);
+        this.statusCode = statusCode;
+    }
+
+
     public void write(HttpOutputStream outputStream) throws IOException {
         var writingHeaders = new HttpHeaders(headers);
         ResponseBody writingBody = null;
@@ -103,4 +113,7 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
         };
     }
 
+    public int getStatusCode() {
+        return statusCode;
+    }
 }

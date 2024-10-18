@@ -10,4 +10,22 @@ public class HttpMessage<T> {
         this.headers = headers;
         this.body = body;
     }
+
+    public HttpMessage(HttpMessage<?> source,  T body) {
+        this.version = source.version;
+        this.headers = source.headers;
+        this.body = body;
+    }
+
+    public HttpVersion getVersion() {
+        return version;
+    }
+
+    public HttpHeaders getHeaders() {
+        return headers;
+    }
+
+    public T getBody() {
+        return body;
+    }
 }

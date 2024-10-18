@@ -19,27 +19,6 @@ public class HttpHeaders {
         return s.toUpperCase(Locale.ROOT);
     }
 
-    public void add(String key, String value) {
-        headers.computeIfAbsent(norm(key), k -> new ArrayList<>()).add(value);
-    }
-
-    public List<String> get(String key) {
-        return headers.get(norm(key));
-    }
-
-    public String getFirst(String key) {
-        List<String> vs = get(key);
-        if(vs == null || vs.isEmpty()) return null;
-        return vs.get(0);
-    }
-
-    public String getExact(String key) {
-        List<String> vs = get(key);
-        if(vs == null || vs.isEmpty()) return null;
-        if(vs.size() == 1) return vs.get(0);
-        throw new CustomException("Multiple values for key: " + key);
-    }
-
     void parseLine(String line) {
         int length = line.length();
         int colon = line.indexOf(":");
@@ -88,4 +67,28 @@ public class HttpHeaders {
         return headers.entrySet();
     }
 
+    public void add(String key, String value) {
+        headers.computeIfAbsent(norm(key), k -> new ArrayList<>()).add(value);
+    }
+
+    public List<String> get(String key) {
+        return headers.get(norm(key));
+    }
+
+    public String getFirst(String key) {
+        List<String> vs = get(key);
+        if(vs == null || vs.isEmpty()) return null;
+        return vs.get(0);
+    }
+
+    public String getExact(String key) {
+        List<String> vs = get(key);
+        if(vs == null || vs.isEmpty()) return null;
+        if(vs.size() == 1) return vs.get(0);
+        throw new CustomException("Multiple values for key: " + key);
+    }
+
+    public void setCookie(String key, String value) {
+        this.add("Set-Cookie", key + "=" + value + "; HttpOnly");
+    }
 }

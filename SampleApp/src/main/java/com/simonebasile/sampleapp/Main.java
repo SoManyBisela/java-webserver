@@ -1,7 +1,20 @@
 package com.simonebasile.sampleapp;
 
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
+import com.simonebasile.repository.UserRepository;
+import com.simonebasile.sampleapp.handlers.LoginHandler;
+import com.simonebasile.sampleapp.handlers.RegisterHandler;
+import com.simonebasile.sampleapp.model.User;
+import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,35 +36,32 @@ class SeCuRiTyInTeRcEpToR_XD implements HttpInterceptor<InputStream> {
 
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) {
-        WebServer webServer = new WebServer(10100);
-        webServer.registerHttpContext("/miao", req -> handle(req, "miao context"));
-        webServer.registerHttpHandler("/miao", req -> handle(req, "miao handler"));
-        webServer.registerWebSocketHandler("/wsh", ((s) -> log.info("Received websocket connection")));
-        webServer.registerInterceptor(new SeCuRiTyInTeRcEpToR_XD());
-        webServer.start();
+        webapp();
     }
 
-    private static HttpResponse<HttpResponse.ResponseBody> handle(HttpRequest<InputStream> req, String where) {
-        String res = req.getResource();
-        log.info("Received call at {}", res);
-        String response = """
-                <!DOCTYPE HTML>
-                <html>
-                <head>
-                <title>testapp</title>
-                </head>
-                <body>
-                <h1>Welcome to the test app</h1>
-                <p>you are inside""" + " " + where + """
-                </p>
-                </body>
-                </html>
-                """;
-        return new HttpResponse<>(
-                req.getVersion(), 200,
-                new HttpHeaders(),
-                new ByteResponseBody(response)
-        );
+    private static void webapp() {
+
+        //Mongo config
+        String dbName = "AssistenzaDB";
+        String userCollection = "users";
+        CodecRegistry pojoCodecRegistry = CodecRegistries.fromRegistries(
+                MongoClientSettings.getDefaultCodecRegistry(),
+                CodecRegistries.fromProviders(
+                        PojoCodecProvider.builder().automatic(true).build()
+                ));
+        MongoClient mongoClient = MongoClients.create();
+        MongoDatabase database = mongoClient.getDatabase(dbName);
+        MongoCollection<User> usersColl = database.getCollection(userCollection, User.class).withCodecRegistry(pojoCodecRegistry);
+
+        UserRepository userRepository = new UserRepository(usersColl);
+        LoginHandler loginHandler = new LoginHandler(userRepository);
+        RegisterHandler registerHandler = new RegisterHandler(userRepository);
+        WebServer webServer = new WebServer(10100);
+        webServer.registerHttpHandler("/login", loginHandler);
+        webServer.registerHttpHandler("/register", registerHandler);
+        webServer.start();
+
     }
 }
