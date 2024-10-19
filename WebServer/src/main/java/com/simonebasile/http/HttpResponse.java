@@ -58,6 +58,7 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
         var writingHeaders = new HttpHeaders(headers);
         ResponseBody writingBody = null;
         OutputStream out = outputStream;
+        boolean chunked = false;
         if(body != null) {
             //TOD Check if content type is already present
             Long cl = body.contentLength();
@@ -70,6 +71,7 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
                 //TODO parse current transfer-encoding, update and send downstream
                 writingHeaders.add("Transfer-Encoding", "chunked");
                 out = new ChunkedWrapper(outputStream);
+                chunked = true;
             } else if(cl > 0){
                 //TODO check if content-length is already present
                 writingHeaders.add("Content-Length", Long.toString(cl));
@@ -87,6 +89,7 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
         if(writingBody != null) {
             outputStream.endHeaders();
             writingBody.write(out);
+            outputStream.write("0\r\n");
         }
         outputStream.end();
         outputStream.flush();

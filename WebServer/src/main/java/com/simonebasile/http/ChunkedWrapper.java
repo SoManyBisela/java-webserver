@@ -20,14 +20,14 @@ public class ChunkedWrapper extends OutputStream {
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        target.write(String.valueOf(len).getBytes(StandardCharsets.UTF_8));
+        target.write(Integer.toString(len, 16).getBytes(StandardCharsets.UTF_8));
         target.write("\r\n".getBytes(StandardCharsets.UTF_8));
-        super.write(b, off, len);
+        target.write(b, off, len);
         target.write("\r\n".getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
     public void flush() throws IOException {
-        super.flush();
+        target.flush();
     }
 }

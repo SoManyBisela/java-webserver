@@ -88,7 +88,17 @@ public class HttpHeaders {
         throw new CustomException("Multiple values for key: " + key);
     }
 
-    public void setCookie(String key, String value) {
-        this.add("Set-Cookie", key + "=" + value + "; HttpOnly");
+    public void setCookie(String name, String value) {
+        this.add("Set-Cookie", name + "=" + value + "; HttpOnly");
+    }
+
+    public String getCookie(String name) {
+        List<String> cookieHeader = get("Cookie");
+        if(cookieHeader == null || cookieHeader.isEmpty()) return null;
+        return cookieHeader.stream()
+                .flatMap(b -> Arrays.stream(b.split("; ")))
+                .map(String::trim)
+                .filter(name::equals)
+                .findFirst().orElse(null);
     }
 }

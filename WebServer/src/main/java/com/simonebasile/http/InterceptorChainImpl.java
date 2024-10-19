@@ -14,7 +14,6 @@ public class InterceptorChainImpl<T> implements HttpRequestHandler<T>{
         toProcess = 0;
     }
 
-
     @Override
     public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<T> r) {
         if(toProcess < interceptors.size()) {
