@@ -1,6 +1,5 @@
 package com.simonebasile.sampleapp.handlers;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.simonebasile.http.*;
 import com.simonebasile.sampleapp.exceptions.BadRequestException;
 import com.simonebasile.sampleapp.json.ObjectMapperConfig;

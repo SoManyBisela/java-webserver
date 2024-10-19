@@ -76,10 +76,14 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
                 //TODO check if content-length is already present
                 writingHeaders.add("Content-Length", Long.toString(cl));
                 writingBody = body;
+            } else {
+                writingHeaders.add("Content-Length", "0");
             }
+        } else {
+            writingHeaders.add("Content-Length", "0");
         }
 
-        outputStream.writeStatus(version, statusCode, getStatusString(statusCode));
+        outputStream.writeStatus(version, statusCode, HttpStatusCode.getStatusString(statusCode));
         for(var header : writingHeaders.entries()) {
             for(var value: header.getValue()) {
                 outputStream.writeHeader(header.getKey(), value);
@@ -89,31 +93,12 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
         if(writingBody != null) {
             outputStream.endHeaders();
             writingBody.write(out);
-            outputStream.write("0\r\n");
+            if(chunked) {
+                outputStream.write("0\r\n");
+            }
         }
         outputStream.end();
         outputStream.flush();
-    }
-
-    public static String getStatusString(int statusCode) {
-        return switch (statusCode) {
-            case 101 -> "Switching Protocols";
-            case 200 -> "OK";
-            case 201 -> "Created";
-            case 204 -> "No Content";
-            case 400 -> "Bad Request";
-            case 401 -> "Unauthorized";
-            case 403 -> "Forbidden";
-            case 404 -> "Not Found";
-            case 418 -> "I'm a teapot";
-            case 500 -> "Internal Server Error";
-            case 502 -> "Bad Gateway";
-            case 503 -> "Service Unavailable";
-            default -> {
-                log.warn("Missing status string for code {}", statusCode);
-                yield "";
-            }
-        };
     }
 
     public int getStatusCode() {

@@ -4,10 +4,7 @@ import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.sampleapp.dto.MessageResponse;
 import com.simonebasile.sampleapp.dto.RegisterRequest;
-import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
-
-import java.util.Optional;
 
 public class RegisterHandler extends JsonBodyHandler<RegisterRequest> {
 

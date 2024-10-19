@@ -5,6 +5,8 @@ import com.simonebasile.http.response.ByteResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
@@ -123,6 +125,15 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                         }
                     }).handle(req);
                     res.write(outputStream);
+                    if(log.isDebugEnabled()) {
+                        try(var out = new FileOutputStream("response.http")) {
+                            HttpOutputStream outputStream1 = new HttpOutputStream(out);
+                            res.write(outputStream1);
+                            outputStream1.flush();
+                        } catch (Exception e) {
+                            log.error("Debug logging of response failed: {}", e.getMessage(), e);
+                        }
+                    }
                     if(this.handoff != null) {
                         completeHandoff();
                         break;
