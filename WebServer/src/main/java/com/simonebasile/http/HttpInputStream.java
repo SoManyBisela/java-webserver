@@ -1,7 +1,5 @@
 package com.simonebasile.http;
 
-import com.simonebasile.CustomException;
-
 import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.IOException;

@@ -2,12 +2,10 @@ package com.simonebasile.sampleapp.interceptors;
 
 import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
-import com.simonebasile.sampleapp.dto.SessionData;
+import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.service.SessionService;
 
-import java.io.InputStream;
-
-public class AuthenticationInterceptor implements HttpInterceptor<InputStream> {
+public class AuthenticationInterceptor<T> implements HttpInterceptor<T> {
 
     private final SessionService sessionService;
 
@@ -16,10 +14,12 @@ public class AuthenticationInterceptor implements HttpInterceptor<InputStream> {
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<InputStream> request, HttpRequestHandler<InputStream> next) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<T> request, HttpRequestHandler<T> next) {
         SessionData sessionData = sessionService.currentSession();
         if(sessionData == null || sessionData.getUsername() == null) {
-            return new HttpResponse<>(request.getVersion(), 401, new HttpHeaders(), new ByteResponseBody("Unauthorized"));
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "/site/index.html");
+            return new HttpResponse<>(request.getVersion(), 302, headers, new ByteResponseBody("Unauthorized"));
         }
         return next.handle(request);
     }

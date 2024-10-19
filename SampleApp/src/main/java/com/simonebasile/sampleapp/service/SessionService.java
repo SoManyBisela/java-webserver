@@ -1,7 +1,8 @@
 package com.simonebasile.sampleapp.service;
 
-import com.simonebasile.repository.SessionRepository;
-import com.simonebasile.sampleapp.dto.SessionData;
+import com.simonebasile.sampleapp.DebugRegistry;
+import com.simonebasile.sampleapp.repository.SessionRepository;
+import com.simonebasile.sampleapp.model.SessionData;
 
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ public class SessionService {
     public SessionService(SessionRepository sessionRepository) {
         this.sessionRepository = sessionRepository;
         this.sessionData = new ThreadLocal<>();
+        DebugRegistry.add("sessionService", this);
     }
 
     public String loadSession(String sessionCookie) {

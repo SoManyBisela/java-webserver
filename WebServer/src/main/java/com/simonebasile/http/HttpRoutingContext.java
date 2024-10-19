@@ -1,6 +1,5 @@
 package com.simonebasile.http;
 
-import com.simonebasile.CustomException;
 import com.simonebasile.http.response.ByteResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

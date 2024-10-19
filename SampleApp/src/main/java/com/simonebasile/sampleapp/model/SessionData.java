@@ -1,8 +1,11 @@
-package com.simonebasile.sampleapp.dto;
+package com.simonebasile.sampleapp.model;
 
 public class SessionData {
     private String id;
     private String username;
+
+    public SessionData() {
+    }
 
     public SessionData(String sessionId) {
         this.id = sessionId;

@@ -1,8 +1,8 @@
-package com.simonebasile.repository;
+package com.simonebasile.sampleapp.repository;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import com.simonebasile.sampleapp.dto.SessionData;
+import com.simonebasile.sampleapp.model.SessionData;
 
 public class SessionRepository {
     private final MongoCollection<SessionData> sessionCollection;

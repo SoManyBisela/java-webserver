@@ -44,4 +44,8 @@ public class FixedLengthInputStream extends InputStream {
         skipNBytes(length);
     }
 
+    @Override
+    public int readNBytes(byte[] b, int off, int len) throws IOException {
+        return super.readNBytes(b, off, len);
+    }
 }
