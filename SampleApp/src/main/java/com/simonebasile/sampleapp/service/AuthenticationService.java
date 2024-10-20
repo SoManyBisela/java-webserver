@@ -23,8 +23,7 @@ public class AuthenticationService {
         if(user.isPresent()) {
             User u = user.get();
             if(ArgonUtils.verify(req.getPassword(), u.getPassword())) {
-                sessionService.currentSession().setUsername(u.getUsername());
-                sessionService.updateSession();
+                sessionService.updateSession(s -> s.setUsername(u.getUsername()));
             } else {
                 throw new LoginException("Username o password non validi");
             }

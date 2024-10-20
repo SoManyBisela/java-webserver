@@ -1,8 +1,8 @@
 package com.simonebasile.sampleapp.controllers;
 
-import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
+import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.service.SessionService;
 
@@ -17,10 +17,7 @@ public class LogoutController extends MethodHandler<InputStream> {
 
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
-        sessionService.currentSession().setUsername(null);
-        sessionService.updateSession();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/login");
-        return new HttpResponse<>(r.getVersion(), 303, headers,null);
+        sessionService.updateSession(s -> s.setUsername(null));
+        return ResponseUtils.redirect(r.getVersion(), "/login");
     }
 }

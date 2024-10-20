@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.controllers;
 import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
+import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.RegisterRequest;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
@@ -21,7 +22,7 @@ public class RegisterController extends MethodHandler<InputStream> {
 
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
-        return new HttpResponse<>(r.getVersion(), 200, new HttpHeaders(), new RegisterView());
+        return ResponseUtils.fromView(r.getVersion(), new RegisterView());
     }
 
     @Override
@@ -29,11 +30,9 @@ public class RegisterController extends MethodHandler<InputStream> {
         RegisterRequest body = FormHttpMapper.map(r.getBody(), RegisterRequest.class);
         try {
             authService.register(body);
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", "/login");
-            return new HttpResponse<>(r.getVersion(), 303, headers,null);
+            return ResponseUtils.redirect(r.getVersion(), "/login");
         } catch (LoginException e) {
-            return new HttpResponse<>(r.getVersion(), 200, new HttpHeaders(), new RegisterView(e.getMessage()));
+            return ResponseUtils.fromView(r.getVersion(), new RegisterView(e.getMessage()));
         }
     }
 }

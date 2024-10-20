@@ -1,8 +1,8 @@
 package com.simonebasile.sampleapp.controllers;
 
-import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
+import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.LoginRequest;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
@@ -21,7 +21,7 @@ public class LoginController extends MethodHandler<InputStream> {
 
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
-        return new HttpResponse<>(r.getVersion(), 200, new HttpHeaders(), new LoginView());
+        return ResponseUtils.fromView(r.getVersion(), new LoginView());
     }
 
     @Override
@@ -29,11 +29,9 @@ public class LoginController extends MethodHandler<InputStream> {
         LoginRequest body = FormHttpMapper.map(r.getBody(), LoginRequest.class);
         try {
             authService.login(body);
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", "/");
-            return new HttpResponse<>(r.getVersion(), 303, headers,null);
+            return ResponseUtils.redirect(r.getVersion(), "/");
         } catch (LoginException e) {
-            return new HttpResponse<>(r.getVersion(), 200, new HttpHeaders(), new LoginView(e.getMessage()));
+            return ResponseUtils.fromView(r.getVersion(), new LoginView(e.getMessage()));
         }
     }
 }

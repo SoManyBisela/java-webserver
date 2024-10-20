@@ -9,8 +9,6 @@ class HandlerRegistry<T> {
 
     private final PrefixTreeNode<T> tree = new PrefixTreeNode<>();
 
-    //public record HandlerMatch<T>(String path, T handler){}
-
     private static class PrefixTreeNode<T> {
         //context handlers handler
         T contextHandler;

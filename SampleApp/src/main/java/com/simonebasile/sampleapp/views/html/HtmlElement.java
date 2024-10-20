@@ -3,10 +3,7 @@ package com.simonebasile.sampleapp.views.html;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 interface IHtmlElement {
@@ -108,6 +105,11 @@ public class HtmlElement implements IHtmlElement {
         return this;
     }
 
+    public HtmlElement content(Collection<? extends HtmlElement> elements) {
+        content.addAll(elements);
+        return this;
+    }
+
     public HtmlElement content(HtmlElement element, HtmlElement ...more) {
         this.content.add(element);
         for(HtmlElement child : more) {
@@ -133,6 +135,10 @@ public class HtmlElement implements IHtmlElement {
         return new HtmlElement("a");
     }
 
+    public static HtmlElement p() {
+        return new HtmlElement("p");
+    }
+
     public static HtmlElement table() {
         return new HtmlElement("table");
     }
@@ -143,6 +149,10 @@ public class HtmlElement implements IHtmlElement {
 
     public static HtmlElement td() {
         return new HtmlElement("td");
+    }
+
+    public static HtmlElement th() {
+        return new HtmlElement("th");
     }
 
     public static HtmlElement label() {

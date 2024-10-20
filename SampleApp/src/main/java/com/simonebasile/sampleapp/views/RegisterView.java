@@ -1,10 +1,11 @@
 package com.simonebasile.sampleapp.views;
 
+import com.simonebasile.sampleapp.views.base.View;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
-public class RegisterView extends View{
+public class RegisterView extends View {
     public RegisterView(String errorMessage) {
         HtmlElement loginForm = form()
                 .attr("action", "/register",

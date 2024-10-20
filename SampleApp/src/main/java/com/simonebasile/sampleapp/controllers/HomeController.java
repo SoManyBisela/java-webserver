@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.controllers;
 import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
+import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.assertions.Assertions;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.model.SessionData;
@@ -29,7 +30,7 @@ public class HomeController extends MethodHandler<InputStream> {
         Optional<User> userOpt = userService.getUser(sessionData.getUsername());
         Assertions.assertTrue(userOpt.isPresent());
         User user = userOpt.get();
-        return new HttpResponse<>(r.getVersion(), 200, new HttpHeaders(), new HomeView(user));
+        return ResponseUtils.fromView(r.getVersion(), new HomeView(user));
     }
 
 }

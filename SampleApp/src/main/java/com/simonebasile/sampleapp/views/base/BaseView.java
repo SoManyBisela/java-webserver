@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.views;
+package com.simonebasile.sampleapp.views.base;
 
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.views.html.CssStylesheetElement;

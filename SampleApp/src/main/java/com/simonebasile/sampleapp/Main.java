@@ -3,20 +3,20 @@ package com.simonebasile.sampleapp;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
-import com.simonebasile.sampleapp.controllers.HomeController;
-import com.simonebasile.sampleapp.controllers.LoginController;
-import com.simonebasile.sampleapp.controllers.LogoutController;
-import com.simonebasile.sampleapp.controllers.RegisterController;
+import com.simonebasile.sampleapp.controllers.*;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
 import com.simonebasile.sampleapp.interceptors.SessionInterceptor;
+import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.repository.SessionRepository;
+import com.simonebasile.sampleapp.repository.TicketRepository;
 import com.simonebasile.sampleapp.repository.UserRepository;
 import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.handlers.StaticFileHandler;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.SessionService;
+import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -41,6 +41,7 @@ public class Main {
         var dbName = "AssistenzaDB";
         var userCollection = "users";
         var sessionCollection = "sessions";
+        var ticketsCollection = "tickets";
         var pojoCodecRegistry = CodecRegistries.fromRegistries(
                 MongoClientSettings.getDefaultCodecRegistry(),
                 CodecRegistries.fromProviders(
@@ -50,21 +51,25 @@ public class Main {
         var database = mongoClient.getDatabase(dbName);
         var usersColl = database.getCollection(userCollection, User.class).withCodecRegistry(pojoCodecRegistry);
         var sessionColl = database.getCollection(sessionCollection, SessionData.class).withCodecRegistry(pojoCodecRegistry);
+        var ticketColl = database.getCollection(ticketsCollection, Ticket.class).withCodecRegistry(pojoCodecRegistry);
 
         //Repository config
         var userRepository = new UserRepository(usersColl);
         var sessionRepository = new SessionRepository(sessionColl);
+        var ticketRepository = new TicketRepository(ticketColl);
 
         //Services config
         var sessionService = new SessionService(sessionRepository);
         var authenticationService = new AuthenticationService(userRepository, sessionService);
         var userService = new UserService(userRepository);
+        var ticketService = new TicketService(ticketRepository);
 
         //Controllers config
         var loginController = new LoginController(authenticationService);
         var logoutController = new LogoutController(sessionService);
         var registerController = new RegisterController(authenticationService);
         var homeController = new HomeController(sessionService, userService);
+        var ticketListController = new TicketListController(sessionService, userService, ticketService);
 
 
         //Interceptor config
@@ -77,7 +82,7 @@ public class Main {
         Predicate<HttpRequest<InputStream>> skipSession = (r) -> {
             String resource = r.getResource();
             return !resource.equals("/favicon.ico") &&
-                    !resource.startsWith("/pub");
+                    !resource.startsWith("/static");
         };
         Predicate<HttpRequest<InputStream>> skipAuth = (r) -> {
             String resource = r.getResource();
@@ -106,8 +111,9 @@ public class Main {
         webServer.registerHttpHandler("/login", loginController);
         webServer.registerHttpHandler("/logout", logoutController);
         webServer.registerHttpHandler("/register", registerController);
+        webServer.registerHttpHandler("/tickets", ticketListController);
         webServer.registerHttpHandler("/", homeController);
-        webServer.registerHttpContext("/", new StaticFileHandler("/", "static-files"));
+        webServer.registerHttpContext("/static", new StaticFileHandler("/static", "static-files"));
         webServer.start();
 
     }

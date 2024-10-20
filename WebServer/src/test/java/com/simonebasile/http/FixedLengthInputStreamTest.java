@@ -8,7 +8,6 @@ import java.io.IOException;
 
 public class FixedLengthInputStreamTest {
 
-
     @Test
     void testRead() throws IOException {
         byte[] buf = new byte[100];

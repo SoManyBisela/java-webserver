@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class SessionService {
 
@@ -30,8 +31,10 @@ public class SessionService {
         return sessionData.get();
     }
 
-    public SessionData updateSession() {
-        return sessionRepository.update(sessionData.get());
+    public SessionData updateSession(Consumer<SessionData> op) {
+        SessionData data = sessionData.get();
+        op.accept(data);
+        return sessionRepository.update(data);
     }
 
     private SessionData getOrCreateSession(String sessionId) {
