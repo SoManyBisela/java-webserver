@@ -20,7 +20,7 @@ public class HttpRoutingContext implements HttpRequestHandler<InputStream>, Http
     }
 
     public void registerHttpContext(String path, HttpRequestHandler<InputStream> handler){
-        log.debug("Registered new http handler for path [{}]", path);
+        log.debug("Registered new http context for path [{}]", path);
         if(!handlers.insertCtx(path, handler)) {
             throw new CustomException("An http handler for path [" + path + "] already exists");
         }

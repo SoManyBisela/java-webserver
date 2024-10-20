@@ -70,6 +70,7 @@ public class Main {
         var registerController = new RegisterController(authenticationService);
         var homeController = new HomeController(sessionService, userService);
         var ticketListController = new TicketListController(sessionService, userService, ticketService);
+        var createTicketController = new CreateTicketController(sessionService, userService, ticketService);
 
 
         //Interceptor config
@@ -108,11 +109,12 @@ public class Main {
         });
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(sessionInterceptor, skipSession));
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(authInterceptor, skipAuth));
+        webServer.registerHttpHandler("/", homeController);
         webServer.registerHttpHandler("/login", loginController);
         webServer.registerHttpHandler("/logout", logoutController);
         webServer.registerHttpHandler("/register", registerController);
         webServer.registerHttpHandler("/tickets", ticketListController);
-        webServer.registerHttpHandler("/", homeController);
+        webServer.registerHttpHandler("/ticket/create", createTicketController);
         webServer.registerHttpContext("/static", new StaticFileHandler("/static", "static-files"));
         webServer.start();
 

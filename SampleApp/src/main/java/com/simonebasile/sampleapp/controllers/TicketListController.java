@@ -14,7 +14,7 @@ import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.views.AdminPageView;
 import com.simonebasile.sampleapp.views.EmployeePageView;
-import com.simonebasile.sampleapp.views.UserPageView;
+import com.simonebasile.sampleapp.views.UserTicketsView;
 import com.simonebasile.sampleapp.views.base.BaseView;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import org.slf4j.Logger;
@@ -48,8 +48,8 @@ public class TicketListController extends MethodHandler<InputStream> {
             return userPage(r, user);
         } else if ("employee".equals(role)) {
             return employeePage(r, user);
-        } else if("admin".equals(role)) {
-            return adminPage(r, user);
+        } else if("admin".equals(role)) { //TODO remove admin page
+            return ResponseUtils.redirect(r.getVersion(), "/");
         } else {
             log.error("FATAL - User {} has unknown role {}", user.getUsername(), user.getRole());
             return errorPage(r);
@@ -58,15 +58,11 @@ public class TicketListController extends MethodHandler<InputStream> {
 
     private HttpResponse<? extends HttpResponse.ResponseBody> userPage(HttpRequest<?> r, User usr) {
         List<Ticket> tickets = ticketService.getByUser(usr.getUsername());
-        return ResponseUtils.fromView(r.getVersion(), new UserPageView(tickets));
+        return ResponseUtils.fromView(r.getVersion(), new UserTicketsView(tickets));
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> employeePage(HttpRequest<?> r, User usr) {
         return ResponseUtils.fromView(r.getVersion(), new EmployeePageView());
-    }
-
-    private HttpResponse<? extends HttpResponse.ResponseBody> adminPage(HttpRequest<?> r, User usr) {
-        return ResponseUtils.fromView(r.getVersion(), new AdminPageView());
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> errorPage(HttpRequest<?> r) {

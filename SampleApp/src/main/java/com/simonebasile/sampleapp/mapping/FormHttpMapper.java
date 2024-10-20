@@ -37,6 +37,7 @@ public class FormHttpMapper {
                         continue;
                     }
                     curr.append((char)(c0 * 16 + c1));
+                    continue;
                 }
                 if(name == null && c == '=') {
                     name = curr.toString();
