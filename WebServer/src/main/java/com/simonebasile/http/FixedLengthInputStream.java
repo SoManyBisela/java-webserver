@@ -27,11 +27,16 @@ public class FixedLengthInputStream extends InputStream {
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
         len = (int)Math.min(len, this.length);
+        if(len == 0) {
+            return -1;
+        }
         int read = source.read(b, off, len);
         if(read > 0) {
             length -= read;
+            return read;
+        } else {
+            return  -1;
         }
-        return read;
     }
 
     @Override
@@ -42,10 +47,5 @@ public class FixedLengthInputStream extends InputStream {
     @Override
     public void close() throws IOException {
         skipNBytes(length);
-    }
-
-    @Override
-    public int readNBytes(byte[] b, int off, int len) throws IOException {
-        return super.readNBytes(b, off, len);
     }
 }

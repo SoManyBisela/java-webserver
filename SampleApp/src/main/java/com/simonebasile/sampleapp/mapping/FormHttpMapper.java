@@ -1,6 +1,5 @@
-package com.simonebasile.sampleapp.handlers;
+package com.simonebasile.sampleapp.mapping;
 
-import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.json.ObjectMapperConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,15 +8,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
-public abstract class FormHttpRequestHandler<T> extends MappingRequestHandler<InputStream, T, HttpResponse.ResponseBody> {
-    private static final Logger log = LoggerFactory.getLogger(FormHttpRequestHandler.class);
-    private final Class<T> requestBodyType;
-    public FormHttpRequestHandler(Class<T> requestBodyType) {
-        this.requestBodyType = requestBodyType;
-    }
+public class FormHttpMapper {
+    private static final Logger log = LoggerFactory.getLogger(FormHttpMapper.class);
 
-    @Override
-    protected T mapRequestBody(InputStream requestBody) {
+    public static <T> T map(InputStream requestBody, Class<T> type) {
         //https://url.spec.whatwg.org/#urlencoded-parsing
         //https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding
         HashMap<String, String> formInput = new HashMap<>();
@@ -73,7 +67,7 @@ public abstract class FormHttpRequestHandler<T> extends MappingRequestHandler<In
         } catch (IOException e) {
             throw new RuntimeException("IOException reading request body", e);
         }
-        return ObjectMapperConfig.jsonMapper.convertValue(formInput, requestBodyType);
+        return ObjectMapperConfig.jsonMapper.convertValue(formInput, type);
     }
 
     private static int hexRead(int read) {
@@ -87,11 +81,8 @@ public abstract class FormHttpRequestHandler<T> extends MappingRequestHandler<In
             //Not hexadecimal
             return -1;
         }
-
     }
 
-    @Override
-    protected HttpResponse.ResponseBody mapResponseBody(HttpResponse.ResponseBody responseBody) {
-        return responseBody;
-    }
+
+
 }

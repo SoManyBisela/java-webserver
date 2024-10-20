@@ -1,30 +1,31 @@
 package com.simonebasile.sampleapp;
 
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import com.simonebasile.http.*;
+import com.simonebasile.sampleapp.controllers.HomeController;
+import com.simonebasile.sampleapp.controllers.LoginController;
+import com.simonebasile.sampleapp.controllers.LogoutController;
+import com.simonebasile.sampleapp.controllers.RegisterController;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
 import com.simonebasile.sampleapp.interceptors.SessionInterceptor;
 import com.simonebasile.sampleapp.repository.SessionRepository;
 import com.simonebasile.sampleapp.repository.UserRepository;
 import com.simonebasile.sampleapp.model.SessionData;
-import com.simonebasile.sampleapp.handlers.LoginHandler;
-import com.simonebasile.sampleapp.handlers.RegisterHandler;
 import com.simonebasile.sampleapp.handlers.StaticFileHandler;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.SessionService;
+import com.simonebasile.sampleapp.service.UserService;
 import org.bson.codecs.configuration.CodecRegistries;
-import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 public class Main {
@@ -57,10 +58,14 @@ public class Main {
         //Services config
         var sessionService = new SessionService(sessionRepository);
         var authenticationService = new AuthenticationService(userRepository, sessionService);
+        var userService = new UserService(userRepository);
 
-        //Handler config
-        var loginHandler = new LoginHandler(authenticationService);
-        var registerHandler = new RegisterHandler(authenticationService);
+        //Controllers config
+        var loginController = new LoginController(authenticationService);
+        var logoutController = new LogoutController(sessionService);
+        var registerController = new RegisterController(authenticationService);
+        var homeController = new HomeController(sessionService, userService);
+
 
         //Interceptor config
         var sessionInterceptor = new SessionInterceptor<InputStream>(sessionService);
@@ -69,24 +74,40 @@ public class Main {
 
         //Webserver config
         var webServer = new WebServer(10100);
-        Predicate<HttpRequest<InputStream>> skipAuthPredicate = (r) -> {
+        Predicate<HttpRequest<InputStream>> skipSession = (r) -> {
             String resource = r.getResource();
-            return !resource.equals("/index.html") &&
-                    !resource.equals("/") &&
-                    !resource.equals("/register.html") &&
-                    !resource.startsWith("/pub") &&
-                    !resource.startsWith("/login") &&
-                    !resource.startsWith("/register");
+            return !resource.equals("/favicon.ico") &&
+                    !resource.startsWith("/pub");
         };
-        webServer.registerInterceptor(InterceptorSkip.fromPredicate(sessionInterceptor, skipAuthPredicate));
-        webServer.registerInterceptor(InterceptorSkip.fromPredicate(authInterceptor, skipAuthPredicate));
-        webServer.registerHttpHandler("/login", loginHandler);
-        webServer.registerHttpHandler("/register", registerHandler);
-        webServer.registerHttpContext("/", new StaticFileHandler("/", "static-files"));
-        webServer.registerHttpContext("/api", (req) -> {
-            log.info("Entered api context");
-            return new HttpResponse<>(req.getVersion(), 404, new HttpHeaders(), null);
+        Predicate<HttpRequest<InputStream>> skipAuth = (r) -> {
+            String resource = r.getResource();
+            return skipSession.test(r) &&
+                    !resource.equals("/register") &&
+                    !resource.equals("/login");
+        };
+        webServer.registerInterceptor((req, n) ->  {
+            long start = System.currentTimeMillis();
+            log.info("Requets received {} {}", req.getMethod(), req.getResource());
+            HttpResponse<? extends HttpResponse.ResponseBody> res = n.handle(req);
+            res.getHeaders().add("Connection", "Keep-Alive");
+            log.info("Response status: {}", res.getStatusCode());
+            if(log.isDebugEnabled()) {
+                log.debug("Response headers: ");
+                HttpHeaders headers = res.getHeaders();
+                for (Map.Entry<String, List<String>> entry : headers.entries()) {
+                    log.debug("{}: {}", entry.getKey(), entry.getValue());
+                }
+            }
+            log.info("Processing time: {}ms", System.currentTimeMillis() - start);
+            return res;
         });
+        webServer.registerInterceptor(InterceptorSkip.fromPredicate(sessionInterceptor, skipSession));
+        webServer.registerInterceptor(InterceptorSkip.fromPredicate(authInterceptor, skipAuth));
+        webServer.registerHttpHandler("/login", loginController);
+        webServer.registerHttpHandler("/logout", logoutController);
+        webServer.registerHttpHandler("/register", registerController);
+        webServer.registerHttpHandler("/", homeController);
+        webServer.registerHttpContext("/", new StaticFileHandler("/", "static-files"));
         webServer.start();
 
     }

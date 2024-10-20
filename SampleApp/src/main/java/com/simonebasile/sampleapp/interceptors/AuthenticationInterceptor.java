@@ -18,8 +18,8 @@ public class AuthenticationInterceptor<T> implements HttpInterceptor<T> {
         SessionData sessionData = sessionService.currentSession();
         if(sessionData == null || sessionData.getUsername() == null) {
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", "/site/index.html");
-            return new HttpResponse<>(request.getVersion(), 302, headers, new ByteResponseBody("Unauthorized"));
+            headers.add("Location", "/login");
+            return new HttpResponse<>(request.getVersion(), 303, headers, null);
         }
         return next.handle(request);
     }

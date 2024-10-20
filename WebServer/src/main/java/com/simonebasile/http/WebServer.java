@@ -122,6 +122,10 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                             return routingContext.handle(req);
                         }
                     }).handle(req);
+
+                    //consuming remaining body TODO is it the right way?
+                    req.body.close();
+
                     res.write(outputStream);
                     if(log.isDebugEnabled()) {
                         try(var out = new FileOutputStream("response.http")) {
@@ -138,6 +142,8 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                     }
                     //TODO handle connection and keep-alive header, handle timeouts, handle max amt of requests
                 }
+            } catch (ConnectionClosedBeforeRequestStartException ignored) {
+                log.debug("Client closed connection");
             } catch (Throwable t) {
                 log.error("An exception occurred while handling http protocol. Closing socket [{}]", client, t);
             } finally {

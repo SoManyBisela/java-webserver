@@ -61,7 +61,7 @@ public class HttpHeaders {
         return Arrays.stream(connection.split(",")).map(String::trim).map(String::toUpperCase).toList();
     }
 
-    Iterable<Map.Entry<String, List<String>>> entries() {
+    public Iterable<Map.Entry<String, List<String>>> entries() {
         return headers.entrySet();
     }
 
@@ -96,7 +96,23 @@ public class HttpHeaders {
         return cookieHeader.stream()
                 .flatMap(b -> Arrays.stream(b.split("; ")))
                 .map(String::trim)
-                .filter(name::equals)
+                .map(HttpHeaders::splitCookie)
+                .filter(a -> name.equals(a[0]))
+                .map(a -> a[1])
                 .findFirst().orElse(null);
     }
+
+    private static String[] splitCookie(String cookie) {
+        String[] res = new String[2];
+        int i = cookie.indexOf("=");
+        if(i == -1){
+            res[0] = cookie;
+            res[1] = "";
+        } else {
+            res[0] = cookie.substring(0, i);
+            res[1] = cookie.substring(i + 1);
+        }
+        return res;
+    }
+
 }

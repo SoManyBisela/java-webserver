@@ -12,6 +12,8 @@ public class HttpStatusCode {
             case 200 -> "OK";
             case 201 -> "Created";
             case 204 -> "No Content";
+            case 302 -> "Found";
+            case 303 -> "See Other";
             case 400 -> "Bad Request";
             case 401 -> "Unauthorized";
             case 403 -> "Forbidden";

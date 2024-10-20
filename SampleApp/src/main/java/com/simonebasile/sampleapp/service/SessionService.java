@@ -3,11 +3,14 @@ package com.simonebasile.sampleapp.service;
 import com.simonebasile.sampleapp.DebugRegistry;
 import com.simonebasile.sampleapp.repository.SessionRepository;
 import com.simonebasile.sampleapp.model.SessionData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
 public class SessionService {
 
+    private static final Logger log = LoggerFactory.getLogger(SessionService.class);
     private final ThreadLocal<SessionData> sessionData;
     private final SessionRepository sessionRepository;
 
@@ -27,13 +30,20 @@ public class SessionService {
         return sessionData.get();
     }
 
+    public SessionData updateSession() {
+        return sessionRepository.update(sessionData.get());
+    }
+
     private SessionData getOrCreateSession(String sessionId) {
+        log.debug("Requested session: {}", sessionId);
         SessionData data = sessionRepository.getSession(sessionId);
         if(data == null) {
             String string = UUID.randomUUID().toString();
-            SessionData sessionData = new SessionData(string);
-            sessionRepository.createSession(sessionData);
+            data = new SessionData(string);
+            sessionRepository.createSession(data);
+            log.info("Created new session: {}", data.getId());
         }
+        log.trace("Returned session: {}", data);
         return data;
     }
 

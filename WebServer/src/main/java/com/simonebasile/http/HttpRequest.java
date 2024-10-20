@@ -1,5 +1,6 @@
 package com.simonebasile.http;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
 
@@ -28,7 +29,12 @@ public class HttpRequest<T> extends HttpMessage<T> {
 
     //TODO pattern
     public static <T> HttpRequest<T> parse(HttpInputStream his, BodyReader<T> bodyReader) throws IOException {
-        String line = his.readLine();
+        String line;
+        try {
+            line = his.readLine();
+        }catch (EOFException e){
+            throw new ConnectionClosedBeforeRequestStartException();
+        }
         String[] statusLine = line.split(" ");
         if (statusLine.length != 3) {
             throw new CustomException("Invalid status line: " + line);
