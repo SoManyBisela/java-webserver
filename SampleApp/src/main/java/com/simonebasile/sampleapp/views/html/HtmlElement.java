@@ -105,21 +105,23 @@ public class HtmlElement implements IHtmlElement {
         return this;
     }
 
+    //TODO distinguish between addX and X methods where addX adds to the existing data, and X replaces existing data
+
     public HtmlElement content(Collection<? extends HtmlElement> elements) {
         content.addAll(elements);
         return this;
     }
 
     public HtmlElement content(HtmlElement element, HtmlElement ...more) {
-        this.content.add(element);
+        content.add(element);
         for(HtmlElement child : more) {
-            this.content.add(child);
+            content.add(child);
         }
         return this;
     }
 
     public HtmlElement text(String text) {
-        this.content.add(new TextElement(text));
+        content.add(new TextElement(text));
         return this;
     }
 

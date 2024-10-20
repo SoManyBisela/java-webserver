@@ -40,15 +40,13 @@ public class TicketListController extends MethodHandler<InputStream> {
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
-        Optional<User> userOpt = userService.getUser(sessionData.getUsername());
-        Assertions.assertTrue(userOpt.isPresent());
-        User user = userOpt.get();
+        User user = userService.getUser(sessionData.getUsername());
         String role = user.getRole();
         if("user".equals(role)) {
             return userPage(r, user);
         } else if ("employee".equals(role)) {
             return employeePage(r, user);
-        } else if("admin".equals(role)) { //TODO remove admin page
+        } else if("admin".equals(role)) {
             return ResponseUtils.redirect(r.getVersion(), "/");
         } else {
             log.error("FATAL - User {} has unknown role {}", user.getUsername(), user.getRole());

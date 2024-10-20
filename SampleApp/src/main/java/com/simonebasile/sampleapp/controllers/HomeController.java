@@ -27,9 +27,7 @@ public class HomeController extends MethodHandler<InputStream> {
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
-        Optional<User> userOpt = userService.getUser(sessionData.getUsername());
-        Assertions.assertTrue(userOpt.isPresent());
-        User user = userOpt.get();
+        User user = userService.getUser(sessionData.getUsername());
         return ResponseUtils.fromView(r.getVersion(), new HomeView(user));
     }
 

@@ -110,8 +110,10 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream> {
         return switch (extension) {
             case "txt" -> "text/plain";
             case "html" -> "text/html";
-            case "json" -> "application/json";
+            case "js" -> "text/javascript";
             case "xml" -> "text/xml";
+            case "css" -> "text/css";
+            case "json" -> "application/json";
             default -> "application/octet-stream";
         };
     }

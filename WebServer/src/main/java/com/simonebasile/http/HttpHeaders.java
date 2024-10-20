@@ -86,8 +86,9 @@ public class HttpHeaders {
         throw new CustomException("Multiple values for key: " + key);
     }
 
+    //TODO add Cookie class with its attributes
     public void setCookie(String name, String value) {
-        this.add("Set-Cookie", name + "=" + value + "; HttpOnly");
+        this.add("Set-Cookie", name + "=" + value + "; HttpOnly; SameSite=Strict");
     }
 
     public String getCookie(String name) {

@@ -19,11 +19,10 @@ public class AuthenticationService {
     }
 
     public void login(LoginRequest req) {
-        Optional<User> user = userRepository.getUser(req.getUsername());
-        if(user.isPresent()) {
-            User u = user.get();
-            if(ArgonUtils.verify(req.getPassword(), u.getPassword())) {
-                sessionService.updateSession(s -> s.setUsername(u.getUsername()));
+        User user = userRepository.getUser(req.getUsername());
+        if(user != null) {
+            if(ArgonUtils.verify(req.getPassword(), user.getPassword())) {
+                sessionService.updateSession(s -> s.setUsername(user.getUsername()));
             } else {
                 throw new LoginException("Username o password non validi");
             }
@@ -33,8 +32,8 @@ public class AuthenticationService {
     }
 
     public void register(RegisterRequest req) {
-        Optional<User> user = userRepository.getUser(req.getUsername());
-        if(user.isPresent()) {
+        User user = userRepository.getUser(req.getUsername());
+        if(user != null) {
             throw new LoginException("Username already exists");
         }
         userRepository.insert(new User(req.getUsername(), ArgonUtils.hash(req.getPassword()), "user"));

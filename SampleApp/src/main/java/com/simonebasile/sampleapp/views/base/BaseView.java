@@ -7,6 +7,7 @@ import com.simonebasile.sampleapp.views.html.JsScriptElement;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -75,6 +76,7 @@ public class BaseView implements HttpResponse.ResponseBody {
                 .forEach(elements::add);
         HtmlElement head = new HtmlElement("head", elements );
         HtmlElement body = new HtmlElement("body", content );
+        out.write("<!DOCTYPE html>".getBytes(StandardCharsets.UTF_8));
         new HtmlElement("html", List.of(head, body)).write(out);
     }
 

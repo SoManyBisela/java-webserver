@@ -64,8 +64,8 @@ class HandlerRegistry<T> {
     }
 
     public T getHandler(String path) {
-        int qpStart;
-        if((qpStart = path.indexOf("?")) != -1) {
+        int qpStart = path.indexOf("?");
+        if(qpStart != -1) {
             path = path.substring(0, qpStart);
         }
         Objects.requireNonNull(path);

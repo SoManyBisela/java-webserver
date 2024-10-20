@@ -12,7 +12,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public Optional<User> getUser(String username) {
+    public User getUser(String username) {
         return userRepository.getUser(username);
     }
 }

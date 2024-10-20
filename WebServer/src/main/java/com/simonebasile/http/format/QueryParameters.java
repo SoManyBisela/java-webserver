@@ -23,22 +23,21 @@ public class QueryParameters {
         String name = null, value;
         int c;
         while((c = reader.read()) != -1) {
-            if(c == '%') {
+            if(c == '+') {
+                curr.append(' ');
+            } else if(c == '%') {
                 reader.mark(2);
                 int c0 = hexRead(reader.read());
                 int c1 = hexRead(reader.read());
                 if(c0 == -1 || c1 == -1) {
                     curr.append("%");
                     reader.reset();
-                    continue;
+                } else {
+                    curr.append((char)(c0 * 16 + c1));
                 }
-                curr.append((char)(c0 * 16 + c1));
-                continue;
-            }
-            if(name == null && c == '=') {
+            } else if(name == null && c == '=') {
                 name = curr.toString();
                 curr.setLength(0);
-                continue;
             } else if(c == '&') {
                 if(name == null) {
                     name = curr.toString();
@@ -49,9 +48,9 @@ public class QueryParameters {
                 curr.setLength(0);
                 paramsOut.put(name, value);
                 name = value = null;
-                continue;
+            } else {
+                curr.append((char)c);
             }
-            curr.append((char)c);
         }
         if(name == null) {
             name = curr.toString();

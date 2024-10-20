@@ -9,8 +9,8 @@ import org.bson.BsonValue;
 import java.util.Optional;
 
 public record UserRepository(MongoCollection<User> collection) {
-    public Optional<User> getUser(String username) {
-        return Optional.ofNullable(collection.find(Filters.eq("username", username)).first());
+    public User getUser(String username) {
+        return collection.find(Filters.eq("username", username)).first();
     }
 
     public void insert(User u) {

@@ -44,8 +44,4 @@ public class InputForm extends HtmlElement {
         return this;
     }
 
-    public InputForm buttonText(String text) {
-        submitButton.text(text);
-        return this;
-    }
 }

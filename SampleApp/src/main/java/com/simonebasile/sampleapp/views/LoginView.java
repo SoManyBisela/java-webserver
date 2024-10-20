@@ -2,6 +2,7 @@ package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.views.base.View;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.html.custom.ErrorMessage;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
@@ -42,7 +43,7 @@ public class LoginView extends View {
                                 .text("Login")
                 );
         if(errorMessage != null && !errorMessage.isEmpty()) {
-            loginForm.content(div().attr("class", "error-msg").text(errorMessage));
+            loginForm.content(new ErrorMessage(errorMessage));
         }
         addContent(
                 h(1).text("Simple ticketing system"),

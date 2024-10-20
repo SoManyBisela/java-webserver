@@ -7,6 +7,6 @@ module SampleApp {
     requires org.mongodb.driver.core;
     requires org.mongodb.bson;
 
-    exports com.simonebasile.sampleapp.dto to com.fasterxml.jackson.databind;
-    exports com.simonebasile.sampleapp.model to org.mongodb.bson;
+    exports com.simonebasile.sampleapp.dto to org.mongodb.bson, com.fasterxml.jackson.databind;
+    exports com.simonebasile.sampleapp.model to org.mongodb.bson, com.fasterxml.jackson.databind;
 }

@@ -4,14 +4,18 @@ import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
+import com.simonebasile.sampleapp.mapping.FormHttpMapper;
+import com.simonebasile.sampleapp.model.SessionData;
+import com.simonebasile.sampleapp.model.Ticket;
+import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
+import com.simonebasile.sampleapp.service.errors.CreateTicketException;
 import com.simonebasile.sampleapp.views.CreateTicketView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public class CreateTicketController extends MethodHandler<InputStream> {
@@ -27,18 +31,37 @@ public class CreateTicketController extends MethodHandler<InputStream> {
         this.userService = userService;
         this.ticketService = ticketService;
     }
+
+    boolean checkRole(User u) {
+        return "user".equals(u.getRole());
+    }
+
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
+        SessionData sessionData = sessionService.currentSession();
+        User user = userService.getUser(sessionData.getUsername());
+        if(!checkRole(user)) {
+            log.warn("Unauthorized access to GET /ticket/create from user {}", user.getUsername());
+            ResponseUtils.redirect(r.getVersion(), "/");
+        }
         //Check role user
         return ResponseUtils.fromView(r.getVersion(), new CreateTicketView());
     }
 
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
-        //Check role user
+        SessionData sessionData = sessionService.currentSession();
+        User user = userService.getUser(sessionData.getUsername());
+        if(!checkRole(user)) {
+            log.warn("Unauthorized access to POST /ticket/create from user {}", user.getUsername());
+            ResponseUtils.redirect(r.getVersion(), "/");
+        }
+        Ticket body = FormHttpMapper.map(r.getBody(), Ticket.class);
         try {
-            log.debug("Creating ticket {}", new String(r.getBody().readAllBytes()));
-        } catch (IOException e) {}
-        return handleGet(r);
+            ticketService.createTicket(body, user);
+        } catch (CreateTicketException e) {
+            return ResponseUtils.fromView(r.getVersion(), new CreateTicketView(e.getMessage()));
+        }
+        return ResponseUtils.redirect(r.getVersion(), "/tickets");
     }
 }
