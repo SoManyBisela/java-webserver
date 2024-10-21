@@ -3,6 +3,8 @@ package com.simonebasile.sampleapp.dto;
 public class IdRequest {
     private String id;
 
+
+    public IdRequest() {}
     public IdRequest(String id) {
         this.id = id;
     }

@@ -1,5 +1,6 @@
 package com.simonebasile.sampleapp.service;
 
+import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.repository.UserRepository;
 import com.simonebasile.sampleapp.dto.LoginRequest;
 import com.simonebasile.sampleapp.dto.RegisterRequest;
@@ -36,6 +37,6 @@ public class AuthenticationService {
         if(user != null) {
             throw new LoginException("Username already exists");
         }
-        userRepository.insert(new User(req.getUsername(), ArgonUtils.hash(req.getPassword()), "user"));
+        userRepository.insert(new User(req.getUsername(), ArgonUtils.hash(req.getPassword()), Role.user));
     }
 }

@@ -118,7 +118,6 @@ public class Main {
         webServer.registerHttpHandler("/tickets", ticketListController);
         webServer.registerHttpHandler("/ticket/create", createTicketController);
         webServer.registerHttpHandler("/ticket", ticketController);
-        webServer.registerHttpHandler("/test", (r) -> ResponseUtils.fromView(r.getVersion(), 404, new TicketNotFoundView()));
         webServer.registerHttpContext("/static", new StaticFileHandler("/static", "static-files"));
         webServer.start();
 

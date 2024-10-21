@@ -5,6 +5,7 @@ import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
+import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.User;
@@ -38,12 +39,12 @@ public class TicketListController extends MethodHandler<InputStream> {
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
-        String role = user.getRole();
-        if("user".equals(role)) {
+        Role role = user.getRole();
+        if(role == Role.user) {
             return userPage(r, user);
-        } else if ("employee".equals(role)) {
+        } else if (role == Role.employee) {
             return employeePage(r, user);
-        } else if("admin".equals(role)) {
+        } else if(role == Role.admin) {
             return ResponseUtils.redirect(r.getVersion(), "/");
         } else {
             log.error("FATAL - User {} has unknown role {}", user.getUsername(), user.getRole());

@@ -26,7 +26,7 @@ public class TicketService {
     public Ticket createTicket(Ticket body, User user) {
         body.setId(UUID.randomUUID().toString());
         body.setOwner(user.getUsername());
-        body.setState(TicketState.open);
+        body.setState(TicketState.OPEN);
         body.setAttachments(new ArrayList<>());
         ticketRepository.create(body);
         return body;

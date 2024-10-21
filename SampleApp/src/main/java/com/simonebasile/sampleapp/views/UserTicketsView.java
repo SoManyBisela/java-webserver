@@ -41,12 +41,12 @@ public class UserTicketsView extends View {
 
     private static HtmlElement toRow(Ticket ticket) {
         return tr()
-                .attr("form-action", "/ticket/detail",
+                .attr("form-action", "/ticket",
                         "form-method", "GET",
                         "form-param-id", ticket.getId()
                 ).content(
                         td().text(ticket.getObject()),
-                        td().text(ticket.getState()),
+                        td().text(ticket.getState().name()),
                         td().text(ticket.getEmployee() != null ? "Yes" : "No")
                 );
     }
