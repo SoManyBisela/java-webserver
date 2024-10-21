@@ -10,6 +10,10 @@ public class ResponseUtils {
         return new HttpResponse<>(version, 200, new HttpHeaders(), view);
     }
 
+    public static HttpResponse<BaseView> fromView(HttpVersion version, int status, BaseView view) {
+        return new HttpResponse<>(version, status, new HttpHeaders(), view);
+    }
+
     //Redirects to get method
     public static HttpResponse<HttpResponse.ResponseBody> redirect(HttpVersion version, String location) {
         HttpHeaders headers = new HttpHeaders();

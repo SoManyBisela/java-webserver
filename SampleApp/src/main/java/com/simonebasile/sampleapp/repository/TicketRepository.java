@@ -5,6 +5,8 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
 import com.simonebasile.sampleapp.model.Ticket;
 
+import java.io.File;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +17,7 @@ public class TicketRepository {
         this.ticketCollection = ticketCollection;
     }
 
-    public List<Ticket> getByUser(String username) {
+    public List<Ticket> getByOwner(String username) {
         return ticketCollection.find(Filters.eq("owner", username))
                 .into(new ArrayList<>());
     }
@@ -23,5 +25,13 @@ public class TicketRepository {
     public void create(Ticket body) {
         final InsertOneResult insertOneResult = ticketCollection.insertOne(body);
         body.setId(insertOneResult.getInsertedId().asString().getValue());
+    }
+
+    public Ticket getById(String id) {
+        return ticketCollection.find(Filters.eq("_id", id)).first();
+    }
+
+    public Ticket getByIdAndOwner(String id, String username) {
+        return ticketCollection.find(Filters.and(Filters.eq("_id", id), Filters.eq("owner", username))).first();
     }
 }

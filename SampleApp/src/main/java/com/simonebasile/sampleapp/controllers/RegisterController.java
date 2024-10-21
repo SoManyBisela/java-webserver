@@ -32,7 +32,7 @@ public class RegisterController extends MethodHandler<InputStream> {
             authService.register(body);
             return ResponseUtils.redirect(r.getVersion(), "/login");
         } catch (LoginException e) {
-            return ResponseUtils.fromView(r.getVersion(), new RegisterView(e.getMessage()));
+            return ResponseUtils.fromView(r.getVersion(), 400, new RegisterView(e.getMessage()));
         }
     }
 }

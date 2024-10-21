@@ -4,11 +4,13 @@ import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.views.base.View;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class UserTicketsView extends View {
+    private record Both(HtmlElement e1, HtmlElement e2){}
     public UserTicketsView(List<Ticket> tickets) {
         addContent(
                 h(1).text("Your tickets")
@@ -33,22 +35,19 @@ public class UserTicketsView extends View {
     }
 
     private HtmlElement createTicketButton() {
-        return form().attr("action", "/ticket/create", "method", "GET")
+        return form().attr("action", "/ticket/create", "method", "GET", "onsubmit", "test")
                 .content(button().attr("type", "submit").text("Create Ticket"));
     }
 
     private static HtmlElement toRow(Ticket ticket) {
-        return tr().content(
-                td().text(ticket.getObject()),
-                td().text(ticket.getState()),
-                td().text(ticket.getEmployee() != null ? "Yes" : "No"),
-                td().content(modifyButton(ticket.getId()))
-        );
-    }
-
-    private static HtmlElement modifyButton(String id) {
-        //TODO encode query param?
-        return form().attr("action", "/ticket/edit?id=" + id, "method", "POST")
-                .content(button().attr("type", "submit").text("Edit"));
+        return tr()
+                .attr("form-action", "/ticket/detail",
+                        "form-method", "GET",
+                        "form-param-id", ticket.getId()
+                ).content(
+                        td().text(ticket.getObject()),
+                        td().text(ticket.getState()),
+                        td().text(ticket.getEmployee() != null ? "Yes" : "No")
+                );
     }
 }

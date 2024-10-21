@@ -1,5 +1,7 @@
 package com.simonebasile.sampleapp.model;
 
+import com.simonebasile.sampleapp.dto.CreateTicket;
+
 import java.util.List;
 
 public class Ticket {
@@ -7,12 +9,12 @@ public class Ticket {
     private String owner;
     private String object;
     private String message;
-    private String state;
+    private TicketState state;
     private String employee;
     private List<Attachment> attachments;
 
     public Ticket() { }
-    public Ticket(String id, String owner, String object, String message, String state, String employee, List<Attachment> attachments) {
+    public Ticket(String id, String owner, String object, String message, TicketState state, String employee, List<Attachment> attachments) {
         this.id = id;
         this.owner = owner;
         this.object = object;
@@ -20,6 +22,11 @@ public class Ticket {
         this.state = state;
         this.employee = employee;
         this.attachments = attachments;
+    }
+
+    public Ticket(CreateTicket body) {
+        this.message = body.getMessage();
+        this.object = body.getObject();
     }
 
     public String getId() {
@@ -54,11 +61,11 @@ public class Ticket {
         this.message = message;
     }
 
-    public String getState() {
+    public TicketState getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(TicketState state) {
         this.state = state;
     }
 

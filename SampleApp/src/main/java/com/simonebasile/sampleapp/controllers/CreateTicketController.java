@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.controllers;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.dto.CreateTicket;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.SessionData;
@@ -54,14 +55,15 @@ public class CreateTicketController extends MethodHandler<InputStream> {
         User user = userService.getUser(sessionData.getUsername());
         if(!checkRole(user)) {
             log.warn("Unauthorized access to POST /ticket/create from user {}", user.getUsername());
-            ResponseUtils.redirect(r.getVersion(), "/");
+            return ResponseUtils.redirect(r.getVersion(), "/");
         }
-        Ticket body = FormHttpMapper.map(r.getBody(), Ticket.class);
+        CreateTicket body = FormHttpMapper.map(r.getBody(), CreateTicket.class);
+        String id;
         try {
-            ticketService.createTicket(body, user);
+            id = ticketService.createTicket(new Ticket(body), user).getId();
         } catch (CreateTicketException e) {
             return ResponseUtils.fromView(r.getVersion(), new CreateTicketView(e.getMessage()));
         }
-        return ResponseUtils.redirect(r.getVersion(), "/tickets");
+        return ResponseUtils.redirect(r.getVersion(), "/ticket?id=" + id);
     }
 }

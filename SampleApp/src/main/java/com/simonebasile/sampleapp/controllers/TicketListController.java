@@ -4,7 +4,6 @@ import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
-import com.simonebasile.sampleapp.assertions.Assertions;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.Ticket;
@@ -12,7 +11,6 @@ import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
-import com.simonebasile.sampleapp.views.AdminPageView;
 import com.simonebasile.sampleapp.views.EmployeePageView;
 import com.simonebasile.sampleapp.views.UserTicketsView;
 import com.simonebasile.sampleapp.views.base.BaseView;
@@ -22,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Optional;
 
 public class TicketListController extends MethodHandler<InputStream> {
     private static final Logger log = LoggerFactory.getLogger(TicketListController.class);
@@ -55,7 +52,7 @@ public class TicketListController extends MethodHandler<InputStream> {
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> userPage(HttpRequest<?> r, User usr) {
-        List<Ticket> tickets = ticketService.getByUser(usr.getUsername());
+        List<Ticket> tickets = ticketService.getByOwner(usr.getUsername());
         return ResponseUtils.fromView(r.getVersion(), new UserTicketsView(tickets));
     }
 

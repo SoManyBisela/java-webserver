@@ -10,6 +10,12 @@ public class View extends BaseView{
                 new HtmlElement("link").attr("rel", "icon", "href", "/static/favicon.png")
         );
         addCss("/static/common.css");
-        addJsScript("/static/common.js");
+        addJs("/static/common.js");
+    }
+
+    public void pathChange(String path) {
+        addHead(new HtmlElement("script")
+                .attr("type", "javascript")
+                .text("window.history.replaceState(null, null, " + path + ");"));
     }
 }

@@ -31,7 +31,7 @@ public class LoginController extends MethodHandler<InputStream> {
             authService.login(body);
             return ResponseUtils.redirect(r.getVersion(), "/");
         } catch (LoginException e) {
-            return ResponseUtils.fromView(r.getVersion(), new LoginView(e.getMessage()));
+            return ResponseUtils.fromView(r.getVersion(), 401, new LoginView(e.getMessage()));
         }
     }
 }

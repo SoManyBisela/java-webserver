@@ -18,6 +18,7 @@ import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
+import com.simonebasile.sampleapp.views.TicketNotFoundView;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.slf4j.Logger;
@@ -71,6 +72,7 @@ public class Main {
         var homeController = new HomeController(sessionService, userService);
         var ticketListController = new TicketListController(sessionService, userService, ticketService);
         var createTicketController = new CreateTicketController(sessionService, userService, ticketService);
+        var ticketController = new TicketController(sessionService, userService, ticketService);
 
 
         //Interceptor config
@@ -115,6 +117,8 @@ public class Main {
         webServer.registerHttpHandler("/register", registerController);
         webServer.registerHttpHandler("/tickets", ticketListController);
         webServer.registerHttpHandler("/ticket/create", createTicketController);
+        webServer.registerHttpHandler("/ticket", ticketController);
+        webServer.registerHttpHandler("/test", (r) -> ResponseUtils.fromView(r.getVersion(), 404, new TicketNotFoundView()));
         webServer.registerHttpContext("/static", new StaticFileHandler("/static", "static-files"));
         webServer.start();
 

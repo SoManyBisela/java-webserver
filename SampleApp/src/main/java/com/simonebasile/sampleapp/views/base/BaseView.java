@@ -40,7 +40,7 @@ public class BaseView implements HttpResponse.ResponseBody {
         return this;
     }
 
-    public BaseView addJsScript(String script, String... more) {
+    public BaseView addJs(String script, String... more) {
         scripts.add(script);
         for(String m: more) {
             scripts.add(m);
