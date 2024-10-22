@@ -12,7 +12,6 @@ public class ChunkedWrapper extends OutputStream {
 
     @Override
     public void write(int b) throws IOException {
-        //TODO Should buffer this, to avoid sending a 5 bytes of length for a byte of data
         target.write("1\r\n".getBytes(StandardCharsets.UTF_8));
         target.write(b);
         target.write("\r\n".getBytes(StandardCharsets.UTF_8));
@@ -20,14 +19,19 @@ public class ChunkedWrapper extends OutputStream {
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
+        //A zero length chunk means the body is finished
+        //So if the length is zero we return to avoid sending the chunk unintentionally
+        if(len == 0) return;
+
         target.write(Integer.toString(len, 16).getBytes(StandardCharsets.UTF_8));
         target.write("\r\n".getBytes(StandardCharsets.UTF_8));
         target.write(b, off, len);
         target.write("\r\n".getBytes(StandardCharsets.UTF_8));
     }
 
+
     @Override
-    public void flush() throws IOException {
-        target.flush();
+    public void close() throws IOException {
+        target.write("0\r\n\r\n".getBytes(StandardCharsets.UTF_8));
     }
 }

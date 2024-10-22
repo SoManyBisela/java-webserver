@@ -10,6 +10,9 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class UserTicketsView extends View {
     public UserTicketsView(List<Ticket> tickets) {
+        this(tickets, null);
+    }
+    public UserTicketsView(List<Ticket> tickets, String errorMessage) {
         url("/tickets");
         addJs("/static/click-actions.js");
         addContent(
@@ -46,7 +49,11 @@ public class UserTicketsView extends View {
                 ).content(
                         td().text(ticket.getObject()),
                         td().text(ticket.getState().name()),
-                        td().text(ticket.getAssegnee() != null ? "Yes" : "No")
+                        td().text(ticket.getAssegnee() != null ? "Yes" : "No"),
+                        td().content(button().text("Delete")
+                                .attr("form-action", "/ticket/delete",
+                                        "form-method", "POST",
+                                        "form-param-id", ticket.getId()))
                 );
     }
 }

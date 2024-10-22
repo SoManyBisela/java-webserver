@@ -1,6 +1,7 @@
 package com.simonebasile.sampleapp.service;
 
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
+import com.simonebasile.sampleapp.dto.IdRequest;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
 import com.simonebasile.sampleapp.model.*;
 import com.simonebasile.sampleapp.repository.TicketRepository;
@@ -85,5 +86,15 @@ public class TicketService {
 
     public List<Ticket> getSubmitted() {
         return ticketRepository.getSubmitted();
+    }
+
+    public boolean delete(String id, User user) {
+        Ticket ticket = getById(id, user);
+        if(ticket != null) {
+            ticketRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

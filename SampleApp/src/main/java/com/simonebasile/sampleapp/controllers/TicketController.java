@@ -45,12 +45,12 @@ public class TicketController extends MethodHandler<InputStream> {
         User user = userService.getUser(sessionData.getUsername());
         IdRequest id = FormHttpMapper.mapHttpResource(r.getResource(), IdRequest.class);
         if(user.getRole() == null || user.getRole() == Role.admin) {
-            log.warn("Unauthorized access to GET /ticket from user {}", user.getUsername());
+            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             return ResponseUtils.redirect(r.getVersion(), "/");
         }
         Ticket ticket = ticketService.getById(id.getId(), user);
         if(ticket == null) {
-            return ResponseUtils.fromView(r.getVersion(), 404, new TicketNotFoundView());
+            return ResponseUtils.fromView(r.getVersion(), 404, new TicketNotFoundView(id.getId()));
         }
         if(user.getRole() == Role.user) {
             return ResponseUtils.fromView(r.getVersion(), new UserTicketDetail(ticket));
@@ -84,7 +84,7 @@ public class TicketController extends MethodHandler<InputStream> {
             }
             return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketDetail(ticket, user));
         } else {
-            log.warn("Unauthorized access to POST /ticket from user {}", user.getUsername());
+            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             return ResponseUtils.redirect(r.getVersion(), "/");
         }
     }

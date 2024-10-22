@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -111,6 +112,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
             try {
                 while(true) {
                     HttpRequest<InputStream> req = HttpRequest.parse(inputStream, FixedLengthInputStream::new);
+                    log.debug("Incoming http request [{}] on socket [{}]", req, client);
                     HttpResponse<?> res = new InterceptorChainImpl<>(interceptors, r -> {
                         if(req.isWebSocketConnection()) {
                             try {
@@ -125,6 +127,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
 
                     //consuming remaining body TODO is it the right way?
                     req.body.close();
+
 
                     res.write(outputStream);
                     if(log.isDebugEnabled()) {

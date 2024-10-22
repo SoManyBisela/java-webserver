@@ -8,9 +8,10 @@ addonload(() => {
             return;
         }
         console.log("Added event listener to", e);
-        e.addEventListener("click", () => {
+        e.addEventListener("click", (evt) => {
+            evt.stopPropagation();
             let form = document.createElement("form");
-            console.log("clicked form element ", e);
+            console.log("clicked form element ", evt);
             form.action = action;
             form.method = method;
             form.hidden = true;

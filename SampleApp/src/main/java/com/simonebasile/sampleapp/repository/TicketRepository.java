@@ -53,4 +53,8 @@ public class TicketRepository {
                 Filters.not(Filters.eq("state", TicketState.DRAFT))
         ).into(new ArrayList<>());
     }
+
+    public void deleteById(String id) {
+        ticketCollection.deleteOne(Filters.eq("_id", id));
+    }
 }

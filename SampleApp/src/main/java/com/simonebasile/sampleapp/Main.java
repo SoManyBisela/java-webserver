@@ -71,8 +71,9 @@ public class Main {
         var homeController = new HomeController(sessionService, userService);
         var ticketListController = new TicketListController(sessionService, userService, ticketService);
         var createTicketController = new CreateTicketController(sessionService, userService, ticketService);
+        var deleteTicketController = new DeleteTicketController(sessionService, userService, ticketService);
         var ticketController = new TicketController(sessionService, userService, ticketService);
-        var adminController = new AdminController(authenticationService, sessionService, userService);
+        var adminController = new AdminController(sessionService, userService, authenticationService);
 
 
         //Interceptor config
@@ -81,7 +82,7 @@ public class Main {
 
 
         //Webserver config
-        var webServer = new WebServer(10100);
+        var webServer = new WebServer(10131);
         Predicate<HttpRequest<InputStream>> skipSession = (r) -> {
             String resource = r.getResource();
             return !resource.equals("/favicon.ico") &&
@@ -116,8 +117,9 @@ public class Main {
         webServer.registerHttpHandler("/logout", logoutController);
         webServer.registerHttpHandler("/register", registerController);
         webServer.registerHttpHandler("/tickets", ticketListController);
-        webServer.registerHttpHandler("/ticket/create", createTicketController);
         webServer.registerHttpHandler("/ticket", ticketController);
+        webServer.registerHttpHandler("/ticket/create", createTicketController);
+        webServer.registerHttpHandler("/ticket/delete", deleteTicketController);
         webServer.registerHttpHandler("/admin/newuser", adminController);
         webServer.registerHttpContext("/static", new StaticFileHandler("/static", "static-files"));
         webServer.start();

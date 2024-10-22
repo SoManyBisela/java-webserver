@@ -20,7 +20,8 @@ public class EmployeeTicketsView extends View {
             HtmlElement heading = tr().content(
                     th().text("Object"),
                     th().text("State"),
-                    th().text("Assignee")
+                    th().text("Assignee"),
+                    th().text("Owner")
             );
             List<HtmlElement> rows = tickets.stream().map(EmployeeTicketsView::toRow).toList();
             addContent(
@@ -41,7 +42,8 @@ public class EmployeeTicketsView extends View {
                 ).content(
                         td().text(ticket.getObject()),
                         td().text(ticket.getState().name()),
-                        td().text(ticket.getAssegnee() == null ? "None" : ticket.getAssegnee())
+                        td().text(ticket.getAssegnee() == null ? "None" : ticket.getAssegnee()),
+                        td().text(ticket.getOwner())
                 );
     }
 }

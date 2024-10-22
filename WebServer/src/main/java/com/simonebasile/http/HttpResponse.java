@@ -3,11 +3,13 @@ package com.simonebasile.http;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.Buffer;
 
 public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessage<T>{
-    private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
     protected final int statusCode;
     public interface ResponseBody{
         /**
@@ -53,12 +55,10 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
         this.statusCode = statusCode;
     }
 
-
     public void write(HttpOutputStream outputStream) throws IOException {
         var writingHeaders = new HttpHeaders(headers);
         ResponseBody writingBody = null;
         OutputStream out = outputStream;
-        boolean chunked = false;
         if(body != null) {
             //TOD Check if content type is already present
             Long cl = body.contentLength();
@@ -69,13 +69,22 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
                 writingBody = body;
                 //Streaming body
                 //TODO parse current transfer-encoding, update and send downstream
+                //TODO check if content length is present and remove it?
                 writingHeaders.add("Transfer-Encoding", "chunked");
-                out = new ChunkedWrapper(outputStream);
-                chunked = true;
+                //wrap chunked wrapper in an output stream to avoid writing little chunks of response
+                //and decrease overhead
+                out = new BufferedOutputStream(new ChunkedWrapper(outputStream));
             } else if(cl > 0){
-                //TODO check if content-length is already present
                 writingHeaders.add("Content-Length", Long.toString(cl));
                 writingBody = body;
+                //avoid flushing or closing the http output stream
+                out = new FilterOutputStream(outputStream) {
+                    @Override
+                    public void flush() { }
+
+                    @Override
+                    public void close() { }
+                };
             } else {
                 writingHeaders.add("Content-Length", "0");
             }
@@ -89,15 +98,12 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
                 outputStream.writeHeader(header.getKey(), value);
             }
         }
-
+        outputStream.endHeaders();
         if(writingBody != null) {
-            outputStream.endHeaders();
             writingBody.write(out);
-            if(chunked) {
-                outputStream.write("0\r\n");
-            }
+            out.flush();
+            out.close();
         }
-        outputStream.end();
         outputStream.flush();
     }
 

@@ -39,7 +39,7 @@ public class CreateTicketController extends MethodHandler<InputStream> {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         if(user.getRole() != Role.user) {
-            log.warn("Unauthorized access to GET /ticket/create from user {}", user.getUsername());
+            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             ResponseUtils.redirect(r.getVersion(), "/");
         }
         //Check role user
@@ -51,7 +51,7 @@ public class CreateTicketController extends MethodHandler<InputStream> {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         if(user.getRole() != Role.user) {
-            log.warn("Unauthorized access to POST /ticket/create from user {}", user.getUsername());
+            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             return ResponseUtils.fromView(r.getVersion(), new UnauthorizedPage());
         }
         CreateTicket body = FormHttpMapper.map(r.getBody(), CreateTicket.class);

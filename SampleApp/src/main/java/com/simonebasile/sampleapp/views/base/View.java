@@ -30,6 +30,6 @@ public class View extends BaseView{
     public void url(String path) {
         addHead(new HtmlElement("script")
                 .attr("type", "javascript")
-                .text("window.history.replaceState(null, null, " + HtmlElement.wrap(path) + ");"));
+                .text("addonload(() => window.history.replaceState(null, null, " + HtmlElement.wrap(path) + "));"));
     }
 }
