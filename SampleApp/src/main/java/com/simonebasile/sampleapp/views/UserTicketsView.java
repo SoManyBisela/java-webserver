@@ -4,14 +4,14 @@ import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.views.base.View;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class UserTicketsView extends View {
-    private record Both(HtmlElement e1, HtmlElement e2){}
     public UserTicketsView(List<Ticket> tickets) {
+        url("/tickets");
+        addJs("/static/click-actions.js");
         addContent(
                 h(1).text("Your tickets")
         );
@@ -19,8 +19,7 @@ public class UserTicketsView extends View {
             HtmlElement heading = tr().content(
                     th().text("Object"),
                     th().text("State"),
-                    th().text("Assigned"),
-                    th().text("actions")
+                    th().text("Assigned")
             );
             List<HtmlElement> rows = tickets.stream().map(UserTicketsView::toRow).toList();
             addContent(
@@ -47,7 +46,7 @@ public class UserTicketsView extends View {
                 ).content(
                         td().text(ticket.getObject()),
                         td().text(ticket.getState().name()),
-                        td().text(ticket.getEmployee() != null ? "Yes" : "No")
+                        td().text(ticket.getAssegnee() != null ? "Yes" : "No")
                 );
     }
 }

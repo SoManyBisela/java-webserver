@@ -6,6 +6,7 @@ import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.CreateTicket;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
+import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.User;
@@ -33,15 +34,11 @@ public class CreateTicketController extends MethodHandler<InputStream> {
         this.ticketService = ticketService;
     }
 
-    boolean checkRole(User u) {
-        return "user".equals(u.getRole());
-    }
-
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
-        if(!checkRole(user)) {
+        if(user.getRole() != Role.user) {
             log.warn("Unauthorized access to GET /ticket/create from user {}", user.getUsername());
             ResponseUtils.redirect(r.getVersion(), "/");
         }
@@ -53,9 +50,9 @@ public class CreateTicketController extends MethodHandler<InputStream> {
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
-        if(!checkRole(user)) {
+        if(user.getRole() != Role.user) {
             log.warn("Unauthorized access to POST /ticket/create from user {}", user.getUsername());
-            return ResponseUtils.redirect(r.getVersion(), "/");
+            return ResponseUtils.fromView(r.getVersion(), new UnauthorizedPage());
         }
         CreateTicket body = FormHttpMapper.map(r.getBody(), CreateTicket.class);
         String id;

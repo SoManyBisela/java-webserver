@@ -2,10 +2,7 @@ package com.simonebasile.sampleapp.service;
 
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
-import com.simonebasile.sampleapp.model.Role;
-import com.simonebasile.sampleapp.model.Ticket;
-import com.simonebasile.sampleapp.model.TicketState;
-import com.simonebasile.sampleapp.model.User;
+import com.simonebasile.sampleapp.model.*;
 import com.simonebasile.sampleapp.repository.TicketRepository;
 
 import java.util.ArrayList;
@@ -26,7 +23,7 @@ public class TicketService {
     public Ticket createTicket(Ticket body, User user) {
         body.setId(UUID.randomUUID().toString());
         body.setOwner(user.getUsername());
-        body.setState(TicketState.OPEN);
+        body.setState(TicketState.DRAFT);
         body.setAttachments(new ArrayList<>());
         ticketRepository.create(body);
         return body;
@@ -43,7 +40,28 @@ public class TicketService {
     }
 
     public Ticket update(UserUpdateTicket body, User user) {
-        return null;
+        Ticket ticket = getById(body.getId(), user);
+        if(ticket.getState() == TicketState.DRAFT) {
+            if(body.getObject() != null) {
+                ticket.setObject(body.getObject());
+            }
+            if(body.getMessage() != null) {
+                ticket.setMessage(body.getMessage());
+            }
+            if(body.isSubmit()) {
+                ticket.setState(TicketState.OPEN);
+            }
+        } else {
+            if(body.getComment() != null) {
+                List<Comment> comments = ticket.getComments();
+                if(comments == null) {
+                    comments = new ArrayList<>();
+                    ticket.setComments(comments);
+                }
+                comments.add(new Comment(user.getUsername(), body.getComment()));
+            }
+        }
+        return ticketRepository.update(ticket);
     }
 
     public Ticket update(EmployeeUpdateTicket body, User user) {

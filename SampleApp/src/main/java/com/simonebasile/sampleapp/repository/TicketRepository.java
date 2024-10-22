@@ -34,4 +34,9 @@ public class TicketRepository {
     public Ticket getByIdAndOwner(String id, String username) {
         return ticketCollection.find(Filters.and(Filters.eq("_id", id), Filters.eq("owner", username))).first();
     }
+
+    public Ticket update(Ticket ticket) {
+        ticketCollection.replaceOne(Filters.eq("_id", ticket.getId()), ticket);
+        return ticket;
+    }
 }

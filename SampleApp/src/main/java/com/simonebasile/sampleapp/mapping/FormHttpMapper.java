@@ -18,7 +18,7 @@ public class FormHttpMapper {
         if(qpstart == -1) {
             qpstart = resource.length();
         }
-        return map(resource.substring(qpstart), type);
+        return map(resource.substring(qpstart + 1), type);
     }
 
     public static <T> T map(String queryParams , Class<T> type) {
@@ -38,10 +38,11 @@ public class FormHttpMapper {
         try {
             if(log.isDebugEnabled()) {
                 byte[] bytes = requestBody.readAllBytes();
-                log.debug("Body: {}", new String(bytes, StandardCharsets.UTF_8));
+                log.debug("Source: {}", new String(bytes, StandardCharsets.UTF_8));
                 requestBody = new ByteArrayInputStream(bytes);
             }
             formInput = QueryParameters.decode(requestBody);
+            log.debug("Read: {}", formInput);
         } catch (IOException e) {
             log.error("Exception while decoding parameters: {}", e.getMessage(), e);
             throw new RuntimeException("An error occurred while decoding parameters", e);

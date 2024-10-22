@@ -13,9 +13,9 @@ public class View extends BaseView{
         addJs("/static/common.js");
     }
 
-    public void pathChange(String path) {
+    public void url(String path) {
         addHead(new HtmlElement("script")
                 .attr("type", "javascript")
-                .text("window.history.replaceState(null, null, " + path + ");"));
+                .text("window.history.replaceState(null, null, " + HtmlElement.wrap(path) + ");"));
     }
 }

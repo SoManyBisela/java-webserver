@@ -67,7 +67,7 @@ public class HtmlElement implements IHtmlElement {
         writeStr(">", os);
     }
 
-    private static String wrap(String value) {
+    public static String wrap(String value) {
         StringBuilder s = new StringBuilder();
         s.append('"');
         for (int i = 0; i < value.length(); i++) {
@@ -159,6 +159,10 @@ public class HtmlElement implements IHtmlElement {
 
     public static HtmlElement label() {
         return new HtmlElement("label");
+    }
+
+    public static HtmlElement span() {
+        return new HtmlElement("span");
     }
 
     public static HtmlElement input() {

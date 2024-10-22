@@ -9,56 +9,53 @@ import java.util.Map;
 //https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding
 public class QueryParameters {
     public static Map<String, String> decode(String params) throws IOException {
-        return decode(new StringReader(params));
+        return decode(new ByteArrayInputStream(params.getBytes(StandardCharsets.UTF_8)));
     }
 
-    public static Map<String, String> decode(InputStream params) throws IOException {
-        return decode(new InputStreamReader(params, StandardCharsets.UTF_8));
-    }
-
-    public static Map<String, String> decode(Reader params) throws IOException {
+    public static Map<String, String> decode(InputStream reader) throws IOException {
         HashMap<String, String> paramsOut = new HashMap<>();
-        StringBuilder curr = new StringBuilder();
-        BufferedReader reader = new BufferedReader(params, 3);
+        ByteArrayOutputStream curr = new ByteArrayOutputStream();
+        if(!reader.markSupported()) {
+            reader = new BufferedInputStream(reader, 3);
+        }
         String name = null, value;
         int c;
         while((c = reader.read()) != -1) {
             if(c == '+') {
-                curr.append(' ');
+                curr.write(' ');
             } else if(c == '%') {
                 reader.mark(2);
                 int c0 = hexRead(reader.read());
                 int c1 = hexRead(reader.read());
                 if(c0 == -1 || c1 == -1) {
-                    curr.append("%");
+                    curr.write('%');
                     reader.reset();
                 } else {
-                    curr.append((char)(c0 * 16 + c1));
+                    curr.write(c0 * 16 + c1);
                 }
             } else if(name == null && c == '=') {
-                name = curr.toString();
-                curr.setLength(0);
+                name = curr.toString(StandardCharsets.UTF_8);
+                curr.reset();
             } else if(c == '&') {
                 if(name == null) {
-                    name = curr.toString();
+                    name = curr.toString(StandardCharsets.UTF_8);
                     value = "";
                 } else {
-                    value = curr.toString();
+                    value = curr.toString(StandardCharsets.UTF_8);
                 }
-                curr.setLength(0);
+                curr.reset();
                 paramsOut.put(name, value);
                 name = value = null;
             } else {
-                curr.append((char)c);
+                curr.write(c);
             }
         }
         if(name == null) {
-            name = curr.toString();
+            name = curr.toString(StandardCharsets.UTF_8);
             value = "";
         } else {
-            value = curr.toString();
+            value = curr.toString(StandardCharsets.UTF_8);
         }
-        curr.setLength(0);
         paramsOut.put(name, value);
         return paramsOut;
     }

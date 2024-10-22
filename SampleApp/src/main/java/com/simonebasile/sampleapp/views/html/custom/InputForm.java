@@ -9,16 +9,17 @@ public class InputForm extends HtmlElement {
     public record LabelAndInput(HtmlElement label, HtmlElement input) {
     }
     private final HtmlElement inputTable;
-    private final HtmlElement submitButton;
+
     public InputForm() {
         super("form");
         inputTable = new HtmlElement("table");
-        submitButton = new HtmlElement("button").attr("type", "submit");
-        content(inputTable, submitButton);
+        content(inputTable);
     }
 
-    public InputForm editSubmit(Consumer<HtmlElement> editSubmit) {
-        editSubmit.accept(submitButton);
+    public InputForm button(Consumer<HtmlElement> editor) {
+        HtmlElement submitButton = button().attr("type", "submit");
+        content(submitButton);
+        editor.accept(submitButton);
         return this;
     }
 
@@ -44,4 +45,7 @@ public class InputForm extends HtmlElement {
         return this;
     }
 
+    public InputForm attr(String name, String value, String ...more) {
+        return (InputForm) super.attr(name, value, more);
+    }
 }

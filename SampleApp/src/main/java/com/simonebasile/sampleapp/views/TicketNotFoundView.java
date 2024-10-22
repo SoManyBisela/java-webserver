@@ -4,6 +4,6 @@ import com.simonebasile.sampleapp.views.base.View;
 
 public class TicketNotFoundView extends View {
     public TicketNotFoundView() {
-        pathChange("/tickets/notfound");
+        url("/tickets/notfound");
     }
 }

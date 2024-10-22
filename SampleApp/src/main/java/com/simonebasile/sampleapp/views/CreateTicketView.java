@@ -18,7 +18,7 @@ public class CreateTicketView extends View {
                         .input("object", "text", i -> i.input()
                                 .attr("value", "Descrizione del problema"))
                         .input("message", "text")
-                        .editSubmit(a -> a.text("Create ticket"))
+                        .button(a -> a.text("Create ticket"))
                 );
         if(message != null && !message.isBlank()) {
             addContent(new ErrorMessage(message));

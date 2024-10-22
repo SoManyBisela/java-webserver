@@ -6,6 +6,7 @@ module SampleApp {
     requires org.mongodb.driver.sync.client;
     requires org.mongodb.driver.core;
     requires org.mongodb.bson;
+    requires static lombok;
 
     exports com.simonebasile.sampleapp.dto to org.mongodb.bson, com.fasterxml.jackson.databind;
     exports com.simonebasile.sampleapp.model to org.mongodb.bson, com.fasterxml.jackson.databind;

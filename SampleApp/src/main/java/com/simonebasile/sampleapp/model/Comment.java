@@ -1,4 +1,5 @@
-package com.simonebasile.sampleapp.dto;
+package com.simonebasile.sampleapp.model;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
-    private String username;
-    private String password;
+public class Comment {
+    private String author;
+    private String content;
 }
