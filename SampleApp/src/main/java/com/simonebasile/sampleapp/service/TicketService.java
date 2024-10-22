@@ -31,7 +31,7 @@ public class TicketService {
 
     public Ticket getById(String id, User user) {
         if(user.getRole() == Role.employee) {
-            return ticketRepository.getById(id);
+            return ticketRepository.getSubmittedById(id);
         } else if(user.getRole() == Role.user) {
             return ticketRepository.getByIdAndOwner(id, user.getUsername());
         } else {
@@ -53,18 +53,37 @@ public class TicketService {
             }
         } else {
             if(body.getComment() != null) {
-                List<Comment> comments = ticket.getComments();
-                if(comments == null) {
-                    comments = new ArrayList<>();
-                    ticket.setComments(comments);
-                }
-                comments.add(new Comment(user.getUsername(), body.getComment()));
+                addComment(ticket, user, body.getComment());
             }
         }
         return ticketRepository.update(ticket);
     }
 
     public Ticket update(EmployeeUpdateTicket body, User user) {
-        return null;
+        Ticket ticket = getById(body.getId(), user);
+        if(body.getComment() != null) {
+            addComment(ticket, user, body.getComment());
+        }
+        if(body.isAssign()) {
+            ticket.setAssegnee(user.getUsername());
+        }
+        if(ticket.getState() == TicketState.OPEN && body.isClose()) {
+            ticket.setState(TicketState.CLOSED);
+        }
+        return ticketRepository.update(ticket);
+    }
+
+    private static void addComment(Ticket ticket, User user, String content) {
+        List<Comment> comments = ticket.getComments();
+        if (comments == null) {
+            comments = new ArrayList<>();
+            ticket.setComments(comments);
+        }
+        comments.add(new Comment(user.getUsername(), content));
+    }
+
+
+    public List<Ticket> getSubmitted() {
+        return ticketRepository.getSubmitted();
     }
 }

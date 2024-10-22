@@ -8,6 +8,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class RegisterView extends View {
     public RegisterView(String errorMessage) {
+        super(false);
         HtmlElement loginForm = form()
                 .attr("action", "/register",
                         "method", "POST"

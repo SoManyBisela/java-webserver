@@ -12,6 +12,14 @@ import lombok.Setter;
 public class EmployeeUpdateTicket {
     private String id;
     private String comment;
-    private String assignee;
+    private boolean assign;
     private boolean close;
+
+    public void setAssign(String assign) {
+        this.assign = assign != null && assign.isEmpty();
+    }
+
+    public void setClose(String close) {
+        this.close = close != null && close.isEmpty();
+    }
 }

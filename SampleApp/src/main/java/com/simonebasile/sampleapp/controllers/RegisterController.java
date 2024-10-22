@@ -1,6 +1,5 @@
 package com.simonebasile.sampleapp.controllers;
 
-import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
@@ -8,7 +7,7 @@ import com.simonebasile.sampleapp.dto.RegisterRequest;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.service.AuthenticationService;
-import com.simonebasile.sampleapp.service.errors.LoginException;
+import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.RegisterView;
 
 import java.io.InputStream;
@@ -29,9 +28,9 @@ public class RegisterController extends MethodHandler<InputStream> {
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
         RegisterRequest body = FormHttpMapper.map(r.getBody(), RegisterRequest.class);
         try {
-            authService.register(body);
+            authService.registerUser(body);
             return ResponseUtils.redirect(r.getVersion(), "/login");
-        } catch (LoginException e) {
+        } catch (UserAuthException e) {
             return ResponseUtils.fromView(r.getVersion(), 400, new RegisterView(e.getMessage()));
         }
     }

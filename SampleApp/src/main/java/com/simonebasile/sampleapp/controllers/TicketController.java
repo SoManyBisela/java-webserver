@@ -55,7 +55,7 @@ public class TicketController extends MethodHandler<InputStream> {
         if(user.getRole() == Role.user) {
             return ResponseUtils.fromView(r.getVersion(), new UserTicketDetail(ticket));
         } else if(user.getRole() == Role.employee) {
-            return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketDetail(ticket));
+            return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketDetail(ticket, user));
         }
         throw new UnreachableBranchException();
     }
@@ -64,10 +64,6 @@ public class TicketController extends MethodHandler<InputStream> {
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
-        if(!(user.getRole() == Role.user || user.getRole() == Role.employee)) {
-            log.warn("Unauthorized access to POST /ticket from user {}", user.getUsername());
-            return ResponseUtils.redirect(r.getVersion(), "/");
-        }
         Ticket ticket;
         if (user.getRole() == Role.user) {
             UserUpdateTicket body = FormHttpMapper.map(r.getBody(), UserUpdateTicket.class);
@@ -84,12 +80,13 @@ public class TicketController extends MethodHandler<InputStream> {
                 ticket = ticketService.update(body, user);
             } catch (UpdateTicketException e) {
                 ticket = ticketService.getById(body.getId(), user);
-                return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketDetail(ticket, e.getMessage()));
+                return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketDetail(ticket, user, e.getMessage()));
             }
-            return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketDetail(ticket));
+            return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketDetail(ticket, user));
+        } else {
+            log.warn("Unauthorized access to POST /ticket from user {}", user.getUsername());
+            return ResponseUtils.redirect(r.getVersion(), "/");
         }
-
-        return ResponseUtils.redirect(r.getVersion(), "/tickets");
     }
 
 }

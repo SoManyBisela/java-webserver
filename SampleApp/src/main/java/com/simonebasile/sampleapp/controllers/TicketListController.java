@@ -12,7 +12,7 @@ import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
-import com.simonebasile.sampleapp.views.EmployeePageView;
+import com.simonebasile.sampleapp.views.EmployeeTicketsView;
 import com.simonebasile.sampleapp.views.UserTicketsView;
 import com.simonebasile.sampleapp.views.base.BaseView;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
@@ -58,7 +58,8 @@ public class TicketListController extends MethodHandler<InputStream> {
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> employeePage(HttpRequest<?> r, User usr) {
-        return ResponseUtils.fromView(r.getVersion(), new EmployeePageView());
+        List<Ticket> tickets = ticketService.getSubmitted();
+        return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketsView(tickets));
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> errorPage(HttpRequest<?> r) {

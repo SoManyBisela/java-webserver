@@ -4,6 +4,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
 import com.simonebasile.sampleapp.model.Ticket;
+import com.simonebasile.sampleapp.model.TicketState;
 
 import java.io.File;
 import java.nio.file.attribute.FileTime;
@@ -38,5 +39,18 @@ public class TicketRepository {
     public Ticket update(Ticket ticket) {
         ticketCollection.replaceOne(Filters.eq("_id", ticket.getId()), ticket);
         return ticket;
+    }
+
+    public Ticket getSubmittedById(String id) {
+        return ticketCollection.find(Filters.and(
+                Filters.eq("_id", id),
+                Filters.not(Filters.eq("state", TicketState.DRAFT))
+        )).first();
+    }
+
+    public List<Ticket> getSubmitted() {
+        return ticketCollection.find(
+                Filters.not(Filters.eq("state", TicketState.DRAFT))
+        ).into(new ArrayList<>());
     }
 }

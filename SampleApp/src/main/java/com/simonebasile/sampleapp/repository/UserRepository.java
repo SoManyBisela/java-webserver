@@ -20,4 +20,8 @@ public record UserRepository(MongoCollection<User> collection) {
             u.setId(insertedId.asObjectId().getValue());
         }
     }
+
+    public void updateUser(User u) {
+        collection.replaceOne(Filters.eq("username", u.getUsername()), u);
+    }
 }

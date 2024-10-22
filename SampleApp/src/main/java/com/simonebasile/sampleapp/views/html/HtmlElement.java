@@ -1,5 +1,7 @@
 package com.simonebasile.sampleapp.views.html;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -121,7 +123,7 @@ public class HtmlElement implements IHtmlElement {
     }
 
     public HtmlElement text(String text) {
-        content.add(new TextElement(text));
+        content.add(new TextElement(Objects.requireNonNull(text)));
         return this;
     }
 
@@ -157,6 +159,10 @@ public class HtmlElement implements IHtmlElement {
         return new HtmlElement("th");
     }
 
+    public static HtmlElement option() {
+        return new HtmlElement("option");
+    }
+
     public static HtmlElement label() {
         return new HtmlElement("label");
     }
@@ -168,11 +174,17 @@ public class HtmlElement implements IHtmlElement {
     public static HtmlElement input() {
         return new HtmlElement("input");
     }
+
     public static HtmlElement button() {
         return new HtmlElement("button");
     }
+
     public static HtmlElement form() {
         return new HtmlElement("form");
+    }
+
+    public static HtmlElement select() {
+        return new HtmlElement("select");
     }
 
 }

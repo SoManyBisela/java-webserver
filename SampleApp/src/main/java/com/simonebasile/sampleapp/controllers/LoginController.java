@@ -7,7 +7,7 @@ import com.simonebasile.sampleapp.dto.LoginRequest;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.service.AuthenticationService;
-import com.simonebasile.sampleapp.service.errors.LoginException;
+import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.LoginView;
 
 import java.io.InputStream;
@@ -30,7 +30,7 @@ public class LoginController extends MethodHandler<InputStream> {
         try {
             authService.login(body);
             return ResponseUtils.redirect(r.getVersion(), "/");
-        } catch (LoginException e) {
+        } catch (UserAuthException e) {
             return ResponseUtils.fromView(r.getVersion(), 401, new LoginView(e.getMessage()));
         }
     }

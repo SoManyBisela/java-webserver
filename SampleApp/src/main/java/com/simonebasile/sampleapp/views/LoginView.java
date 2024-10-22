@@ -8,6 +8,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class LoginView extends View {
     public LoginView(String errorMessage) {
+        super(false);
         HtmlElement loginForm = form()
                 .attr("action", "/login",
                         "method", "POST"
