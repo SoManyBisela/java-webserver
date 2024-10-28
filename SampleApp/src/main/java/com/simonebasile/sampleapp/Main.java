@@ -3,10 +3,14 @@ package com.simonebasile.sampleapp;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
+import com.simonebasile.http.format.QueryParameters;
+import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.sampleapp.controllers.*;
+import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
 import com.simonebasile.sampleapp.interceptors.SessionInterceptor;
+import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.repository.SessionRepository;
 import com.simonebasile.sampleapp.repository.TicketRepository;
@@ -23,7 +27,7 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -32,7 +36,59 @@ public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
-        webapp();
+        //webapp();
+        //tmpDwonload();
+        host();
+    }
+
+    private static void host() {
+        WebServer w = new WebServer(12346);
+        w.registerInterceptor((a, n) -> {
+            log.info("{} {}", a.getMethod(), a.getResource());
+            final HttpHeaders headers = a.getHeaders();
+            for (Map.Entry<String, List<String>> entry : headers.entries()) {
+                log.info("{}: {}", entry.getKey(), entry.getValue());
+            }
+            return n.handle(a);
+        });
+        w.registerHttpContext("/", (r) -> {
+            final HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("WWW-authenticate", "Basic realm=repository");
+            return new HttpResponse<>(r.getVersion(), 401, httpHeaders, null);
+        });
+        w.start();
+    }
+
+    private static void tmpDwonload() {
+        WebServer w = new WebServer(12345);
+        w.registerHttpContext("/" , (req) -> new HttpResponse<>(
+                req.getVersion(),
+                200,
+                new HttpHeaders(),
+                new StaticFileHandler.FileResponseBody(new File("dwnindex.html"))
+        ));
+        w.registerHttpHandler("/upload", new MethodHandler<>(){
+            @Override
+            protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
+                System.out.println("received!");
+                int index = r.getResource().indexOf('?') + 1;
+                if(index == 0) {
+                    return new HttpResponse<>(r.getVersion(), 400, new HttpHeaders(), null);
+                }
+                Map<String, String> params;
+                try {
+                    params = QueryParameters.decode(r.getResource().substring(index));
+                    String filename = params.get("filename");
+                    try(final FileOutputStream fileOutputStream = new FileOutputStream(("uploads/" + filename))) {
+                        r.getBody().transferTo(fileOutputStream);
+                    }
+                } catch (IOException e) {
+                    return new HttpResponse<>(r.getVersion(), 500, new HttpHeaders(), null);
+                }
+                return new HttpResponse<>(r.getVersion(), 200, new HttpHeaders(), new ByteResponseBody("String"));
+            }
+        });
+        w.start();
     }
 
     private static void webapp() {

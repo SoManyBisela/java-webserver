@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -199,7 +199,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         final ExecutorService executor = Executors.newCachedThreadPool();
         ServerSocket s = null;
         try {
-            s = new ServerSocket(port);
+            s = new ServerSocket(port, 5, Inet4Address.getByName("0.0.0.0"));
             log.info("Server started on port {}", port);
             while(true) {
                 HttpProtocolHandler handler;

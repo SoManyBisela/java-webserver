@@ -75,7 +75,7 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream> {
         }
     }
 
-    private static class FileResponseBody implements HttpResponse.ResponseBody {
+    public static class FileResponseBody implements HttpResponse.ResponseBody {
         private final File file;
 
         public FileResponseBody(File targetFile) {
