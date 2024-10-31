@@ -1,15 +1,15 @@
 package com.simonebasile.http;
 
-import com.simonebasile.http.response.ByteResponseBody;
+import com.simonebasile.http.unpub.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,13 +21,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 
+import static com.simonebasile.http.unpub.WebSocket.WSDataFrame.*;
+
 public class WebServer implements HttpHandlerContext<InputStream>{
     private static final Logger log = LoggerFactory.getLogger(WebServer.class);
     private final int port;
 
     private final HttpRoutingContext routingContext;
 
-    private final HandlerRegistry<WebsocketConnectionHandler> websocketHandlers;
+    private final HandlerRegistry<NewWsHandler<?>> websocketHandlers;
 
     private final List<HttpInterceptor<InputStream>> interceptors;
 
@@ -51,14 +53,14 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         this.interceptors.add(preprocessor);
     }
 
-    public void registerWebSocketContext(String path, WebsocketConnectionHandler handler){
+    public void registerWebSocketContext(String path, NewWsHandler<?> handler){
         log.debug("Registered new websocket handler for path [{}]", path);
         if(!websocketHandlers.insertCtx(path, handler)) {
             throw new CustomException("A websocket context for path [" + path + "] already exists");
         }
     }
 
-    public void registerWebSocketHandler(String path, WebsocketConnectionHandler handler){
+    public void registerWebSocketHandler(String path, NewWsHandler<?> handler){
         log.debug("Registered new websocket handler for path [{}]", path);
         if(!websocketHandlers.insertExact(path, handler)) {
             throw new CustomException("A websocket handler for path [" + path + "] already exists");
@@ -81,11 +83,9 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         private Socket client;
         private HttpInputStream inputStream;
         private HttpOutputStream outputStream;
-        private Handoff handoff;
 
         public HttpProtocolHandler(Socket client) throws IOException {
             this.client = Objects.requireNonNull(client);
-            this.handoff = null;
             try {
                 this.inputStream = new HttpInputStream(client.getInputStream());
                 this.outputStream = new HttpOutputStream(client.getOutputStream());
@@ -110,13 +110,14 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         public void run() {
             log.debug("Started http handler for socket {}", client);
             try {
-                while(true) {
+                while (true) {
                     HttpRequest<InputStream> req = HttpRequest.parse(inputStream, FixedLengthInputStream::new);
                     log.debug("Incoming http request [{}] on socket [{}]", req, client);
                     HttpResponse<?> res = new InterceptorChainImpl<>(interceptors, r -> {
-                        if(req.isWebSocketConnection()) {
+                        if (req.isWebSocketConnection()) {
                             try {
-                                return prepareHandoff(discardBody(req));
+                                handleWebsocket(discardBody(req));
+                                throw new HandledByWebsocket();
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -128,10 +129,9 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                     //consuming remaining body TODO is it the right way?
                     req.body.close();
 
-
                     res.write(outputStream);
-                    if(log.isDebugEnabled()) {
-                        try(var out = new FileOutputStream("response.http")) {
+                    if (log.isDebugEnabled()) {
+                        try (var out = new FileOutputStream("response.http")) {
                             HttpOutputStream outputStream1 = new HttpOutputStream(out);
                             res.write(outputStream1);
                             outputStream1.flush();
@@ -139,14 +139,12 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                             log.error("Debug logging of response failed: {}", e.getMessage(), e);
                         }
                     }
-                    if(this.handoff != null) {
-                        completeHandoff();
-                        break;
-                    }
                     //TODO handle connection and keep-alive header, handle timeouts, handle max amt of requests
                 }
             } catch (ConnectionClosedBeforeRequestStartException ignored) {
                 log.debug("Client closed connection");
+            } catch (HandledByWebsocket e) {
+                log.debug("Closed websocket");
             } catch (Throwable t) {
                 log.error("An exception occurred while handling http protocol. Closing socket [{}]", client, t);
             } finally {
@@ -159,39 +157,91 @@ public class WebServer implements HttpHandlerContext<InputStream>{
             return new HttpRequest<>(req.method, req.resource, req.version, req.headers, null);
         }
 
-        private HttpResponse<? extends HttpResponse.ResponseBody> prepareHandoff(HttpRequest<Void> req) throws IOException {
-            log.debug("Incoming websocket connection [{}]", req);
-            WebsocketConnectionHandler wsHandler = websocketHandlers.getHandler(req.getResource());
-            //TODO The websocket handler should have a way of reading the request and responding with some additional info
-            if(wsHandler != null) {
-                this.handoff = new Handoff(wsHandler, req);
-                //Complete websocket handshake
+        private void handleWebsocket(HttpRequest<Void> req) throws IOException {
+            NewWsHandler<?> wsHandler = websocketHandlers.getHandler(req.getResource());
+            _handleWebsocket(req, wsHandler);
+        }
+
+        private <T> void _handleWebsocket(HttpRequest<Void> req, NewWsHandler<T> wsHandler) throws IOException {
+            final T ctx = wsHandler.newContext();
+            final HttpHeaders headers = req.getHeaders();
+            final String protocolsHeader = headers.getFirst("Sec-WebSocket-Protocol");
+            final String[] protocols = protocolsHeader == null ? new String[0] : protocolsHeader.split(",");
+            final NewWsHandler.HandshakeResult handshakeResult = wsHandler.serviceHandshake(protocols, ctx);
+            if(handshakeResult.resultType == NewWsHandler.HandshakeResultType.Accept) {
                 String wsSec = req.getHeaders().getFirst("Sec-WebSocket-Key");
                 String wsAccept = Base64.getEncoder().encodeToString(SHA1.digest((wsSec + MAGIC).getBytes(StandardCharsets.UTF_8)));
                 final HttpHeaders httpHeaders = new HttpHeaders();
                 httpHeaders.add("Upgrade",  "websocket");
                 httpHeaders.add("Connection", "Upgrade");
                 httpHeaders.add("Sec-WebSocket-Accept", wsAccept);
-                return new HttpResponse<>(req.getVersion(), 101, httpHeaders, null);
+                new HttpResponse<>(req.getVersion(), 101, httpHeaders, null).write(outputStream);
+                try {
+                    final WebSocket webSocket = new WebSocket(req, client, inputStream, outputStream);
+                    wsHandler.onHandshakeComplete(new WebsocketWriter(webSocket), ctx);
+                    boolean close = false;
+                    while(!close) { //Message
+                        //TODO streaming
+                        final ArrayList<byte[]> bytes = new ArrayList<>();
+                        boolean last = false;
+                        int opcode = -1;
+                        while(!last) {
+                            try (final WebSocket.WSDataFrame dataFrame = webSocket.getDataFrame()){
+                                if(opcode == -1) {
+                                    opcode = dataFrame.opcode;
+                                } else if(opcode != dataFrame.opcode){
+                                    log.error("Unexpected opcode change [last: {}, current: {}]", opcode, dataFrame.opcode);
+                                    throw new CustomException("Opcode changed in packet chain");
+                                }
+                                switch(opcode) {
+                                    case OP_CLOSE:
+                                        log.debug("Received close");
+                                        //TODO send close
+                                        close = true;
+                                        last = true;
+                                        break;
+                                    case OP_PING:
+                                        log.debug("Received ping");
+                                        //TODO send close
+                                        //TODO send pong
+                                        break;
+                                    case OP_PONG:
+                                        log.debug("Received pong");
+                                        //TODO handler
+                                        break;
+                                    case OP_TEXT:
+                                    case OP_BIN:
+                                        final int flags = dataFrame.flags;
+                                        last = (flags & WebSocket.WSDataFrame.FIN) == WebSocket.WSDataFrame.FIN;
+                                        bytes.add(dataFrame.body.readAllBytes());
+                                }
+                            }
+                        }
+                        if(!bytes.isEmpty()) {
+                            WebsocketMessage.MsgType type;
+                            if (opcode == OP_TEXT) {
+                                type = WebsocketMessage.MsgType.TEXT;
+                            } else { //opcode == WebSocket.WSDataFrame.OP_BIN
+                                type = WebsocketMessage.MsgType.BINARY;
+                            }
+                            wsHandler.onMessage(new WebsocketMessage(bytes.toArray(new byte[bytes.size()][]), type), ctx);
+                        }
+                    }
+                    wsHandler.onClose(ctx);
+                } catch (Exception e) {
+                    //TODO handle
+                    log.error("TODO!!!");
+                }
             } else {
-                return new HttpResponse<>(req.getVersion(), 404,
-                        new HttpHeaders(), new ByteResponseBody("Resource not found"));
+                new HttpResponse<>(req.getVersion(), 400, new HttpHeaders(), null).write(outputStream);
             }
         }
 
-        private void completeHandoff() {
-            handoff.wsHandler.newConnection(new WebSocket(handoff.req, client, inputStream, outputStream));
-            //setting the connection to null to avoid closing the socket as it is now owned by the wsHandler
-            client = null;
-        }
 
 
         @Override
         public void close() {
             closeClient();
-        }
-
-        private record Handoff(WebsocketConnectionHandler wsHandler, HttpRequest<Void> req) {
         }
     }
 

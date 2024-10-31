@@ -1,5 +1,6 @@
 package com.simonebasile.http;
 
+import com.simonebasile.http.unpub.FixedLengthInputStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

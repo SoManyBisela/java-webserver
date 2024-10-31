@@ -1,5 +1,7 @@
 package com.simonebasile.http;
 
+import com.simonebasile.http.unpub.CustomException;
+
 import java.util.*;
 
 public class HttpHeaders {

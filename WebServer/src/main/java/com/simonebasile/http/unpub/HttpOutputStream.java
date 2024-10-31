@@ -1,4 +1,6 @@
-package com.simonebasile.http;
+package com.simonebasile.http.unpub;
+
+import com.simonebasile.http.HttpVersion;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;

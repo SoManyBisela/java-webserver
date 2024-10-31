@@ -3,4 +3,5 @@ module WebServer {
     exports com.simonebasile.http;
     exports com.simonebasile.http.response;
     exports com.simonebasile.http.format;
+    exports com.simonebasile.http.unpub;
 }

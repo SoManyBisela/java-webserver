@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
+import com.simonebasile.sampleapp.chat.MessageDispatcher;
 import com.simonebasile.sampleapp.controllers.*;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
@@ -85,7 +86,8 @@ public class Main {
         var webServer = new WebServer(10131);
         Predicate<HttpRequest<InputStream>> skipSession = (r) -> {
             String resource = r.getResource();
-            return !resource.equals("/favicon.ico") &&
+            return !resource.startsWith("/chat") &&
+                    !resource.equals("/favicon.ico") &&
                     !resource.startsWith("/static");
         };
         Predicate<HttpRequest<InputStream>> skipAuth = (r) -> {
@@ -113,6 +115,8 @@ public class Main {
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(sessionInterceptor, skipSession));
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(authInterceptor, skipAuth));
         webServer.registerHttpHandler("/", homeController);
+        webServer.registerHttpHandler("/chat", new StaticFileHandler("/chat", "chat-test"));
+        webServer.registerWebSocketHandler("/chat/ws", new ChatWsController(new MessageDispatcher()));
         webServer.registerHttpHandler("/login", loginController);
         webServer.registerHttpHandler("/logout", logoutController);
         webServer.registerHttpHandler("/register", registerController);

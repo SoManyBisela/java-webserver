@@ -1,13 +1,12 @@
 package com.simonebasile.http;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.simonebasile.http.unpub.ChunkedWrapper;
+import com.simonebasile.http.unpub.HttpOutputStream;
 
 import java.io.BufferedOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.Buffer;
 
 public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessage<T>{
     protected final int statusCode;

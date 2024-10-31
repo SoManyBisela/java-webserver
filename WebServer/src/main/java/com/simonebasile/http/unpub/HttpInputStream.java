@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.unpub;
 
 import java.io.BufferedInputStream;
 import java.io.EOFException;

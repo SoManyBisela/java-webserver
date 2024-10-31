@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat test</title>
+    <script>
+        function next(value) {
+            let splindex = value.indexOf(";");
+            if(splindex === -1) {
+                return [value, ""];
+            } else {
+                return [value.substring(0, splindex), value.substring(splindex + 1)];
+            }
+        }
+
+        function mklbl(text, clz) {
+            let lbl = document.createElement("label");
+            lbl.innerText = text;
+            lbl.classList.add(clz);
+            return lbl;
+        }
+
+        function mkSndMsg(msg) {
+            let outer = document.createElement("div");
+            outer.classList.add("msg-row", "snd");
+            let msgDiv = document.createElement("div");
+            outer.append(msgDiv);
+            msgDiv.classList.add("msg", "snd")
+            msgDiv.append(mklbl(msg, "msg-content"))
+            return outer;
+        }
+
+        function mkRcvMsg(from, msg) {
+            let outer = document.createElement("div");
+            outer.classList.add("msg-row", "rcv");
+            let msgDiv = document.createElement("div");
+            outer.append(msgDiv);
+            msgDiv.classList.add("msg", "rcv");
+            msgDiv.append(mklbl(from, "msg-from"))
+            msgDiv.append(mklbl(msg, "msg-content"))
+            return outer;
+        }
+
+        function mkopt(user) {
+            let option = document.createElement("option");
+            option.innerText = user;
+            return option;
+        }
+
+        function remakesel(destSel, users) {
+            destSel.innerHTML = '<option value="broadcast" selected>Invia a tutti</option>';
+            users.map(mkopt).forEach(a => destSel.append(a))
+        }
+
+        window.onload = () => {
+            let msgIn = document.getElementById("message-input");
+            let destSel= document.getElementById("destinatario");
+            let msgsDiv = document.getElementById("messages");
+            let sendBtn = document.getElementById("send-button");
+            let idDiv = document.getElementById("identity");
+            let websocket = new WebSocket("ws://" + location.host + "/chat/ws", "chattest");
+
+            let id;
+            let users = [];
+
+
+            function doSend() {
+                let destinatario = destSel.value;
+                if(!destinatario) {
+                    throw new Error("Nessun destinatario selezionato");
+                }
+                let value = msgIn.value;
+                websocket.send(destinatario + ";" + value);
+                msgsDiv.append(mkSndMsg(value));
+            }
+
+            let functions = {
+                send: () => {},
+            }
+
+            sendBtn.addEventListener("click", () => functions.send());
+            msgIn.addEventListener("keyup", (e) => {
+                console.log(e);
+                if(e.code === 'Enter') {
+                    functions.send()
+                }
+            });
+
+            function setUsrs(uz) {
+                users = uz.filter(a => a !== id);
+            }
+            websocket.onopen = (...args) => {
+                msgsDiv.classList.remove("closed");
+            }
+            websocket.onerror = (...args) => console.log("Error", ...args);
+            websocket.onclose = () => {
+                msgsDiv.classList.add("closed");
+                sendBtn.disabled = true;
+                functions.send = () => {};
+            }
+            websocket.onmessage = ({data}) => {
+                console.log("Received: ", data);
+                let [cmd, rest] = next(data);
+                if(cmd === "assign") {
+                    id = rest;
+                    sendBtn.disabled = false;
+                    functions.send = doSend;
+                    idDiv.innerText = "You are " + id;
+                } else if (cmd === "msg") {
+                    let [from, msg] = next(rest);
+                    console.log({from, msg});
+                    msgsDiv.append(mkRcvMsg(from, msg));
+                } else if(cmd === "connected") {
+                    let user = rest;
+                    console.log("Connected", user);
+                    users.push(user);
+                    setUsrs(users);
+                    remakesel(destSel, users);
+                } else if(cmd === "disconnected") {
+                    console.log("Disconnected", rest);
+                    setUsrs(users.filter(a => a !== rest));
+                    remakesel(destSel, users);
+                } else if(cmd === "usrlist"){
+                    setUsrs(rest.split(":"));
+                    remakesel(destSel, users);
+                }
+            }
+            msgIn.focus();
+        }
+    </script>
+    <style>
+        .msg {
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+        .msg.snd {
+            background-color: #f0f0ff;
+        }
+        .msg.rcv {
+            background-color: #f0fff0;
+        }
+        #messages {
+            width: 500px;
+        }
+        .msg-row {
+            display: flex;
+        }
+        .msg-row.rcv {
+            flex-direction: row-reverse;
+        }
+        .msg-row.snd {
+            flex-direction: row;
+        }
+    </style>
+</head>
+<body>
+<h1>chat test</h1>
+<h2 id="identity"></h2>
+<div id="messages" class="closed">
+
+</div>
+<select id="destinatario">
+    <option value="" selected>seleziona un destinatario</option>
+</select>
+<input type="text" placeholder="message" id="message-input"><button id="send-button" disabled>Send</button>
+</body>
+</html>

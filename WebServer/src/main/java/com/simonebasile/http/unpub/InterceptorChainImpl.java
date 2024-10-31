@@ -1,9 +1,13 @@
-package com.simonebasile.http;
+package com.simonebasile.http.unpub;
 
-import java.io.InputStream;
+import com.simonebasile.http.HttpInterceptor;
+import com.simonebasile.http.HttpRequest;
+import com.simonebasile.http.HttpRequestHandler;
+import com.simonebasile.http.HttpResponse;
+
 import java.util.List;
 
-public class InterceptorChainImpl<T> implements HttpRequestHandler<T>{
+public class InterceptorChainImpl<T> implements HttpRequestHandler<T> {
     private final List<HttpInterceptor<T>> interceptors;
     private final HttpRequestHandler<T> handler;
     private int toProcess;

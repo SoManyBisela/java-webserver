@@ -1,5 +1,9 @@
 package com.simonebasile.http;
 
+import com.simonebasile.http.unpub.ConnectionClosedBeforeRequestStartException;
+import com.simonebasile.http.unpub.CustomException;
+import com.simonebasile.http.unpub.HttpInputStream;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;

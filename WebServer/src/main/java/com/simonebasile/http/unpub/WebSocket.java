@@ -1,5 +1,6 @@
-package com.simonebasile.http;
+package com.simonebasile.http.unpub;
 
+import com.simonebasile.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +33,19 @@ public class WebSocket implements Closeable{
     }
 
     public class WSDataFrame implements Closeable{
-        private final int flags;
-        private final int opcode;
-        private final boolean masked;
-        private final long length;
-        private final InputStream body;
-        private boolean closed;
+        public final static int FIN = 0b1000;
+        public final static int OP_TEXT = 1;
+        public final static int OP_BIN = 2;
+        public final static int OP_CLOSE = 8;
+        public final static int OP_PING = 9;
+        public final static int OP_PONG = 10;
+
+        public final int flags;
+        public final int opcode;
+        public final boolean masked;
+        public final long length;
+        public final InputStream body;
+        public boolean closed;
 
         public WSDataFrame(int flags, int opcode, boolean masked, long length, InputStream body ) {
             this.flags = flags;
@@ -84,7 +92,7 @@ public class WebSocket implements Closeable{
         }
     }
 
-    private WSDataFrame getDataFrame() throws IOException {
+    public WSDataFrame getDataFrame() throws IOException {
         //TODO handle exceptions
         getDataframeLock.lock();
         if(!canGetDataframe) {
@@ -108,7 +116,7 @@ public class WebSocket implements Closeable{
             masked = (0b10000000 & unsignedByte) == 0b10000000;
 
             //length
-            int lengthByte = unsignedByte & 0b011111111;
+            int lengthByte = unsignedByte & 0b01111111;
             if(lengthByte == 126 || lengthByte == 127) {
                 byte[] bytes = new byte[8];
                 if(lengthByte == 126) {
@@ -147,7 +155,11 @@ public class WebSocket implements Closeable{
         );
     }
 
-    public void sendDataFrameRaw(int flags, int opcode, byte[] mask, byte[] body) throws IOException {
+    public void sendUnmaskedDataframe(int flags, int opcode, byte[] body) throws IOException {
+        sendDataFrameRaw(flags, opcode, body, null);
+    }
+
+    private void sendDataFrameRaw(int flags, int opcode, byte[] body, byte[] mask) throws IOException {
         boolean masked = mask != null;
         if(masked && mask.length != 4) {
             throw new CustomException("Invalid Websocket frame mask");
