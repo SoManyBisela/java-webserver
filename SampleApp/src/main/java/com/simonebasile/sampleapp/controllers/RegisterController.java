@@ -21,7 +21,7 @@ public class RegisterController extends MethodHandler<InputStream> {
 
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
-        return ResponseUtils.fromView(r.getVersion(), new RegisterView());
+        return new HttpResponse<>(r.getVersion(), new RegisterView());
     }
 
     @Override
@@ -31,7 +31,7 @@ public class RegisterController extends MethodHandler<InputStream> {
             authService.registerUser(body);
             return ResponseUtils.redirect(r.getVersion(), "/login");
         } catch (UserAuthException e) {
-            return ResponseUtils.fromView(r.getVersion(), 400, new RegisterView(e.getMessage()));
+            return new HttpResponse<>(r.getVersion(), 400, new RegisterView(e.getMessage()));
         }
     }
 }

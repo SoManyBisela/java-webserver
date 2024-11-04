@@ -54,12 +54,12 @@ public class TicketListController extends MethodHandler<InputStream> {
 
     private HttpResponse<? extends HttpResponse.ResponseBody> userPage(HttpRequest<?> r, User usr) {
         List<Ticket> tickets = ticketService.getByOwner(usr.getUsername());
-        return ResponseUtils.fromView(r.getVersion(), new UserTicketsView(tickets));
+        return new HttpResponse<>(r.getVersion(), new UserTicketsView(tickets));
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> employeePage(HttpRequest<?> r, User usr) {
         List<Ticket> tickets = ticketService.getSubmitted();
-        return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketsView(tickets));
+        return new HttpResponse<>(r.getVersion(), new EmployeeTicketsView(tickets));
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> errorPage(HttpRequest<?> r) {

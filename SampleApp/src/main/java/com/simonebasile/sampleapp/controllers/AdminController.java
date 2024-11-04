@@ -41,9 +41,9 @@ public class AdminController extends MethodHandler<InputStream> {
         User u = FormHttpMapper.map(r.getBody(), User.class);
         try {
             authService.register(u);
-            return ResponseUtils.fromView(r.getVersion(), new HomeView(user));
+            return new HttpResponse<>(r.getVersion(), new HomeView(user));
         } catch (UserAuthException e ) {
-            return ResponseUtils.fromView(r.getVersion(), new HomeView(user, new HomeView.Errors(e.getMessage())));
+            return new HttpResponse<>(r.getVersion(), new HomeView(user, new HomeView.Errors(e.getMessage())));
         }
     }
 }

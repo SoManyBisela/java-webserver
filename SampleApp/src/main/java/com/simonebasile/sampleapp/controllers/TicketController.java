@@ -50,12 +50,12 @@ public class TicketController extends MethodHandler<InputStream> {
         }
         Ticket ticket = ticketService.getById(id.getId(), user);
         if(ticket == null) {
-            return ResponseUtils.fromView(r.getVersion(), 404, new TicketNotFoundView(id.getId()));
+            return new HttpResponse<>(r.getVersion(), 404, new TicketNotFoundView(id.getId()));
         }
         if(user.getRole() == Role.user) {
-            return ResponseUtils.fromView(r.getVersion(), new UserTicketDetail(ticket));
+            return new HttpResponse<>(r.getVersion(), new UserTicketDetail(ticket));
         } else if(user.getRole() == Role.employee) {
-            return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketDetail(ticket, user));
+            return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetail(ticket, user));
         }
         throw new UnreachableBranchException();
     }
@@ -71,18 +71,18 @@ public class TicketController extends MethodHandler<InputStream> {
                 ticket = ticketService.update(body, user);
             } catch (UpdateTicketException e) {
                 ticket = ticketService.getById(body.getId(), user);
-                return ResponseUtils.fromView(r.getVersion(), new UserTicketDetail(ticket, e.getMessage()));
+                return new HttpResponse<>(r.getVersion(), new UserTicketDetail(ticket, e.getMessage()));
             }
-            return ResponseUtils.fromView(r.getVersion(), new UserTicketDetail(ticket));
+            return new HttpResponse<>(r.getVersion(), new UserTicketDetail(ticket));
         } else if(user.getRole() == Role.employee) {
             EmployeeUpdateTicket body = FormHttpMapper.map(r.getBody(), EmployeeUpdateTicket.class);
             try {
                 ticket = ticketService.update(body, user);
             } catch (UpdateTicketException e) {
                 ticket = ticketService.getById(body.getId(), user);
-                return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketDetail(ticket, user, e.getMessage()));
+                return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetail(ticket, user, e.getMessage()));
             }
-            return ResponseUtils.fromView(r.getVersion(), new EmployeeTicketDetail(ticket, user));
+            return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetail(ticket, user));
         } else {
             log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             return ResponseUtils.redirect(r.getVersion(), "/");

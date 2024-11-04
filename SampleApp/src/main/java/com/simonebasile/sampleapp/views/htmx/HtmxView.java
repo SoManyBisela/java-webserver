@@ -1,0 +1,15 @@
+package com.simonebasile.sampleapp.views.htmx;
+
+import com.simonebasile.sampleapp.views.base.BaseView;
+import com.simonebasile.sampleapp.views.html.HtmlElement;
+
+public class HtmxView extends BaseView {
+    public HtmxView() {
+        addHead(
+                new HtmlElement("meta").attr("charset", "UTF-8"),
+                new HtmlElement("title").text("Ticketing"),
+                new HtmlElement("link").attr("rel", "icon", "href", "/static/favicon.png")
+        );
+        addJs("https://unpkg.com/htmx.org@2.0.3");
+    }
+}

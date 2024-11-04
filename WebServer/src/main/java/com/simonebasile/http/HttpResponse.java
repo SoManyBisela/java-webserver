@@ -40,6 +40,14 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
         String contentType();
     }
 
+    public HttpResponse(HttpVersion version, T body) {
+        this(version, 200, new HttpHeaders(), body);
+    }
+
+    public HttpResponse(HttpVersion version, int statusCode, T body) {
+        this(version, statusCode, new HttpHeaders(), body);
+    }
+
     public HttpResponse(HttpVersion version, int statusCode, HttpHeaders headers, T body) {
         super(version, headers, body);
         this.statusCode = statusCode;

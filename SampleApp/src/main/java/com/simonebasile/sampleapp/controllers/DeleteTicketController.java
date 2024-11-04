@@ -49,9 +49,9 @@ public class DeleteTicketController extends MethodHandler<InputStream> {
         IdRequest id = FormHttpMapper.map(r.getBody(), IdRequest.class);
         if(ticketService.delete(id.getId(), user)) {
             final List<Ticket> byOwner = ticketService.getByOwner(user.getUsername());
-            return ResponseUtils.fromView(r.getVersion(), new UserTicketsView(byOwner));
+            return new HttpResponse<>(r.getVersion(), new UserTicketsView(byOwner));
         } else {
-            return ResponseUtils.fromView(r.getVersion(), 404, new TicketNotFoundView(id.getId()));
+            return new HttpResponse<>(r.getVersion(), 404, new TicketNotFoundView(id.getId()));
         }
     }
 }

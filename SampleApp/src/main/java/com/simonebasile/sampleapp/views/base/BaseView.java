@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.views.base;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.views.html.CssStylesheetElement;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.html.IHtmlElement;
 import com.simonebasile.sampleapp.views.html.JsScriptElement;
 
 import java.io.IOException;
@@ -13,10 +14,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class BaseView implements HttpResponse.ResponseBody {
-    private List<HtmlElement> headElements;
+    private List<IHtmlElement> headElements;
     private List<String> scripts;
     private List<String> stylesheets;
-    private List<HtmlElement> content;
+    private List<IHtmlElement> content;
 
     public BaseView() {
         this.headElements = new ArrayList<>();
@@ -25,16 +26,16 @@ public class BaseView implements HttpResponse.ResponseBody {
         this.content = new ArrayList<>();
     }
 
-    public BaseView(List<? extends HtmlElement> content) {
+    public BaseView(List<? extends IHtmlElement> content) {
         this.headElements = new ArrayList<>();
         this.scripts = new ArrayList<>();
         this.stylesheets = new ArrayList<>();
         this.content = new ArrayList<>(content);
     }
 
-    public BaseView addHead(HtmlElement el, HtmlElement... more) {
+    public BaseView addHead(IHtmlElement el, IHtmlElement... more) {
         headElements.add(el);
-        for(HtmlElement e : more) {
+        for(IHtmlElement e : more) {
             headElements.add(e);
         }
         return this;
@@ -56,9 +57,9 @@ public class BaseView implements HttpResponse.ResponseBody {
         return this;
     }
 
-    public BaseView addContent(HtmlElement el, HtmlElement... more) {
+    public BaseView addContent(IHtmlElement el, IHtmlElement... more) {
         content.add(el);
-        for (HtmlElement htmlElement : more) {
+        for (IHtmlElement htmlElement : more) {
             content.add(htmlElement);
         }
         return this;
@@ -66,7 +67,7 @@ public class BaseView implements HttpResponse.ResponseBody {
 
     @Override
     public void write(OutputStream out) throws IOException {
-        List<HtmlElement> elements = new ArrayList<>();
+        List<IHtmlElement> elements = new ArrayList<>();
         Stream.of(
                         headElements.stream(),
                         scripts.stream().map(JsScriptElement::new),

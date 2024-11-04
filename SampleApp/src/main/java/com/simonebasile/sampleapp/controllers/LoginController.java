@@ -21,7 +21,7 @@ public class LoginController extends MethodHandler<InputStream> {
 
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
-        return ResponseUtils.fromView(r.getVersion(), new LoginView());
+        return new HttpResponse<>(r.getVersion(), new LoginView());
     }
 
     @Override
@@ -31,7 +31,7 @@ public class LoginController extends MethodHandler<InputStream> {
             authService.login(body);
             return ResponseUtils.redirect(r.getVersion(), "/");
         } catch (UserAuthException e) {
-            return ResponseUtils.fromView(r.getVersion(), 401, new LoginView(e.getMessage()));
+            return new HttpResponse<>(r.getVersion(), 401, new LoginView(e.getMessage()));
         }
     }
 }

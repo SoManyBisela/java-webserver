@@ -1,51 +1,36 @@
 package com.simonebasile.sampleapp.views.html;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
-interface IHtmlElement {
-    void write(OutputStream os) throws IOException;
-}
-
-public class HtmlElement implements IHtmlElement {
+public class HtmlElement extends ElementGroup{
     private final String name;
     private final Map<String, String> attributes;
-    private final List<IHtmlElement> content;
 
-    private record TextElement(String text) implements IHtmlElement {
-        @Override
-        public void write(OutputStream os) throws IOException {
-            writeStr(text, os);
-        }
-    }
 
-    public HtmlElement(String name, List<? extends HtmlElement> content) {
+    public HtmlElement(String name, List<? extends IHtmlElement> content) {
+        super(content);
         this.name = name;
-        this.content = new ArrayList<>(content);
         this.attributes = new HashMap<>();
     }
 
     public HtmlElement(String name, Map<String, String> attributes) {
         this.name = name;
-        this.content = new ArrayList<>();
         this.attributes = attributes;
     }
 
     public HtmlElement(String name) {
         this.name = name;
-        this.content = new ArrayList<>();
         this.attributes = new HashMap<>();
     }
 
-    public HtmlElement(String name, Map<String, String> attributes, List<? extends HtmlElement> content) {
+    public HtmlElement(String name, Map<String, String> attributes, List<? extends IHtmlElement> content) {
+        super(content);
         this.name = name;
         this.attributes = attributes;
-        this.content = new ArrayList<>(content);
     }
 
 
@@ -61,9 +46,7 @@ public class HtmlElement implements IHtmlElement {
             writeStr(wrap(value), os);
         }
         writeStr(">", os);
-        for (IHtmlElement htmlElement : content) {
-            htmlElement.write(os);
-        }
+        super.write(os);
         writeStr("</", os);
         writeStr(name, os);
         writeStr(">", os);
@@ -109,14 +92,14 @@ public class HtmlElement implements IHtmlElement {
 
     //TODO distinguish between addX and X methods where addX adds to the existing data, and X replaces existing data
 
-    public HtmlElement content(Collection<? extends HtmlElement> elements) {
+    public HtmlElement content(Collection<? extends IHtmlElement> elements) {
         content.addAll(elements);
         return this;
     }
 
-    public HtmlElement content(HtmlElement element, HtmlElement ...more) {
+    public HtmlElement content(IHtmlElement element, IHtmlElement ...more) {
         content.add(element);
-        for(HtmlElement child : more) {
+        for(IHtmlElement child : more) {
             content.add(child);
         }
         return this;

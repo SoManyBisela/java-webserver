@@ -5,6 +5,8 @@ import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
 import com.simonebasile.sampleapp.chat.MessageDispatcher;
 import com.simonebasile.sampleapp.controllers.*;
+import com.simonebasile.sampleapp.controllers.htmx.HomeController;
+import com.simonebasile.sampleapp.controllers.htmx.PageLinksController;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
 import com.simonebasile.sampleapp.interceptors.SessionInterceptor;
@@ -69,18 +71,21 @@ public class Main {
         var loginController = new LoginController(authenticationService);
         var logoutController = new LogoutController(sessionService);
         var registerController = new RegisterController(authenticationService);
-        var homeController = new HomeController(sessionService, userService);
-        var ticketListController = new TicketListController(sessionService, userService, ticketService);
-        var createTicketController = new CreateTicketController(sessionService, userService, ticketService);
-        var deleteTicketController = new DeleteTicketController(sessionService, userService, ticketService);
-        var ticketController = new TicketController(sessionService, userService, ticketService);
-        var adminController = new AdminController(sessionService, userService, authenticationService);
+        var homeController = new HomeController();
+        var pageLinkController = new PageLinksController(sessionService, userService);
 
+
+
+//        var homeController = new HomeController(sessionService, userService);
+//        var ticketListController = new TicketListController(sessionService, userService, ticketService);
+//        var createTicketController = new CreateTicketController(sessionService, userService, ticketService);
+//        var deleteTicketController = new DeleteTicketController(sessionService, userService, ticketService);
+//        var ticketController = new TicketController(sessionService, userService, ticketService);
+//        var adminController = new AdminController(sessionService, userService, authenticationService);
 
         //Interceptor config
         var sessionInterceptor = new SessionInterceptor<InputStream>(sessionService);
         var authInterceptor = new AuthenticationInterceptor<InputStream>(sessionService);
-
 
         //Webserver config
         var webServer = new WebServer(10131);
@@ -114,18 +119,22 @@ public class Main {
         });
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(sessionInterceptor, skipSession));
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(authInterceptor, skipAuth));
-        webServer.registerHttpHandler("/", homeController);
-        webServer.registerHttpHandler("/chat", new StaticFileHandler("/chat", "chat-test"));
-        webServer.registerWebSocketHandler("/chat/ws", new ChatWsController(new MessageDispatcher()));
+        webServer.registerHttpContext("/static", new StaticFileHandler("/static", "static-files"));
         webServer.registerHttpHandler("/login", loginController);
         webServer.registerHttpHandler("/logout", logoutController);
         webServer.registerHttpHandler("/register", registerController);
-        webServer.registerHttpHandler("/tickets", ticketListController);
-        webServer.registerHttpHandler("/ticket", ticketController);
-        webServer.registerHttpHandler("/ticket/create", createTicketController);
-        webServer.registerHttpHandler("/ticket/delete", deleteTicketController);
-        webServer.registerHttpHandler("/admin/newuser", adminController);
-        webServer.registerHttpContext("/static", new StaticFileHandler("/static", "static-files"));
+
+        webServer.registerHttpHandler("/", homeController);
+        webServer.registerHttpHandler("/page-links", pageLinkController);
+
+//        webServer.registerHttpHandler("/", homeController);
+//        webServer.registerHttpHandler("/chat", new StaticFileHandler("/chat", "chat-test"));
+//        webServer.registerWebSocketHandler("/chat/ws", new ChatWsController(new MessageDispatcher()));
+//        webServer.registerHttpHandler("/tickets", ticketListController);
+//        webServer.registerHttpHandler("/ticket", ticketController);
+//        webServer.registerHttpHandler("/ticket/create", createTicketController);
+//        webServer.registerHttpHandler("/ticket/delete", deleteTicketController);
+//        webServer.registerHttpHandler("/admin/newuser", adminController);
         webServer.start();
 
     }

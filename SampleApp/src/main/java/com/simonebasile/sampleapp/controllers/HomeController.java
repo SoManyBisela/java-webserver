@@ -28,7 +28,7 @@ public class HomeController extends MethodHandler<InputStream> {
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
-        return ResponseUtils.fromView(r.getVersion(), new HomeView(user));
+        return new HttpResponse<>(r.getVersion(), new HomeView(user));
     }
 
 }
