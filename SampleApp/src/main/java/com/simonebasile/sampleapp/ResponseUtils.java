@@ -1,15 +1,22 @@
 package com.simonebasile.sampleapp;
 
 import com.simonebasile.http.HttpHeaders;
+import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
-import com.simonebasile.http.HttpVersion;
-import com.simonebasile.sampleapp.views.base.BaseView;
 
 public class ResponseUtils {
-    //Redirects to get method
-    public static HttpResponse<HttpResponse.ResponseBody> redirect(HttpVersion version, String location) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", location);
-        return new HttpResponse<>(version, 303, headers, null);
+    public static HttpResponse<HttpResponse.ResponseBody> redirect(HttpRequest<?> req, String location) {
+        final String hxReq = req.getHeaders().getFirst("Hx-Request");
+        if(hxReq != null && hxReq.equals("true")) {
+            //send hx redirect
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Hx-Redirect", location);
+            return new HttpResponse<>(req.getVersion(), 200, headers, null);
+        } else {
+            //send http redirect
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", location);
+            return new HttpResponse<>(req.getVersion(), 303, headers, null);
+        }
     }
 }

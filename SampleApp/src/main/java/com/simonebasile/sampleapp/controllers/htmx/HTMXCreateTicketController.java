@@ -1,8 +1,9 @@
-package com.simonebasile.sampleapp.controllers;
+package com.simonebasile.sampleapp.controllers.htmx;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.controllers.UnauthorizedPage;
 import com.simonebasile.sampleapp.dto.CreateTicket;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
@@ -15,20 +16,23 @@ import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.service.errors.CreateTicketException;
 import com.simonebasile.sampleapp.views.CreateTicketView;
+import com.simonebasile.sampleapp.views.htmx.CreateTicketSection;
+import com.simonebasile.sampleapp.views.htmx.UserTicketsSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.List;
 
-public class CreateTicketController extends MethodHandler<InputStream> {
+public class HTMXCreateTicketController extends MethodHandler<InputStream> {
 
-    private static final Logger log = LoggerFactory.getLogger(CreateTicketController.class);
+    private static final Logger log = LoggerFactory.getLogger(HTMXCreateTicketController.class);
     private final SessionService sessionService;
     private final UserService userService;
     private final TicketService ticketService;
 
 
-    public CreateTicketController(SessionService sessionService, UserService userService, TicketService ticketService) {
+    public HTMXCreateTicketController(SessionService sessionService, UserService userService, TicketService ticketService) {
         this.sessionService = sessionService;
         this.userService = userService;
         this.ticketService = ticketService;
@@ -43,7 +47,7 @@ public class CreateTicketController extends MethodHandler<InputStream> {
             ResponseUtils.redirect(r, "/");
         }
         //Check role user
-        return new HttpResponse<>(r.getVersion(), new CreateTicketView());
+        return new HttpResponse<>(r.getVersion(), new CreateTicketSection());
     }
 
     @Override
@@ -59,8 +63,10 @@ public class CreateTicketController extends MethodHandler<InputStream> {
         try {
             id = ticketService.createTicket(new Ticket(body), user).getId();
         } catch (CreateTicketException e) {
-            return new HttpResponse<>(r.getVersion(), new CreateTicketView(e.getMessage()));
+            return new HttpResponse<>(r.getVersion(), new CreateTicketSection(e.getMessage()));
         }
-        return ResponseUtils.redirect(r, "/ticket?id=" + id);
+        //TODO replace with ticket detail
+        final List<Ticket> byOwner = ticketService.getByOwner(user.getUsername());
+        return new HttpResponse<>(r.getVersion(), new UserTicketsSection(byOwner));
     }
 }

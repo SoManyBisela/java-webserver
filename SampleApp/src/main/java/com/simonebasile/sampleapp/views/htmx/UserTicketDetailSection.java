@@ -1,26 +1,23 @@
-package com.simonebasile.sampleapp.views;
+package com.simonebasile.sampleapp.views.htmx;
 
 import com.simonebasile.sampleapp.model.Comment;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.views.base.View;
+import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.custom.InputForm;
 
 import java.util.List;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
-public class UserTicketDetail extends View {
-    public UserTicketDetail(Ticket ticket) {
+public class UserTicketDetailSection extends ElementGroup {
+    public UserTicketDetailSection(Ticket ticket) {
         this(ticket, null);
     }
 
-    public UserTicketDetail(Ticket ticket, String errorMessage) {
-        url("/ticket?id=" + ticket.getId());
-        addJs("/static/more-params.js");
-        addContent(
-                ticket.getState() == TicketState.DRAFT ?
+    public UserTicketDetailSection(Ticket ticket, String errorMessage) {
+        content.add( ticket.getState() == TicketState.DRAFT ?
                         draftTicket(ticket) :
                         ticket(ticket)
         );
@@ -28,8 +25,9 @@ public class UserTicketDetail extends View {
 
     HtmlElement draftTicket(Ticket t) {
         return div().content(
-                new InputForm().action("/ticket", "POST")
-                        .attr("form-param-id", t.getId())
+                new InputForm().hxPost("/ticket")
+                        .hxVals("id", t.getId())
+                        .hxTarget("#main")
                         .input("object", "text", a -> a.input().attr("value", t.getObject(), "class", "ticket-object"))
                         .input("message", "text", a -> a.input().attr("value", t.getMessage(), "class", "ticket-message"))
                         .button( b -> b.text("Submit").attr("name", "submit"))
@@ -67,9 +65,10 @@ public class UserTicketDetail extends View {
         }
         ticketData.content(
                 new InputForm()
-                        .attr("form-param-id", t.getId(),
-                                "id", "add-comment-form")
-                        .action("/ticket", "POST")
+                        .attr( "id", "add-comment-form")
+                        .hxPost("/ticket")
+                        .hxTarget("#main")
+                        .hxVals("id", t.getId())
                         .input("comment", "text")
                         .button(b -> b.text("Send"))
         );

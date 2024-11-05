@@ -24,7 +24,8 @@ public class UserView extends HtmxView {
     }
 
     private IHtmlElement sidebarToggle() {
-        return button().attr("onclick", "this.parentElement.classList.toggle('closed')").text("T");
+        //TODO add icon instead of M
+        return button().attr("onclick", "this.parentElement.classList.toggle('closed')").text("M");
     }
 
     private IHtmlElement sidebarElements() {

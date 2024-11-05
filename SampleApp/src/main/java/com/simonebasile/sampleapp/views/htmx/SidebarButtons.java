@@ -3,26 +3,34 @@ package com.simonebasile.sampleapp.views.htmx;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
+import com.simonebasile.sampleapp.views.html.HtmlElement;
 
-import java.util.ArrayList;
-import java.util.List;
+import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
-public class SidebarButtons extends HtmxResponse {
+public class SidebarButtons extends ElementGroup {
 
     public SidebarButtons(User u) {
-        super(create(u));
+        if(u.getRole() == Role.user || u.getRole() == Role.employee) {
+            content.add(navButton("Tickets", "/tickets", "#main").hxTrigger("click, load"));
+        } else if (u.getRole() == Role.admin) {
+            content.add(navButton("Admin Tools", "/admin-tools", "#main" ).hxTrigger("click, load"));
+        }
+        content.add(navButton("Account", "/account", "#main"));
+        content.add(navButton("Logout" ,"/logout", "body"));
     }
 
-    private static IHtmlElement create(User u) {
-        final List<NavButton> links = new ArrayList<>();
-        if(u.getRole() == Role.user || u.getRole() == Role.employee) {
-            links.add(new NavButton("Tickets", "/tickets", "#main"));
-        } else if (u.getRole() == Role.admin) {
-            links.add(new NavButton("Admin Tools", "/admin-tools", "#main"));
-        }
-        links.add(new NavButton("Account", "/account", "#main"));
+    HtmlElement navButton(String text, String url, String target) {
+        //TODO add icons to buttons and remove this method
+        return navButton(text, url, target, "/static/icon/placeholder.png");
+    }
 
-        return new ElementGroup(links);
+    HtmlElement navButton(String text, String url, String target, String icon) {
+        return div().content(
+                        div().attr("class", "nav-btn-ico", "style", "background-image: url(" + icon + ")"),
+                        span().attr("class", "nav-btn-text").text(text)
+                ).attr("class", "nav-btn btn")
+                .attr("hx-get", url)
+                .attr("hx-swap", "inner-html")
+                .attr("hx-target", target);
     }
 }

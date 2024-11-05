@@ -13,6 +13,7 @@ public class MethodHandler<T> implements HttpRequestHandler<T> {
             case "GET" -> handleGet(r);
             case "POST" -> handlePost(r);
             case "PUT" -> handlePut(r);
+            case "DELETE" -> handleDelete(r);
             default -> methodNotAllowed(r);
         };
     }
@@ -28,6 +29,9 @@ public class MethodHandler<T> implements HttpRequestHandler<T> {
         return methodNotAllowed(r);
     }
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePut(HttpRequest<T> r) {
+        return methodNotAllowed(r);
+    }
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleDelete(HttpRequest<T> r) {
         return methodNotAllowed(r);
     }
 }

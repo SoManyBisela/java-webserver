@@ -1,9 +1,9 @@
 package com.simonebasile.sampleapp.views.htmx;
 
-import com.simonebasile.sampleapp.views.base.BaseView;
+import com.simonebasile.sampleapp.views.base.Html5View;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
-public class HtmxView extends BaseView {
+public class HtmxView extends Html5View {
     public HtmxView() {
         addHead(
                 new HtmlElement("meta").attr("charset", "UTF-8"),

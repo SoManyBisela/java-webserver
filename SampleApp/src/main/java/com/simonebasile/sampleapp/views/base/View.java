@@ -4,7 +4,7 @@ import com.simonebasile.sampleapp.views.html.HtmlElement;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
-public class View extends BaseView{
+public class View extends Html5View {
     public View() {
         this(true);
     }
@@ -30,6 +30,6 @@ public class View extends BaseView{
     public void url(String path) {
         addHead(new HtmlElement("script")
                 .attr("type", "javascript")
-                .text("addonload(() => window.history.replaceState(null, null, " + HtmlElement.wrap(path) + "));"));
+                .text("addonload(() => window.history.replaceState(null, null, " + HtmlElement.strWrap(path) + "));"));
     }
 }

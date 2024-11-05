@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class SessionService {
 

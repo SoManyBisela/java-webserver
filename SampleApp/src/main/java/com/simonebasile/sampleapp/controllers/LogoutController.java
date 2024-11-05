@@ -1,6 +1,7 @@
 package com.simonebasile.sampleapp.controllers;
 
 import com.simonebasile.http.HttpRequest;
+import com.simonebasile.http.HttpRequestHandler;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
@@ -8,7 +9,7 @@ import com.simonebasile.sampleapp.service.SessionService;
 
 import java.io.InputStream;
 
-public class LogoutController extends MethodHandler<InputStream> {
+public class LogoutController implements HttpRequestHandler<InputStream> {
     private final SessionService sessionService;
 
     public LogoutController(SessionService sessionService) {
@@ -16,8 +17,8 @@ public class LogoutController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<InputStream> r) {
         sessionService.updateSession(s -> s.setUsername(null));
-        return ResponseUtils.redirect(r.getVersion(), "/login");
+        return ResponseUtils.redirect(r, "/login");
     }
 }

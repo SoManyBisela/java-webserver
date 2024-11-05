@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.controllers;
+package com.simonebasile.sampleapp.controllers.htmx;
 
 import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
@@ -16,20 +16,22 @@ import com.simonebasile.sampleapp.views.EmployeeTicketsView;
 import com.simonebasile.sampleapp.views.UserTicketsView;
 import com.simonebasile.sampleapp.views.base.Html5View;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.htmx.EmployeeTicketsSection;
+import com.simonebasile.sampleapp.views.htmx.UserTicketsSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
 
-public class TicketListController extends MethodHandler<InputStream> {
-    private static final Logger log = LoggerFactory.getLogger(TicketListController.class);
+public class TicketsController extends MethodHandler<InputStream> {
+    private static final Logger log = LoggerFactory.getLogger(TicketsController.class);
     private final SessionService sessionService;
     private final UserService userService;
     private final TicketService ticketService;
 
 
-    public TicketListController(SessionService sessionService, UserService userService, TicketService ticketService) {
+    public TicketsController(SessionService sessionService, UserService userService, TicketService ticketService) {
         this.sessionService = sessionService;
         this.userService = userService;
         this.ticketService = ticketService;
@@ -54,12 +56,12 @@ public class TicketListController extends MethodHandler<InputStream> {
 
     private HttpResponse<? extends HttpResponse.ResponseBody> userPage(HttpRequest<?> r, User usr) {
         List<Ticket> tickets = ticketService.getByOwner(usr.getUsername());
-        return new HttpResponse<>(r.getVersion(), new UserTicketsView(tickets));
+        return new HttpResponse<>(r.getVersion(), new UserTicketsSection(tickets));
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> employeePage(HttpRequest<?> r, User usr) {
         List<Ticket> tickets = ticketService.getSubmitted();
-        return new HttpResponse<>(r.getVersion(), new EmployeeTicketsView(tickets));
+        return new HttpResponse<>(r.getVersion(), new EmployeeTicketsSection(tickets));
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> errorPage(HttpRequest<?> r) {

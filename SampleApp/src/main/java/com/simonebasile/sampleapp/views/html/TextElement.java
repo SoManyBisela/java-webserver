@@ -5,10 +5,9 @@ import lombok.Getter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 @Getter
-public class TextElement implements IHtmlElement {
+public class TextElement extends IHtmlElement {
     private final String text;
 
     TextElement(String text) {

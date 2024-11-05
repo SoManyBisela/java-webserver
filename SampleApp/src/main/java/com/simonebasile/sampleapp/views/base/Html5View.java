@@ -1,6 +1,5 @@
 package com.simonebasile.sampleapp.views.base;
 
-import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.views.html.CssStylesheetElement;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.html.IHtmlElement;
@@ -13,27 +12,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class BaseView implements HttpResponse.ResponseBody {
+public class Html5View extends IHtmlElement {
     private List<IHtmlElement> headElements;
     private List<String> scripts;
     private List<String> stylesheets;
     private List<IHtmlElement> content;
 
-    public BaseView() {
+    public Html5View() {
         this.headElements = new ArrayList<>();
         this.scripts = new ArrayList<>();
         this.stylesheets = new ArrayList<>();
         this.content = new ArrayList<>();
     }
 
-    public BaseView(List<? extends IHtmlElement> content) {
+    public Html5View(List<? extends IHtmlElement> content) {
         this.headElements = new ArrayList<>();
         this.scripts = new ArrayList<>();
         this.stylesheets = new ArrayList<>();
         this.content = new ArrayList<>(content);
     }
 
-    public BaseView addHead(IHtmlElement el, IHtmlElement... more) {
+    public Html5View addHead(IHtmlElement el, IHtmlElement... more) {
         headElements.add(el);
         for(IHtmlElement e : more) {
             headElements.add(e);
@@ -41,7 +40,7 @@ public class BaseView implements HttpResponse.ResponseBody {
         return this;
     }
 
-    public BaseView addJs(String script, String... more) {
+    public Html5View addJs(String script, String... more) {
         scripts.add(script);
         for(String m: more) {
             scripts.add(m);
@@ -49,7 +48,7 @@ public class BaseView implements HttpResponse.ResponseBody {
         return this;
     }
 
-    public BaseView addCss(String script, String ...more) {
+    public Html5View addCss(String script, String ...more) {
         stylesheets.add(script);
         for(String m: more) {
             stylesheets.add(m);
@@ -57,7 +56,7 @@ public class BaseView implements HttpResponse.ResponseBody {
         return this;
     }
 
-    public BaseView addContent(IHtmlElement el, IHtmlElement... more) {
+    public Html5View addContent(IHtmlElement el, IHtmlElement... more) {
         content.add(el);
         for (IHtmlElement htmlElement : more) {
             content.add(htmlElement);
@@ -81,13 +80,4 @@ public class BaseView implements HttpResponse.ResponseBody {
         new HtmlElement("html", List.of(head, body)).write(out);
     }
 
-    @Override
-    public Long contentLength() {
-        return null;
-    }
-
-    @Override
-    public String contentType() {
-        return "text/html";
-    }
 }

@@ -36,7 +36,7 @@ public class AdminController extends MethodHandler<InputStream> {
         User user = userService.getUser(sessionData.getUsername());
         if(user.getRole() != Role.admin) {
             log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
-            return ResponseUtils.redirect(r.getVersion(), "/");
+            return ResponseUtils.redirect(r, "/");
         }
         User u = FormHttpMapper.map(r.getBody(), User.class);
         try {

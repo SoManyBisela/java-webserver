@@ -29,7 +29,7 @@ public class LoginController extends MethodHandler<InputStream> {
         LoginRequest body = FormHttpMapper.map(r.getBody(), LoginRequest.class);
         try {
             authService.login(body);
-            return ResponseUtils.redirect(r.getVersion(), "/");
+            return ResponseUtils.redirect(r, "/");
         } catch (UserAuthException e) {
             return new HttpResponse<>(r.getVersion(), 401, new LoginView(e.getMessage()));
         }

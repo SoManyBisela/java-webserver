@@ -29,7 +29,7 @@ public class RegisterController extends MethodHandler<InputStream> {
         RegisterRequest body = FormHttpMapper.map(r.getBody(), RegisterRequest.class);
         try {
             authService.registerUser(body);
-            return ResponseUtils.redirect(r.getVersion(), "/login");
+            return ResponseUtils.redirect(r, "/login");
         } catch (UserAuthException e) {
             return new HttpResponse<>(r.getVersion(), 400, new RegisterView(e.getMessage()));
         }

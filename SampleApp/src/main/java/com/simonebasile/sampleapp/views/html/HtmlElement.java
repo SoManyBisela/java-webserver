@@ -37,13 +37,13 @@ public class HtmlElement extends ElementGroup{
     public void write(OutputStream os) throws IOException {
         writeStr("<", os);
         writeStr(name, os);
-        writeStr(" ", os);
         for (Map.Entry<String, String> attr : attributes.entrySet()) {
+            writeStr(" ", os);
             String key = attr.getKey();
             String value = attr.getValue();
             writeStr(key, os);
             writeStr("=", os);
-            writeStr(wrap(value), os);
+            writeStr(escapeWrap(value), os);
         }
         writeStr(">", os);
         super.write(os);
@@ -52,7 +52,24 @@ public class HtmlElement extends ElementGroup{
         writeStr(">", os);
     }
 
-    public static String wrap(String value) {
+    public static String escapeWrap(String value) {
+        StringBuilder s = new StringBuilder();
+        // TODO replace using this spec https://html.spec.whatwg.org/#character-references
+        s.append('"');
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if(c == '"') {
+                s.append("&#34;");
+            } else {
+                s.append(c);
+            }
+        }
+        s.append('"');
+        return s.toString();
+
+    }
+
+    public static String strWrap(String value) {
         StringBuilder s = new StringBuilder();
         s.append('"');
         for (int i = 0; i < value.length(); i++) {
@@ -109,6 +126,63 @@ public class HtmlElement extends ElementGroup{
         content.add(new TextElement(Objects.requireNonNull(text)));
         return this;
     }
+
+    /* Htmx attributes */
+
+    public HtmlElement hxGet(String url) {
+        return attr("hx-get", url);
+    }
+
+    public HtmlElement hxPost(String url) {
+        return attr("hx-post", url);
+    }
+
+    public HtmlElement hxPut(String url) {
+        return attr("hx-put", url);
+    }
+
+    public HtmlElement hxDelete(String url) {
+        return attr("hx-delete", url);
+    }
+
+    public HtmlElement hxTrigger(String value) {
+        return attr("hx-trigger", value);
+    }
+
+    public HtmlElement hxTarget(String value) {
+        return attr("hx-target", value);
+    }
+
+    public HtmlElement hxSync(String value) {
+        return attr("hx-sync", value);
+    }
+
+    public HtmlElement hxSwap(String value) {
+        return attr("hx-swap", value);
+    }
+
+
+    public HtmlElement hxConfirm(String value) {
+        return attr("hx-confirm", value);
+    }
+
+    public HtmlElement hxVals(String... attrs) {
+        if(attrs.length % 2 != 0) {
+            throw new IllegalArgumentException("additional attributes length should be even");
+        }
+        final StringBuilder builder = new StringBuilder();
+        builder.append("{");
+        for(int i = 0; i < attrs.length; i += 2) {
+            String name = attrs[i];
+            String value = attrs[i + 1];
+            builder.append(strWrap(name)).append(":").append(strWrap(value));
+        }
+        builder.append("}");
+
+        return attr("hx-vals", builder.toString());
+    }
+
+    /* Common used elements */
 
     public static HtmlElement div() {
         return new HtmlElement("div");

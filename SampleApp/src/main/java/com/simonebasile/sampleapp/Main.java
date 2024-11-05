@@ -5,8 +5,8 @@ import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
 import com.simonebasile.sampleapp.chat.MessageDispatcher;
 import com.simonebasile.sampleapp.controllers.*;
+import com.simonebasile.sampleapp.controllers.htmx.*;
 import com.simonebasile.sampleapp.controllers.htmx.HomeController;
-import com.simonebasile.sampleapp.controllers.htmx.PageLinksController;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
 import com.simonebasile.sampleapp.interceptors.SessionInterceptor;
@@ -73,6 +73,9 @@ public class Main {
         var registerController = new RegisterController(authenticationService);
         var homeController = new HomeController();
         var pageLinkController = new PageLinksController(sessionService, userService);
+        var ticketsController = new TicketsController(sessionService, userService, ticketService);
+        var createTicketController = new HTMXCreateTicketController(sessionService, userService, ticketService);
+        var ticketController = new HTMXTicketController(sessionService, userService, ticketService);
 
 
 
@@ -126,6 +129,9 @@ public class Main {
 
         webServer.registerHttpHandler("/", homeController);
         webServer.registerHttpHandler("/page-links", pageLinkController);
+        webServer.registerHttpHandler("/tickets", ticketsController);
+        webServer.registerHttpHandler("/ticket/create", createTicketController);
+        webServer.registerHttpHandler("/ticket", ticketController);
 
 //        webServer.registerHttpHandler("/", homeController);
 //        webServer.registerHttpHandler("/chat", new StaticFileHandler("/chat", "chat-test"));

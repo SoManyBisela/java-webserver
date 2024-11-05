@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ElementGroup implements IHtmlElement {
+public class ElementGroup extends IHtmlElement {
     protected final List<IHtmlElement> content;
 
     protected ElementGroup() {
