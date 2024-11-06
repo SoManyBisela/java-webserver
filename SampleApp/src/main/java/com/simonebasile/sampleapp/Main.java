@@ -76,8 +76,8 @@ public class Main {
         var ticketsController = new TicketsController(sessionService, userService, ticketService);
         var createTicketController = new HTMXCreateTicketController(sessionService, userService, ticketService);
         var ticketController = new HTMXTicketController(sessionService, userService, ticketService);
-
-
+        var adminToolsController = new AdminToolsController(sessionService, userService, authenticationService);
+        var accountController = new AccountController(sessionService, userService, authenticationService);
 
 //        var homeController = new HomeController(sessionService, userService);
 //        var ticketListController = new TicketListController(sessionService, userService, ticketService);
@@ -132,6 +132,8 @@ public class Main {
         webServer.registerHttpHandler("/tickets", ticketsController);
         webServer.registerHttpHandler("/ticket/create", createTicketController);
         webServer.registerHttpHandler("/ticket", ticketController);
+        webServer.registerHttpHandler("/admin-tools", adminToolsController);
+        webServer.registerHttpHandler("/account", accountController);
 
 //        webServer.registerHttpHandler("/", homeController);
 //        webServer.registerHttpHandler("/chat", new StaticFileHandler("/chat", "chat-test"));

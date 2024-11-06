@@ -24,10 +24,10 @@ public class AuthenticationService {
             if(ArgonUtils.verify(req.getPassword(), user.getPassword())) {
                 sessionService.updateSession(s -> s.setUsername(user.getUsername()));
             } else {
-                throw new UserAuthException("Username o password non validi");
+                throw new UserAuthException("Invalid username or password");
             }
         } else {
-            throw new UserAuthException("Username o password non validi");
+            throw new UserAuthException("Invalid username or password");
         }
     }
 
@@ -50,7 +50,7 @@ public class AuthenticationService {
             user.setPassword(ArgonUtils.hash(req.getNewPassword()));
             userRepository.updateUser(user);
         } else {
-            throw new UserAuthException("Username o password non validi");
+            throw new UserAuthException("Wrong password");
         }
     }
 }

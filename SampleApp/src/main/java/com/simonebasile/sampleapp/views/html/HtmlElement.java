@@ -107,6 +107,11 @@ public class HtmlElement extends ElementGroup{
         return this;
     }
 
+    public HtmlElement resetContent() {
+        this.content.clear();
+        return this;
+    }
+
     //TODO distinguish between addX and X methods where addX adds to the existing data, and X replaces existing data
 
     public HtmlElement content(Collection<? extends IHtmlElement> elements) {

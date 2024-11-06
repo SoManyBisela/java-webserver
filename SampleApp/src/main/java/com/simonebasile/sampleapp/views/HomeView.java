@@ -35,21 +35,6 @@ public class HomeView extends View {
     private HtmlElement userSection(User user, Errors errors) {
         HtmlElement userContent = div();
         if(user.getRole() == Role.admin) {
-            final InputForm inputForm = new InputForm();
-            userContent.content(div().attr("class", "admin-createuser").content(
-                    inputForm
-                            .action("/admin/newuser", "POST")
-                            .input("username", "text")
-                            .input("password", "password")
-                            .select("role", Arrays.stream(Role.values())
-                                    .map(Enum::name)
-                                    .map(InputForm.SelectOption::new)
-                                    .toArray(InputForm.SelectOption[]::new))
-                            .button(a -> a.text("Create New User"))
-            ));
-            if(errors.createUserError() != null) {
-                inputForm.content(new ErrorMessage(errors.createUserError()));
-            }
         } else if(user.getRole() == Role.user){
             userContent.content(
                     a().attr("href", "/tickets").text("Go to your tickets")

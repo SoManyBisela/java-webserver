@@ -1,9 +1,7 @@
 package com.simonebasile.sampleapp.views.htmx;
 
-import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.IHtmlElement;
 
-import java.util.ArrayList;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
