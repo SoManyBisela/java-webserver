@@ -1,7 +1,8 @@
-package com.simonebasile.sampleapp.views.htmx;
+package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.custom.ErrorMessage;
+import com.simonebasile.sampleapp.views.html.custom.InputForm;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.h;
 

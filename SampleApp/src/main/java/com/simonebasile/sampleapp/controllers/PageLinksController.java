@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.controllers.htmx;
+package com.simonebasile.sampleapp.controllers;
 
 
 import com.simonebasile.http.HttpRequest;
@@ -7,7 +7,7 @@ import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.UserService;
-import com.simonebasile.sampleapp.views.htmx.SidebarButtons;
+import com.simonebasile.sampleapp.views.SidebarButtons;
 
 import java.io.InputStream;
 

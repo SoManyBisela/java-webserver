@@ -14,11 +14,13 @@ import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.service.errors.CreateTicketException;
-import com.simonebasile.sampleapp.views.CreateTicketView;
+import com.simonebasile.sampleapp.views.CreateTicketSection;
+import com.simonebasile.sampleapp.views.UserTicketsSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.List;
 
 public class CreateTicketController extends MethodHandler<InputStream> {
 
@@ -43,7 +45,7 @@ public class CreateTicketController extends MethodHandler<InputStream> {
             ResponseUtils.redirect(r, "/");
         }
         //Check role user
-        return new HttpResponse<>(r.getVersion(), new CreateTicketView());
+        return new HttpResponse<>(r.getVersion(), new CreateTicketSection());
     }
 
     @Override
@@ -52,15 +54,17 @@ public class CreateTicketController extends MethodHandler<InputStream> {
         User user = userService.getUser(sessionData.getUsername());
         if(user.getRole() != Role.user) {
             log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
-            return new HttpResponse<>(r.getVersion(), new UnauthorizedPage());
+            ResponseUtils.redirect(r, "/");
         }
         CreateTicket body = FormHttpMapper.map(r.getBody(), CreateTicket.class);
         String id;
         try {
             id = ticketService.createTicket(new Ticket(body), user).getId();
         } catch (CreateTicketException e) {
-            return new HttpResponse<>(r.getVersion(), new CreateTicketView(e.getMessage()));
+            return new HttpResponse<>(r.getVersion(), new CreateTicketSection(e.getMessage()));
         }
-        return ResponseUtils.redirect(r, "/ticket?id=" + id);
+        //TODO replace with ticket detail
+        final List<Ticket> byOwner = ticketService.getByOwner(user.getUsername());
+        return new HttpResponse<>(r.getVersion(), new UserTicketsSection(byOwner));
     }
 }

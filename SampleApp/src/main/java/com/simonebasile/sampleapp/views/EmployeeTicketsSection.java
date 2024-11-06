@@ -1,7 +1,6 @@
-package com.simonebasile.sampleapp.views.htmx;
+package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.model.Ticket;
-import com.simonebasile.sampleapp.views.base.View;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 

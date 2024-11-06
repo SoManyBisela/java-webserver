@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.controllers.htmx;
+package com.simonebasile.sampleapp.controllers;
 
 import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
@@ -12,12 +12,10 @@ import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
-import com.simonebasile.sampleapp.views.EmployeeTicketsView;
-import com.simonebasile.sampleapp.views.UserTicketsView;
 import com.simonebasile.sampleapp.views.base.Html5View;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.htmx.EmployeeTicketsSection;
-import com.simonebasile.sampleapp.views.htmx.UserTicketsSection;
+import com.simonebasile.sampleapp.views.EmployeeTicketsSection;
+import com.simonebasile.sampleapp.views.UserTicketsSection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

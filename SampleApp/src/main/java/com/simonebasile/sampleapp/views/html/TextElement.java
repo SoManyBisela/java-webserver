@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 public class TextElement extends IHtmlElement {
     private final String text;
 
-    TextElement(String text) {
+    public TextElement(String text) {
         this.text = text;
     }
 

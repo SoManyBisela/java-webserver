@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.views.htmx;
+package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;

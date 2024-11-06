@@ -4,7 +4,6 @@ import com.simonebasile.sampleapp.views.html.HtmlElement;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public class InputForm extends HtmlElement {
 
@@ -18,8 +17,9 @@ public class InputForm extends HtmlElement {
         content(inputTable);
     }
 
+
     public InputForm button(Consumer<HtmlElement> editor) {
-        HtmlElement submitButton = button().attr("type", "submit");
+        HtmlElement submitButton = button();
         content(submitButton);
         editor.accept(submitButton);
         return this;
@@ -68,12 +68,49 @@ public class InputForm extends HtmlElement {
         return this;
     }
 
-    public InputForm action(String action, String method) {
-        attr("action", action, "method", method);
-        return this;
-    }
-
     public InputForm attr(String name, String value, String ...more) {
         return (InputForm) super.attr(name, value, more);
     }
+
+    @Override
+    public InputForm hxGet(String url) {
+        return (InputForm)super.hxGet(url);
+    }
+
+    @Override
+    public InputForm hxPost(String url) {
+        return (InputForm)super.hxPost(url);
+    }
+
+    @Override
+    public InputForm hxPut(String url) {
+        return (InputForm)super.hxPut(url);
+    }
+
+    @Override
+    public InputForm hxDelete(String url) {
+        return (InputForm)super.hxDelete(url);
+    }
+
+    @Override
+    public InputForm hxTrigger(String value) {
+        return (InputForm)super.hxTrigger(value);
+    }
+
+    @Override
+    public InputForm hxTarget(String value) {
+        return (InputForm)super.hxTarget(value);
+    }
+
+    @Override
+    public InputForm hxSwap(String value) {
+        return (InputForm)super.hxSwap(value);
+    }
+
+
+    @Override
+    public InputForm hxVals(String... attrs) {
+        return (InputForm)super.hxVals(attrs);
+    }
+
 }

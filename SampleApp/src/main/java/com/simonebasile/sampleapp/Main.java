@@ -3,10 +3,8 @@ package com.simonebasile.sampleapp;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
-import com.simonebasile.sampleapp.chat.MessageDispatcher;
 import com.simonebasile.sampleapp.controllers.*;
-import com.simonebasile.sampleapp.controllers.htmx.*;
-import com.simonebasile.sampleapp.controllers.htmx.HomeController;
+import com.simonebasile.sampleapp.controllers.HomeController;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
 import com.simonebasile.sampleapp.interceptors.SessionInterceptor;
@@ -74,8 +72,8 @@ public class Main {
         var homeController = new HomeController();
         var pageLinkController = new PageLinksController(sessionService, userService);
         var ticketsController = new TicketsController(sessionService, userService, ticketService);
-        var createTicketController = new HTMXCreateTicketController(sessionService, userService, ticketService);
-        var ticketController = new HTMXTicketController(sessionService, userService, ticketService);
+        var createTicketController = new CreateTicketController(sessionService, userService, ticketService);
+        var ticketController = new TicketController(sessionService, userService, ticketService);
         var adminToolsController = new AdminToolsController(sessionService, userService, authenticationService);
         var accountController = new AccountController(sessionService, userService, authenticationService);
 

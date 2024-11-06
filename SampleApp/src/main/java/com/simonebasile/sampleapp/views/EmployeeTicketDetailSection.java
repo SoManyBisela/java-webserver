@@ -1,55 +1,37 @@
-package com.simonebasile.sampleapp.views.htmx;
+package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.model.Comment;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.TicketState;
-import com.simonebasile.sampleapp.views.base.View;
+import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.html.custom.InputForm;
 
 import java.util.List;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
-public class UserTicketDetailSection extends ElementGroup {
-    public UserTicketDetailSection(Ticket ticket) {
-        this(ticket, null);
+public class EmployeeTicketDetailSection extends ElementGroup {
+    public EmployeeTicketDetailSection(Ticket ticket, User user) {
+        this(ticket, user, null);
     }
-
-    public UserTicketDetailSection(Ticket ticket, String errorMessage) {
-        content.add( ticket.getState() == TicketState.DRAFT ?
-                        draftTicket(ticket) :
-                        ticket(ticket)
-        );
-    }
-
-    HtmlElement draftTicket(Ticket t) {
-        return div().content(
-                new InputForm().hxPost("/ticket")
-                        .hxVals("id", t.getId())
-                        .hxTarget("#main")
-                        .input("object", "text", a -> a.input().attr("value", t.getObject(), "class", "ticket-object"))
-                        .input("message", "text", a -> a.input().attr("value", t.getMessage(), "class", "ticket-message"))
-                        .button( b -> b.text("Submit").attr("name", "submit"))
-                        .button( b -> b.text("Save as draft"))
-        );
-    }
-
-    HtmlElement ticket(Ticket t) {
+    public EmployeeTicketDetailSection(Ticket ticket, User user, String message) {
         final HtmlElement ticketData = div().content(
                 div()
                         .attr("class", "ticket-object")
-                        .text(t.getObject()),
+                        .text(ticket.getObject()),
                 div()
                         .attr("class", "ticket-message")
-                        .text(t.getMessage())
+                        .text(ticket.getMessage())
         );
-        final List<Comment> comments = t.getComments();
+        content.add(ticketData);
+        final List<Comment> comments = ticket.getComments();
         if(comments != null) {
             for(Comment comment : comments) {
                 HtmlElement commentElement = div();
                 ticketData.content(commentElement);
-                if(comment.getAuthor().equals(t.getOwner())) {
+                if(comment.getAuthor().equals(user.getUsername())) {
                     commentElement.attr("class", "ticket-comment-owner")
                             .content(
                                     p().text(comment.getContent())
@@ -63,16 +45,32 @@ public class UserTicketDetailSection extends ElementGroup {
                 }
             }
         }
-        ticketData.content(
+        if(ticket.getAssegnee() == null) {
+            content.add(
+                    button().text("Assign to me")
+                            .hxTarget("#main")
+                            .hxPost("/ticket")
+                            .hxVals("id", ticket.getId(),
+                                    "assign", "")
+            );
+        }
+        if(ticket.getState() == TicketState.OPEN && user.getUsername().equals(ticket.getAssegnee())) {
+            content.add(
+                    button().text("Close")
+                            .hxTarget("#main")
+                            .hxPost("/ticket")
+                            .hxVals("id", ticket.getId(),
+                                    "close", "")
+            );
+        }
+        content.add(
                 new InputForm()
+                        .hxVals("id", ticket.getId())
                         .attr( "id", "add-comment-form")
                         .hxPost("/ticket")
                         .hxTarget("#main")
-                        .hxVals("id", t.getId())
                         .input("comment", "text")
                         .button(b -> b.text("Send"))
         );
-        return ticketData;
     }
-
 }

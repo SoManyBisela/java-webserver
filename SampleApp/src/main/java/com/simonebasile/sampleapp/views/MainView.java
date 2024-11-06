@@ -1,13 +1,13 @@
-package com.simonebasile.sampleapp.views.htmx;
+package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.views.html.IHtmlElement;
 
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
-public class UserView extends HtmxView {
+public class MainView extends HtmxView {
     //This will be the main view that contains all the elements the user will interact with
-    public UserView() {
+    public MainView() {
         addCss("/static/userview.css");
         addContent(
                 div().attr("class", "header"),

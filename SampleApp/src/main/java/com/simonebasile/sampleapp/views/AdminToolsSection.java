@@ -1,14 +1,12 @@
-package com.simonebasile.sampleapp.views.htmx;
+package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.custom.ErrorMessage;
+import com.simonebasile.sampleapp.views.html.custom.InputForm;
 import com.simonebasile.sampleapp.views.html.custom.SuccessMessage;
 
 import java.util.Arrays;
-
-import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
-import static com.simonebasile.sampleapp.views.html.HtmlElement.input;
 
 public class AdminToolsSection extends ElementGroup {
 
