@@ -15,16 +15,18 @@ import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.service.errors.CreateTicketException;
 import com.simonebasile.sampleapp.views.CreateTicketSection;
+import com.simonebasile.sampleapp.views.UserTicketDetailSection;
 import com.simonebasile.sampleapp.views.UserTicketsSection;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
 
+@Slf4j
 public class CreateTicketController extends MethodHandler<InputStream> {
 
-    private static final Logger log = LoggerFactory.getLogger(CreateTicketController.class);
     private final SessionService sessionService;
     private final UserService userService;
     private final TicketService ticketService;
@@ -63,8 +65,7 @@ public class CreateTicketController extends MethodHandler<InputStream> {
         } catch (CreateTicketException e) {
             return new HttpResponse<>(r.getVersion(), new CreateTicketSection(e.getMessage()));
         }
-        //TODO replace with ticket detail
-        final List<Ticket> byOwner = ticketService.getByOwner(user.getUsername());
-        return new HttpResponse<>(r.getVersion(), new UserTicketsSection(byOwner));
+        Ticket t = ticketService.getById(id, user);
+        return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(t));
     }
 }

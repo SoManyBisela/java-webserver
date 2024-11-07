@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 public abstract class FormHttpRequestHandler<T> extends MappingRequestHandler<InputStream, T, HttpResponse.ResponseBody> {
-    private static final Logger log = LoggerFactory.getLogger(FormHttpRequestHandler.class);
     private final Class<T> requestBodyType;
     public FormHttpRequestHandler(Class<T> requestBodyType) {
         this.requestBodyType = requestBodyType;

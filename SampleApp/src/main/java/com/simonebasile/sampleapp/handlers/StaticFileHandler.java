@@ -2,13 +2,15 @@ package com.simonebasile.sampleapp.handlers;
 
 import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
+import com.simonebasile.http.response.FileResponseBody;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
+@Slf4j
 public class StaticFileHandler implements HttpRequestHandler<InputStream> {
-    private static final Logger log = LoggerFactory.getLogger(StaticFileHandler.class);
     private final String registrationPath;
     private final String rootDirectory;
 
@@ -75,46 +77,5 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream> {
         }
     }
 
-    private static class FileResponseBody implements HttpResponse.ResponseBody {
-        private final File file;
 
-        public FileResponseBody(File targetFile) {
-            this.file = targetFile;
-        }
-
-        @Override
-        public void write(OutputStream out) throws IOException {
-            try (InputStream in = new FileInputStream(file)) {
-                in.transferTo(out);
-            }
-        }
-
-        @Override
-        public Long contentLength() {
-            return file.length();
-        }
-
-        @Override
-        public String contentType() {
-            String name = file.getName();
-            int extStart = name.lastIndexOf(".");
-            String extension = extStart == -1 ? null : name.substring(extStart + 1);
-            return getMime(extension);
-        }
-    }
-
-    private static String getMime(String extension) {
-        if(extension == null || extension.isEmpty()) {
-            return "application/octet-stream";
-        }
-        return switch (extension) {
-            case "txt" -> "text/plain";
-            case "html" -> "text/html";
-            case "js" -> "text/javascript";
-            case "xml" -> "text/xml";
-            case "css" -> "text/css";
-            case "json" -> "application/json";
-            default -> "application/octet-stream";
-        };
-    }
 }

@@ -97,4 +97,9 @@ public class TicketService {
             return false;
         }
     }
+
+    public Ticket addAttachment(Ticket ticket, String path, String filename) {
+        ticket.getAttachments().add(new Attachment(path, filename));
+        return ticketRepository.update(ticket);
+    }
 }

@@ -2,6 +2,8 @@ package com.simonebasile.sampleapp.mapping;
 
 import com.simonebasile.http.format.QueryParameters;
 import com.simonebasile.sampleapp.json.ObjectMapperConfig;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,8 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class FormHttpMapper {
-    private static final Logger log = LoggerFactory.getLogger(FormHttpMapper.class);
 
     public static <T> T mapHttpResource(String resource , Class<T> type) {
         int qpstart = resource.indexOf("?");

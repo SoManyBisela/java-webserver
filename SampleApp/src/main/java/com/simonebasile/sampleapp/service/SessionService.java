@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.service;
 import com.simonebasile.sampleapp.DebugRegistry;
 import com.simonebasile.sampleapp.repository.SessionRepository;
 import com.simonebasile.sampleapp.model.SessionData;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,9 +11,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@Slf4j
 public class SessionService {
 
-    private static final Logger log = LoggerFactory.getLogger(SessionService.class);
     private final ThreadLocal<SessionData> sessionData;
     private final SessionRepository sessionRepository;
 

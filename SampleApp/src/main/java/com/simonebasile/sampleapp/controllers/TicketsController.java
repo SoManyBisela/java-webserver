@@ -16,14 +16,15 @@ import com.simonebasile.sampleapp.views.base.Html5View;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.EmployeeTicketsSection;
 import com.simonebasile.sampleapp.views.UserTicketsSection;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
 
+@Slf4j
 public class TicketsController extends MethodHandler<InputStream> {
-    private static final Logger log = LoggerFactory.getLogger(TicketsController.class);
     private final SessionService sessionService;
     private final UserService userService;
     private final TicketService ticketService;

@@ -16,7 +16,7 @@ public class SidebarButtons extends ElementGroup {
             content.add(navButton("Admin Tools", "/admin-tools", "#main" ).hxTrigger("click, load"));
         }
         content.add(navButton("Account", "/account", "#main"));
-        content.add(navButton("Logout" ,"/logout", "body"));
+        content.add(navButton("Logout" ,"/logout", "body").hxConfirm("Are you sure you want to logout?"));
     }
 
     HtmlElement navButton(String text, String url, String target) {

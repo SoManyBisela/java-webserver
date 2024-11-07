@@ -1,0 +1,103 @@
+package com.simonebasile.sampleapp.controllers;
+
+import com.simonebasile.http.HttpHeaders;
+import com.simonebasile.http.HttpRequest;
+import com.simonebasile.http.HttpResponse;
+import com.simonebasile.http.response.FileResponseBody;
+import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.dto.DownloadAttachmentRequest;
+import com.simonebasile.sampleapp.dto.UploadAttachmentRequest;
+import com.simonebasile.sampleapp.handlers.MethodHandler;
+import com.simonebasile.sampleapp.mapping.FormHttpMapper;
+import com.simonebasile.sampleapp.model.*;
+import com.simonebasile.sampleapp.service.SessionService;
+import com.simonebasile.sampleapp.service.TicketService;
+import com.simonebasile.sampleapp.service.UserService;
+import com.simonebasile.sampleapp.views.TicketNotFoundSection;
+import com.simonebasile.sampleapp.views.UserTicketDetailSection;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.UUID;
+
+@Slf4j
+public class AttachmentController extends MethodHandler<InputStream> {
+
+    private final SessionService sessionService;
+    private final UserService userService;
+    private final TicketService ticketService;
+
+    public AttachmentController(SessionService sessionService, UserService userService, TicketService ticketService) {
+        this.sessionService = sessionService;
+        this.userService = userService;
+        this.ticketService = ticketService;
+    }
+
+    @Override
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
+        SessionData sessionData = sessionService.currentSession();
+        User user = userService.getUser(sessionData.getUsername());
+        if(user.getRole() != Role.user) {
+            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
+            ResponseUtils.redirect(r, "/");
+        }
+        UploadAttachmentRequest uploadAttachmentRequest = FormHttpMapper.mapHttpResource(r.getResource(), UploadAttachmentRequest.class);
+        String ticketId = uploadAttachmentRequest.getTicketId();
+        Ticket ticket = ticketService.getById(ticketId, user);
+        if(ticket == null) {
+            log.warn("User {} Tried to upload attachment for ticket with id {}",user.getUsername(), ticketId);
+            return new HttpResponse<>(r.getVersion(), 404, new TicketNotFoundSection(ticketId));
+        }
+        Path containerFolder = Path.of("uploads", ticketId);
+        try {
+            Files.createDirectories(containerFolder);
+        } catch (IOException e) {
+            log.error("Si è verificato un errore durante la creazione della cartella {} per gli allegati: {}",
+                    containerFolder, e.getMessage(), e);
+            return new HttpResponse<>(r.getVersion(), 500, new UserTicketDetailSection(ticket)
+                    .errorMessage("An unexpected error occurred while uploading the attachmenbt"));
+        }
+        Path file = containerFolder.resolve(UUID.randomUUID().toString());
+
+        try (final FileOutputStream fileOutputStream = new FileOutputStream(file.toFile())){
+            r.getBody().transferTo(fileOutputStream);
+        } catch (Exception e) {
+            log.error("Si è verificato un errore durante l'upload del file: {}",
+                    e.getMessage(), e);
+            return new HttpResponse<>(r.getVersion(), 500, new UserTicketDetailSection(ticket)
+                    .errorMessage("An unexpected error occurred while uploading the attachmenbt"));
+        }
+
+        ticket = ticketService.addAttachment(ticket, file.toString(), uploadAttachmentRequest.getFilename());
+        return new HttpResponse<>(r.getVersion(), 200, new UserTicketDetailSection(ticket));
+    }
+
+    @Override
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
+        SessionData sessionData = sessionService.currentSession();
+        User user = userService.getUser(sessionData.getUsername());
+        if(user.getRole() != Role.user) {
+            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
+            ResponseUtils.redirect(r, "/");
+        }
+        DownloadAttachmentRequest downloadReq = FormHttpMapper.mapHttpResource(r.getResource(), DownloadAttachmentRequest.class);
+        Ticket t = ticketService.getById(downloadReq.getTicketId(), user);
+        if(t == null) {
+            final HttpHeaders headers = new HttpHeaders();
+            return new HttpResponse<>(r.getVersion(), 404, headers, null);
+        }
+        Attachment attachment = t.getAttachments().get(downloadReq.getAti());
+        final File file = new File(attachment.getPath());
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("content-disposition", "attachment; filename=" + attachment.getName());
+        return new HttpResponse<>(r.getVersion(), 200, headers, new FileResponseBody(file));
+    }
+}

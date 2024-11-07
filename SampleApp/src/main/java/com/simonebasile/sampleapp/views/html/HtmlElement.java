@@ -178,6 +178,7 @@ public class HtmlElement extends ElementGroup{
         final StringBuilder builder = new StringBuilder();
         builder.append("{");
         for(int i = 0; i < attrs.length; i += 2) {
+            if(i != 0) builder.append(',');
             String name = attrs[i];
             String value = attrs[i + 1];
             builder.append(strWrap(name)).append(":").append(strWrap(value));

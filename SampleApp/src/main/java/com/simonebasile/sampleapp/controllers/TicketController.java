@@ -20,14 +20,15 @@ import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
 import com.simonebasile.sampleapp.views.TicketNotFoundSection;
 import com.simonebasile.sampleapp.views.UserTicketDetailSection;
 import com.simonebasile.sampleapp.views.EmployeeTicketDetailSection;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
+@Slf4j
 public class TicketController extends MethodHandler<InputStream> {
 
-    private static final Logger log = LoggerFactory.getLogger(TicketController.class);
     private final SessionService sessionService;
     private final UserService userService;
     private final TicketService ticketService;

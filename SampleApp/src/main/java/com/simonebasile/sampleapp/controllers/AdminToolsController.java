@@ -13,14 +13,16 @@ import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.AdminToolsSection;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
+@Slf4j
 public class AdminToolsController extends MethodHandler<InputStream> {
 
-    private static final Logger log = LoggerFactory.getLogger(AdminToolsController.class);
+
     private final AuthenticationService authService;
     private final SessionService sessionService;
     private final UserService userService;

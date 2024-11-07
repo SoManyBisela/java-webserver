@@ -19,7 +19,6 @@ import java.io.InputStream;
 
 public class AccountController extends MethodHandler<InputStream> {
 
-    private static final Logger log = LoggerFactory.getLogger(AccountController.class);
     private final AuthenticationService authService;
     private final SessionService sessionService;
     private final UserService userService;

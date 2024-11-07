@@ -19,6 +19,7 @@ import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.slf4j.Logger;
@@ -29,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+@Slf4j
 public class Main {
-    private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
         webapp();
@@ -76,13 +77,8 @@ public class Main {
         var ticketController = new TicketController(sessionService, userService, ticketService);
         var adminToolsController = new AdminToolsController(sessionService, userService, authenticationService);
         var accountController = new AccountController(sessionService, userService, authenticationService);
+        var attachmentController = new AttachmentController(sessionService, userService, ticketService);
 
-//        var homeController = new HomeController(sessionService, userService);
-//        var ticketListController = new TicketListController(sessionService, userService, ticketService);
-//        var createTicketController = new CreateTicketController(sessionService, userService, ticketService);
-//        var deleteTicketController = new DeleteTicketController(sessionService, userService, ticketService);
-//        var ticketController = new TicketController(sessionService, userService, ticketService);
-//        var adminController = new AdminController(sessionService, userService, authenticationService);
 
         //Interceptor config
         var sessionInterceptor = new SessionInterceptor<InputStream>(sessionService);
@@ -116,6 +112,10 @@ public class Main {
                 }
             }
             log.info("Processing time: {}ms", System.currentTimeMillis() - start);
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+            }
             return res;
         });
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(sessionInterceptor, skipSession));
@@ -132,15 +132,8 @@ public class Main {
         webServer.registerHttpHandler("/ticket", ticketController);
         webServer.registerHttpHandler("/admin-tools", adminToolsController);
         webServer.registerHttpHandler("/account", accountController);
+        webServer.registerHttpHandler("/attachment", attachmentController);
 
-//        webServer.registerHttpHandler("/", homeController);
-//        webServer.registerHttpHandler("/chat", new StaticFileHandler("/chat", "chat-test"));
-//        webServer.registerWebSocketHandler("/chat/ws", new ChatWsController(new MessageDispatcher()));
-//        webServer.registerHttpHandler("/tickets", ticketListController);
-//        webServer.registerHttpHandler("/ticket", ticketController);
-//        webServer.registerHttpHandler("/ticket/create", createTicketController);
-//        webServer.registerHttpHandler("/ticket/delete", deleteTicketController);
-//        webServer.registerHttpHandler("/admin/newuser", adminController);
         webServer.start();
 
     }
