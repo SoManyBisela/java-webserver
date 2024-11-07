@@ -72,7 +72,7 @@ public class TicketController extends MethodHandler<InputStream> {
                 ticket = ticketService.update(body, user);
             } catch (UpdateTicketException e) {
                 ticket = ticketService.getById(body.getId(), user);
-                return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket, e.getMessage()));
+                return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket).errorMessage(e.getMessage()));
             }
             return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket));
         } else if(user.getRole() == Role.employee) {
@@ -102,7 +102,7 @@ public class TicketController extends MethodHandler<InputStream> {
         if(ticketService.delete(id.getId(), user)) {
             return new HttpResponse<>(r.getVersion(), null);
         } else {
-            return new HttpResponse<>(r.getVersion(), 404, new TicketNotFoundSection(id.getId()));
+            return new HttpResponse<>(r.getVersion(), new TicketNotFoundSection(id.getId()));
         }
     }
 }

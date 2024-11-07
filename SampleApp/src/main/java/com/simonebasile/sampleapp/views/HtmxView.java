@@ -10,6 +10,7 @@ public class HtmxView extends Html5View {
                 new HtmlElement("title").text("Ticketing"),
                 new HtmlElement("link").attr("rel", "icon", "href", "/static/favicon.png")
         );
-        addJs("https://unpkg.com/htmx.org@2.0.3");
+        //addJs("https://unpkg.com/htmx.org@2.0.3");
+        addJs("/static/htmx.js");
     }
 }

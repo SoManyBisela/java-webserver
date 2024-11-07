@@ -6,66 +6,47 @@ import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
 import com.simonebasile.sampleapp.views.html.custom.ErrorMessage;
 import com.simonebasile.sampleapp.views.html.custom.InputForm;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class UserTicketDetailSection extends ElementGroup {
     public UserTicketDetailSection(Ticket ticket) {
-        this(ticket, null);
-    }
-
-    public UserTicketDetailSection(Ticket ticket, String errorMessage) {
         content.add( ticket.getState() == TicketState.DRAFT ?
-                        draftTicket(ticket) :
-                        ticket(ticket)
+                draftTicket(ticket) :
+                ticket(ticket)
         );
     }
 
     HtmlElement draftTicket(Ticket t) {
         return div().content(
-                new InputForm().hxPost("/ticket")
-                        .hxVals("id", t.getId())
-                        .hxTarget("#main")
-                        .input("object", "text", a -> a.input().attr("value", t.getObject(), "class", "ticket-object"))
-                        .input("message", "text", a -> a.input().attr("value", t.getMessage(), "class", "ticket-message"))
-                        .button( b -> b.text("Submit").attr("name", "submit"))
-                        .button( b -> b.text("Save as draft")),
-                attachmentList(t.getAttachments(), t.getId())
-                        .content(uploadAttachment(t.getId()))
-        );
+                        new InputForm().hxPost("/ticket")
+                                .hxVals("id", t.getId())
+                                .hxTarget("#main")
+                                .input("object", "text", a -> a.input().attr("value", t.getObject(), "class", "ticket-object"))
+                                .input("message", "text", a -> a.input().attr("value", t.getMessage(), "class", "ticket-message"))
+                                .button( b -> b.text("Submit").attr("name", "submit"))
+                                .button( b -> b.text("Save as draft")),
+                        attachmentList(t.getAttachments(), t.getId()))
+                .content(uploadAttachment(t.getId()));
     }
 
     private HtmlElement uploadAttachment(String id) {
-        return div().attr("class", "upload-attachment").content(
-                new HtmlElement("script").content(new IHtmlElement() {
-                    @Override
-                    public void write(OutputStream out) throws IOException {
-                        out.write("""
-                        function upload(fileinput, id) {
-                            console.log(fileinput, id);
-                            let file = fileinput.files[0];
-                            let filename = file.name;
-                            fetch(`/attachment?ticketId=${id}&filename=${encodeURIComponent(filename)}`, {
-                                method: "POST",
-                                body: fileinput.files[0]
-                            })
-                            .then(r => r.text())
-                            .then(content => htmx.swap("#main", content, {swapStyle: 'innerHTML'}));
-                        }""".getBytes(StandardCharsets.UTF_8));
-                    }
-                }),
-                input().attr("type", "file"),
-                button().text("Upload").attr("class",
-                        "upload-button", "onclick", "upload(this.previousElementSibling, '" + id + "')")
-        );
+        return form().attr("class", "upload-attachment",
+                        "hx-raw-file-param", "filecontent",
+                        "hx-raw-filename-param", "filename")
+                .hxExt("raw-body")
+                .hxPost("/attachment")
+                .hxVals("ticketId", id)
+                .hxTarget("#main")
+                .hxSwap("innerHTML")
+                .content(
+                        input().attr("type", "file", "name", "filecontent"),
+                        button().text("Upload").attr("class", "upload-button", "type", "submit")
+                );
     }
 
 
@@ -88,7 +69,7 @@ public class UserTicketDetailSection extends ElementGroup {
     }
 
     private HtmlElement attachmentList(List<Attachment> attachments, String id) {
-        HtmlElement container = table().attr("class", "attachments");
+        HtmlElement container = table().attr("class", "attachments", "id", "attachmentlist");
         if(attachments != null) {
             for (int i = 0; i < attachments.size(); i++) {
                 Attachment attachment = attachments.get(i);

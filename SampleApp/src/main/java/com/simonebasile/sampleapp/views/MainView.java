@@ -9,6 +9,7 @@ public class MainView extends HtmxView {
     //This will be the main view that contains all the elements the user will interact with
     public MainView() {
         addCss("/static/userview.css");
+        addJs("/static/custom.js");
         addContent(
                 div().attr("class", "header"),
                 div().attr("class", "container").content(

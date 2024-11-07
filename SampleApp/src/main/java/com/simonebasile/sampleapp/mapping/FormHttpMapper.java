@@ -18,7 +18,7 @@ public class FormHttpMapper {
     public static <T> T mapHttpResource(String resource , Class<T> type) {
         int qpstart = resource.indexOf("?");
         if(qpstart == -1) {
-            qpstart = resource.length();
+            qpstart = resource.length() - 1;
         }
         return map(resource.substring(qpstart + 1), type);
     }

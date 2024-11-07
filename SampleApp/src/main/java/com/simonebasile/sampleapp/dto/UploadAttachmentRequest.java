@@ -1,15 +1,17 @@
 package com.simonebasile.sampleapp.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class UploadAttachmentRequest {
     String ticketId;
     String filename;
+
+    public boolean valid() {
+        return filename != null && !filename.isEmpty();
+    }
 }

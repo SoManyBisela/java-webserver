@@ -188,6 +188,10 @@ public class HtmlElement extends ElementGroup{
         return attr("hx-vals", builder.toString());
     }
 
+    public HtmlElement hxExt(String s) {
+        return attr("hx-ext", s);
+    }
+
     /* Common used elements */
 
     public static HtmlElement div() {
