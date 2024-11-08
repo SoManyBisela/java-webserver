@@ -2,14 +2,14 @@ package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.views.html.IHtmlElement;
 
-
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class MainView extends HtmxView {
     //This will be the main view that contains all the elements the user will interact with
     public MainView() {
         addCss("/static/userview.css");
-        addJs("/static/custom.js");
+        addJs("/static/body-file-extension.js");
+        addJs("https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js");
         addContent(
                 div().attr("class", "header"),
                 div().attr("class", "container").content(

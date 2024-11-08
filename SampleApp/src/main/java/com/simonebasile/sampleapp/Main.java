@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
+import com.simonebasile.sampleapp.chat.MessageDispatcher;
 import com.simonebasile.sampleapp.controllers.*;
 import com.simonebasile.sampleapp.controllers.HomeController;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
@@ -22,8 +23,6 @@ import com.simonebasile.sampleapp.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.pojo.PojoCodecProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
@@ -65,6 +64,7 @@ public class Main {
         var authenticationService = new AuthenticationService(userRepository, sessionService);
         var userService = new UserService(userRepository);
         var ticketService = new TicketService(ticketRepository);
+        var messageDispatcher = new MessageDispatcher();
 
         //Controllers config
         var loginController = new LoginController(authenticationService);
@@ -78,7 +78,8 @@ public class Main {
         var adminToolsController = new AdminToolsController(sessionService, userService, authenticationService);
         var accountController = new AccountController(sessionService, userService, authenticationService);
         var attachmentController = new AttachmentController(sessionService, userService, ticketService);
-
+        var chatWsController = new ChatWsController(sessionService, userService);
+        var chatController = new ChatController(sessionService, userService);
 
         //Interceptor config
         var sessionInterceptor = new SessionInterceptor<InputStream>(sessionService);
@@ -133,6 +134,9 @@ public class Main {
         webServer.registerHttpHandler("/admin-tools", adminToolsController);
         webServer.registerHttpHandler("/account", accountController);
         webServer.registerHttpHandler("/attachment", attachmentController);
+
+        webServer.registerHttpHandler("/chat", chatController);
+        webServer.registerWebSocketHandler("/chat", chatWsController);
 
         webServer.start();
 

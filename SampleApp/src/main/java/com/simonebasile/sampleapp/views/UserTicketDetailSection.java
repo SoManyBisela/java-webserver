@@ -23,7 +23,7 @@ public class UserTicketDetailSection extends ElementGroup {
 
     HtmlElement draftTicket(Ticket t) {
         return div().content(
-                        new InputForm().hxPost("/ticket")
+                        new InputForm().hxPut("/ticket")
                                 .hxVals("id", t.getId())
                                 .hxTarget("#main")
                                 .input("object", "text", a -> a.input().attr("value", t.getObject(), "class", "ticket-object"))
@@ -38,7 +38,7 @@ public class UserTicketDetailSection extends ElementGroup {
         return form().attr("class", "upload-attachment",
                         "hx-raw-file-param", "filecontent",
                         "hx-raw-filename-param", "filename")
-                .hxExt("raw-body")
+                .hxExt("body-file")
                 .hxPost("/attachment")
                 .hxVals("ticketId", id)
                 .hxTarget("#main")
@@ -52,11 +52,9 @@ public class UserTicketDetailSection extends ElementGroup {
 
     HtmlElement ticket(Ticket t) {
         HtmlElement ticketData = div().content(
-                div()
-                        .attr("class", "ticket-object")
+                div().attr("class", "ticket-object")
                         .text(t.getObject()),
-                div()
-                        .attr("class", "ticket-message")
+                div().attr("class", "ticket-message")
                         .text(t.getMessage())
         );
 
@@ -110,7 +108,7 @@ public class UserTicketDetailSection extends ElementGroup {
         ticketData.content(
                 new InputForm()
                         .attr( "id", "add-comment-form")
-                        .hxPost("/ticket")
+                        .hxPut("/ticket")
                         .hxTarget("#main")
                         .hxVals("id", ticketId)
                         .input("comment", "text")

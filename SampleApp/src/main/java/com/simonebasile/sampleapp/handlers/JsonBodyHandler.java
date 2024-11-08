@@ -2,7 +2,7 @@ package com.simonebasile.sampleapp.handlers;
 
 import com.simonebasile.http.*;
 import com.simonebasile.sampleapp.exceptions.BadRequestException;
-import com.simonebasile.sampleapp.json.ObjectMapperConfig;
+import com.simonebasile.sampleapp.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ public abstract class JsonBodyHandler<T> extends MappingRequestHandler<InputStre
     @Override
     protected T mapRequestBody(InputStream in) {
         try {
-            T parsed = ObjectMapperConfig.jsonMapper.readValue(in, bodyType);
+            T parsed = JsonMapper.mapper.readValue(in, bodyType);
             if(in.read() != -1) {
                 throw new BadRequestException("Invalid body: body does not end with the json");
             }
@@ -43,7 +43,7 @@ public abstract class JsonBodyHandler<T> extends MappingRequestHandler<InputStre
 
         @Override
         public void write(OutputStream out) throws IOException {
-            ObjectMapperConfig.jsonMapper.writeValue(out, source);
+            JsonMapper.mapper.writeValue(out, source);
         }
 
         @Override

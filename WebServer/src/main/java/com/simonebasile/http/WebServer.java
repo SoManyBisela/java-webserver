@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -167,7 +166,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
             final HttpHeaders headers = req.getHeaders();
             final String protocolsHeader = headers.getFirst("Sec-WebSocket-Protocol");
             final String[] protocols = protocolsHeader == null ? new String[0] : protocolsHeader.split(",");
-            final NewWsHandler.HandshakeResult handshakeResult = wsHandler.serviceHandshake(protocols, ctx);
+            final NewWsHandler.HandshakeResult handshakeResult = wsHandler.onServiceHandshake(protocols, ctx);
             if(handshakeResult.resultType == NewWsHandler.HandshakeResultType.Accept) {
                 String wsSec = req.getHeaders().getFirst("Sec-WebSocket-Key");
                 String wsAccept = Base64.getEncoder().encodeToString(SHA1.digest((wsSec + MAGIC).getBytes(StandardCharsets.UTF_8)));
@@ -178,7 +177,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                 new HttpResponse<>(req.getVersion(), 101, httpHeaders, null).write(outputStream);
                 try {
                     final WebSocket webSocket = new WebSocket(req, client, inputStream, outputStream);
-                    wsHandler.onHandshakeComplete(new WebsocketWriter(webSocket), ctx);
+                    wsHandler.onHandshakeComplete(new WebsocketWriterImpl(webSocket), ctx);
                     boolean close = false;
                     while(!close) { //Message
                         //TODO streaming

@@ -1,37 +1,36 @@
 package com.simonebasile.sampleapp.chat;
 
 import com.simonebasile.http.WebsocketWriter;
+import com.simonebasile.http.WebsocketWriterImpl;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MessageDispatcher {
-    private final ConcurrentHashMap<String, WebsocketWriter> clients;
+public class MessageDispatcher<T extends WebsocketWriter> extends ConcurrentHashMap<String, T> {
 
     public MessageDispatcher() {
-        clients = new ConcurrentHashMap<>();
+        super();
     }
 
 
     public void sendMessage(String clientId, String message) {
         try {
-            clients.get(clientId).sendText(message);
+            super.get(clientId).sendText(message);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void registerClient(String clientId, WebsocketWriter writer) {
-        clients.put(clientId, writer);
+    public boolean registerClient(String clientId, T writer) {
+        return super.putIfAbsent(clientId, writer) == null;
     }
 
     public void markDisconnected(String clientId) {
-        clients.remove(clientId);
+        super.remove(clientId);
     }
 
     public void broadcast(String message) {
-        clients.forEach((k, w)->{
+        super.forEach((k, w)->{
             try {
                 w.sendText(message);
             } catch (IOException e) {
@@ -41,6 +40,10 @@ public class MessageDispatcher {
     }
 
     public String registeredList() {
-        return clients.reduceKeys(1000, (a, b) -> a + ":" + b);
+        return super.reduceKeys(1000, (a, b) -> a + ":" + b);
+    }
+
+    public boolean hasClient(String username) {
+        return super.containsKey(username);
     }
 }

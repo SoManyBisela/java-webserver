@@ -32,9 +32,9 @@ public interface NewWsHandler<Context> {
 
     Context newContext();
 
-    HandshakeResult serviceHandshake(String[] availableService, Context context);
+    HandshakeResult onServiceHandshake(String[] availableService, Context context);
 
-    void onHandshakeComplete(WebsocketWriter websocketWriter, Context ctx);
+    void onHandshakeComplete(WebsocketWriterImpl websocketWriter, Context ctx);
 
     void onMessage(WebsocketMessage msg, Context context);
 

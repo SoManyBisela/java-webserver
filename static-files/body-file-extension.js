@@ -1,4 +1,4 @@
-htmx.defineExtension('raw-body', {
+htmx.defineExtension('body-file', {
     onEvent: function(name, evt) {
         if (name === 'htmx:configRequest') {
             evt.detail.headers['Content-Type'] = 'application/octet-stream'
@@ -34,7 +34,6 @@ htmx.defineExtension('raw-body', {
             //replace parameters
             evt.detail.parameters = {file};
             evt.detail.useUrlParams = false;
-        } else if (name === 'htmx:validateUrl') {
         }
     },
 
