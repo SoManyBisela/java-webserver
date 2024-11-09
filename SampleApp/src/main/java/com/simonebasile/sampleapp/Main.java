@@ -76,7 +76,6 @@ public class Main {
         var accountController = new AccountController(sessionService, userService, authenticationService);
         var attachmentController = new AttachmentController(sessionService, userService, ticketService);
         var chatWsController = new ChatWsController(sessionService, userService);
-        var chatController = new ChatController(sessionService, userService);
 
         //Interceptor config
         var sessionInterceptor = new SessionInterceptor<InputStream>(sessionService);
@@ -130,7 +129,6 @@ public class Main {
         webServer.registerHttpHandler("/account", accountController);
         webServer.registerHttpHandler("/attachment", attachmentController);
 
-        webServer.registerHttpHandler("/chat", chatController);
         webServer.registerWebSocketHandler("/chat", chatWsController);
 
         webServer.start();

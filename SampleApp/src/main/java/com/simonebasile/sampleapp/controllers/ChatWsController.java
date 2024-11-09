@@ -82,12 +82,14 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
                 ));
                 case MESSAGE_RECEIVED ->
                         obswap("messages", "beforeend", div().content(
-                                div().attr("class", "message received").text(msg.getMessage())));
+                                div().attr("class", "message-row received").content(
+                                        div().attr("class", "message").text(msg.getMessage()))));
                 case MESSAGE_SENT ->
                         new ElementGroup(
                                 obswap("messages", "beforeend", div().content(
-                                        div().attr("class", "message sent").text(msg.getMessage()))),
-                                new SendMessageElement()
+                                        div().attr("class", "message-row sent").content(
+                                                div().attr("class", "message").text(msg.getMessage())))),
+                                new SendMessageElement().focusOnLoad()
                         );
                 case CHAT_AVAILABLE -> obswap("chat-container", div().content(
                         new ElementGroup(
@@ -316,7 +318,11 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
 
     @Override
     public void onClose(WsState ctx) {
-
+        final ConnectedUser writer = ctx.writer;
+        removeChatFromQueue(writer);
+        if(writer.connectedTo != null) {
+            endChat(writer);
+        }
         connectedUsers.remove(ctx.user.getUsername());
     }
 }

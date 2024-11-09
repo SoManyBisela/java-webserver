@@ -85,3 +85,35 @@ body {
     display: flex;
     flex-direction: row-reverse;
 }
+
+.message-row {
+    display: flex;
+}
+
+.message-row.received {
+    flex-direction: row;
+}
+
+.message-row.sent {
+    flex-direction: row-reverse;
+}
+
+.message {
+    display: inline-block;
+    border-radius: 8px;
+    padding: 4px;
+    background-color: white;
+}
+
+.message:after {
+    display: inline-block;
+    width: 20px;
+}
+
+.chatbox {
+    max-height: 80%;
+}
+
+.message-container {
+    overflow: auto
+}

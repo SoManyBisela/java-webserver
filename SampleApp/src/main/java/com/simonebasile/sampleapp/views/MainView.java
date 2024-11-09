@@ -1,8 +1,10 @@
 package com.simonebasile.sampleapp.views;
 
+import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
+import com.simonebasile.sampleapp.views.chat.ChatSection;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
+import com.simonebasile.sampleapp.views.html.NoElement;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
@@ -18,18 +20,16 @@ public class MainView extends HtmxView {
                 div().attr("class", "container").content(
                         div().attr("class", "main", "id", "main")
                                 .text("Seleziona un elemento sulla sinistra"),
-                        div().attr("class", "chatbox closed").content(
-                                div().attr("class", "chatbox-content").content(
-                                        div().attr("class", "chat-header").content(
-                                                chatboxToggle().text("X")
+                        (u.getRole() == Role.employee || u.getRole() == Role.user) ?
+                                div().attr("class", "chatbox closed").content(
+                                        div().attr("class", "chatbox-content").content(
+                                                div().attr("class", "chat-header").content(
+                                                        chatboxToggle().text("X")
+                                                ),
+                                                new ChatSection()
                                         ),
-                                        div().hxTrigger("load")
-                                                .hxGet("/chat")
-                                                .hxSwap("outerHTML")
-                                                .hxTarget("this")
-                                ),
-                                chatboxToggle().text("chat")
-                        )
+                                        chatboxToggle().text("chat")
+                                ) : NoElement.instance
                 )
         );
     }
