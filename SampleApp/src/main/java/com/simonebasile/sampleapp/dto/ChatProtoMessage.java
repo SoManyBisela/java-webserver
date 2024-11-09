@@ -26,6 +26,10 @@ public class ChatProtoMessage {
         return new ChatProtoMessage(CPMType.CONNECTED, null);
     }
 
+    public static ChatProtoMessage waitingForChat() {
+        return new ChatProtoMessage(CPMType.WAIT_FOR_CHAT, null);
+    }
+
     public static ChatProtoMessage alreadyConnected() {
         return new ChatProtoMessage(CPMType.ALREADY_CONNECTED, null);
     }

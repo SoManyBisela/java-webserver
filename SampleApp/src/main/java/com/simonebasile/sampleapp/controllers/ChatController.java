@@ -30,7 +30,7 @@ public class ChatController extends MethodHandler<InputStream> {
             return new HttpResponse<>(r.getVersion(), new HtmxView()
                     .addJs("https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js")
                     .addJs("https://unpkg.com/htmx-ext-debug@2.0.0/debug.js")
-                    .addContent(new ChatSection().hxExt("ws,debug")));
+                    .addContent(new ChatSection()));
         } else {
             return new HttpResponse<>(r.getVersion(), null);
         }
