@@ -89,8 +89,7 @@ public class Main {
         var webServer = new WebServer(10131);
         Predicate<HttpRequest<InputStream>> skipSession = (r) -> {
             String resource = r.getResource();
-            return !resource.startsWith("/chat") &&
-                    !resource.equals("/favicon.ico") &&
+            return !resource.equals("/favicon.ico") &&
                     !resource.startsWith("/static");
         };
         Predicate<HttpRequest<InputStream>> skipAuth = (r) -> {
@@ -136,7 +135,7 @@ public class Main {
         webServer.registerHttpHandler("/attachment", attachmentController);
 
         webServer.registerHttpHandler("/chat", chatController);
-        webServer.registerWebSocketHandler("/chat", chatWsController);
+        webServer.registerWebSocketHandler("/chatroom", chatWsController);
 
         webServer.start();
 

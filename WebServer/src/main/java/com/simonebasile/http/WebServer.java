@@ -175,9 +175,11 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                 httpHeaders.add("Connection", "Upgrade");
                 httpHeaders.add("Sec-WebSocket-Accept", wsAccept);
                 new HttpResponse<>(req.getVersion(), 101, httpHeaders, null).write(outputStream);
+                boolean hsComplete = false;
                 try {
                     final WebSocket webSocket = new WebSocket(req, client, inputStream, outputStream);
                     wsHandler.onHandshakeComplete(new WebsocketWriterImpl(webSocket), ctx);
+                    hsComplete = true;
                     boolean close = false;
                     while(!close) { //Message
                         //TODO streaming
@@ -228,7 +230,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                     }
                     wsHandler.onClose(ctx);
                 } catch (Exception e) {
-                    //TODO handle
+                    if(hsComplete) wsHandler.onClose(ctx);
                     log.error("TODO!!!");
                 }
             } else {

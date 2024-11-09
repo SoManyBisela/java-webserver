@@ -14,7 +14,11 @@ public class WebsocketWriterImpl implements WebsocketWriter {
 
     @Override
     public void sendText(String s) throws IOException {
-        final byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+        sendTextBytes(s.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public void sendTextBytes(byte[] bytes) throws IOException {
         //TODO bytes length test
         websocket.sendUnmaskedDataframe(WebSocket.WSDataFrame.FIN, WebSocket.WSDataFrame.OP_TEXT, bytes);
     }

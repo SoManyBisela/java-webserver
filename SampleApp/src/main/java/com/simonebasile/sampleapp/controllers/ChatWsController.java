@@ -92,9 +92,14 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
                 case NO_CHAT_AVAILABLE -> null;
                 default -> throw new IllegalStateException("Unexpected type: " + msg.type);
             };
-            final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            s.write(byteArrayOutputStream);
-            sendText(new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            s.write(out);
+            sendTextBytes(out.toByteArray());
+        }
+
+        @Override
+        public void sendTextBytes(byte[] s) throws IOException {
+            writer.sendTextBytes(s);
         }
 
         @Override
@@ -160,11 +165,16 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
         private Integer nval;
         private String sval;
 
+
         public String getMessage() {
             if(this.type == CPMType.SEND_MESSAGE || this.type == CPMType.MESSAGE_SENT) {
                 return sval;
             }
             throw new IllegalStateException("message type doesn't support message");
+        }
+
+        public static ChatProtoMessage connected() {
+            return new ChatProtoMessage(CPMType.CONNECTED, null, null);
         }
 
         public static ChatProtoMessage alreadyConnected() {
@@ -231,6 +241,11 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
                 log.error("Error while sending message: {}", e.getMessage(), e);
             }
             ctx.writer.sendClose();
+        }
+        try {
+            ctx.writer.sendMsg(ChatProtoMessage.connected());
+        } catch (IOException e) {
+            log.error("Error while sending message: {}", e.getMessage(), e);
         }
     }
 

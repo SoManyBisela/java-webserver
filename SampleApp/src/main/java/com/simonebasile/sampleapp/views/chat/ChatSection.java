@@ -8,8 +8,10 @@ public class ChatSection extends HtmlElement {
         attr(
                 "class", "chat-section",
                 "id", "class-section",
-                "ws-connect", "/chat"
+                "ws-connect", "/chatroom"
         );
+        hxExt("debug");
+        hxExt("ws");
         content(div().attr( "id", "chatcontainer" ).text("connecting..."));
     }
 }
