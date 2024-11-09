@@ -231,7 +231,8 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                     wsHandler.onClose(ctx);
                 } catch (Exception e) {
                     if(hsComplete) wsHandler.onClose(ctx);
-                    log.error("TODO!!!");
+                    //TODO review error handling
+                    log.error("Error in websocket", e);
                 }
             } else {
                 new HttpResponse<>(req.getVersion(), 400, new HttpHeaders(), null).write(outputStream);

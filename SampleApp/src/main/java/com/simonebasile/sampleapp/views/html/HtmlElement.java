@@ -166,6 +166,9 @@ public class HtmlElement extends ElementGroup{
         return attr("hx-swap", value);
     }
 
+    public HtmlElement hxSwapOob(String value) {
+        return attr("hx-swap-oob", value);
+    }
 
     public HtmlElement hxConfirm(String value) {
         return attr("hx-confirm", value);

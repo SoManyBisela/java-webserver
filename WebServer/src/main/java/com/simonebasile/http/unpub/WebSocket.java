@@ -171,13 +171,13 @@ public class WebSocket implements Closeable{
                 outputStream.write((body.length & 0b01111111) | (masked ? 0b10000000 : 0));
             } else if(body.length >= (1 << 16)) {
                 outputStream.write(127 | (masked ? 0b10000000 : 0));
-                byte[] len = new byte[4];
-                ByteBuffer.wrap(len).putInt(body.length);
+                byte[] len = new byte[8];
+                ByteBuffer.wrap(len).putLong(body.length);
                 outputStream.write(len);
             } else {
                 outputStream.write(126 | (masked ? 0b10000000 : 0));
-                byte[] len = new byte[8];
-                ByteBuffer.wrap(len).putLong(body.length);
+                byte[] len = new byte[2];
+                ByteBuffer.wrap(len).putShort((short)body.length);
                 outputStream.write(len);
             }
             if(masked) {

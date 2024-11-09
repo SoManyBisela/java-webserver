@@ -3,7 +3,6 @@ package com.simonebasile.sampleapp;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
-import com.simonebasile.sampleapp.chat.MessageDispatcher;
 import com.simonebasile.sampleapp.controllers.*;
 import com.simonebasile.sampleapp.controllers.HomeController;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
@@ -64,7 +63,6 @@ public class Main {
         var authenticationService = new AuthenticationService(userRepository, sessionService);
         var userService = new UserService(userRepository);
         var ticketService = new TicketService(ticketRepository);
-        var messageDispatcher = new MessageDispatcher();
 
         //Controllers config
         var loginController = new LoginController(authenticationService);

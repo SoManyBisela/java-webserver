@@ -4,7 +4,7 @@ import com.simonebasile.http.NewWsHandler;
 import com.simonebasile.http.WebsocketMessage;
 import com.simonebasile.http.WebsocketWriter;
 import com.simonebasile.http.WebsocketWriterImpl;
-import com.simonebasile.sampleapp.chat.MessageDispatcher;
+import com.simonebasile.sampleapp.dto.ChatProtoMessage;
 import com.simonebasile.sampleapp.json.JsonMapper;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.SessionData;
@@ -15,32 +15,23 @@ import com.simonebasile.sampleapp.views.chat.*;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.html.IHtmlElement;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
+//TODO increase logging
+//TODO maybe move message rendering outside
 @Slf4j
 public class ChatWsController implements NewWsHandler<ChatWsController.WsState> {
     private final SessionService sessionService;
     private final UserService userService;
-    private final MessageDispatcher<ConnectedUser> dispatcher;
+    private final ConcurrentHashMap<String, ConnectedUser> connectedUsers;
     private final ConcurrentLinkedQueue<String> waitingToChat;
-
-    public ChatWsController(SessionService sessionService, UserService userService) {
-        this.sessionService = sessionService;
-        this.userService = userService;
-        this.waitingToChat = new ConcurrentLinkedQueue<>();
-        this.dispatcher = new MessageDispatcher<>();
-    }
-
 
     private static class ConnectedUser implements WebsocketWriter {
         private User user;
@@ -63,34 +54,44 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
         private static HtmlElement obswap(String id, HtmlElement el) {
             return obswap(id, "true", el);
         }
+
         private static HtmlElement obswap(String id, String swap, HtmlElement el) {
-            return el.attr("hx-oob-swap", swap, "id", id);
+            return el.attr( "id", id).hxSwapOob(swap);
         }
 
-        public void sendMsg(ChatProtoMessage msg) throws IOException{
-            final IHtmlElement s = switch (msg.type) {
-                case CONNECTED -> obswap("chat-input-container", HtmlElement.div().content(
-                        user.getRole() == Role.user ?
-                                new WantToChatElement() :
-                                new ElementGroup(
-                                        HtmlElement.div().text("No chat requests"),
-                                        new AcceptChatElement()
-                                )
+        public void sendMsg(ChatProtoMessage msg) throws IOException {
+            final IHtmlElement s = switch (msg.getType()) {
+                case CONNECTED -> obswap("chat-container", div().content(
+                        new WantToChatElement()
                 ));
                 case ALREADY_CONNECTED -> obswap("chat-section", new AlreadyConnectedSection());
-                case CHAT_CONNECTED -> obswap("chat-container", HtmlElement.div().content(
-                        HtmlElement.div().attr("id", "messages", "class", "message-container"),
-                        HtmlElement.div().attr("id", "chat-inputs-container").content(
+                case CHAT_CONNECTED -> obswap("chat-container", div().content(
+                        div().attr("id", "messages", "class", "message-container"),
+                        div().attr("id", "chat-inputs-container").content(
                                 new SendMessageElement(),
                                 new EndChatElement()
                         )
                 ));
-                case CHAT_DISCONNECTED -> obswap("chat-inputs-container", HtmlElement.div().text("Chat disconnected"));
-                case MESSAGE_RECEIVED -> obswap("messages", "beforeend", HtmlElement.div().attr("class", "message received").text(msg.getMessage()));
-                case MESSAGE_SENT -> obswap("messages", "beforeend", HtmlElement.div().attr("class", "message sent").text(msg.getMessage()));
-                case CHAT_REQUESTED -> null;
-                case NO_CHAT_AVAILABLE -> null;
-                default -> throw new IllegalStateException("Unexpected type: " + msg.type);
+                case CHAT_DISCONNECTED -> obswap("chat-inputs-container", div().text("Chat disconnected"));
+                case MESSAGE_RECEIVED ->
+                        obswap("messages", "beforeend", div().content(
+                                div().attr("class", "message received").text(msg.getMessage())));
+                case MESSAGE_SENT ->
+                        new ElementGroup(
+                                obswap("messages", "beforeend", div().content(
+                                        div().attr("class", "message sent").text(msg.getMessage()))),
+                                new SendMessageElement()
+                        );
+                case CHAT_AVAILABLE -> obswap("chat-container", div().content(
+                        new ElementGroup(
+                                div().text("There are users waiting to chat"),
+                                new AcceptChatElement()
+                        )
+                ));
+                case NO_CHAT_AVAILABLE -> obswap("chat-container", div().content(
+                        div().text("There are no chat requests")
+                ));
+                default -> throw new IllegalStateException("Unexpected type: " + msg.getType());
             };
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             s.write(out);
@@ -112,96 +113,16 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
             writer.sendClose();
         }
     }
-
+    public ChatWsController(SessionService sessionService, UserService userService) {
+        this.sessionService = sessionService;
+        this.userService = userService;
+        this.waitingToChat = new ConcurrentLinkedQueue<>();
+        this.connectedUsers = new ConcurrentHashMap<>();
+    }
 
     public static class WsState{
         private User user;
         private ConnectedUser writer;
-    }
-
-    public enum CPMType {
-        //S to C
-        CONNECTED,
-        ALREADY_CONNECTED,
-        CHAT_CONNECTED, //Username
-        CHAT_DISCONNECTED,
-        MESSAGE_RECEIVED, //Message
-        MESSAGE_SENT, //Message
-
-        //S to E
-        CHAT_REQUESTED, //N of chats
-        NO_CHAT_AVAILABLE,
-
-        //U to S
-        WANT_TO_CHAT(Role.user),
-
-        //E to S
-        ACCEPT_CHAT(Role.employee),
-
-        //C to S
-        SEND_MESSAGE(Role.user, Role.employee), //Message
-        END_CHAT(Role.employee, Role.employee),;
-
-        private final Role[] canSend;
-
-        CPMType(Role... canSend) {
-            this.canSend = canSend;
-        }
-
-        boolean canBeSentBy(User u) {
-            for (Role role : this.canSend) {
-                if(u.getRole() == role) return true;
-            }
-            return false;
-        }
-    }
-
-    @Setter
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ChatProtoMessage {
-        private CPMType type;
-        private Integer nval;
-        private String sval;
-
-
-        public String getMessage() {
-            if(this.type == CPMType.SEND_MESSAGE || this.type == CPMType.MESSAGE_SENT) {
-                return sval;
-            }
-            throw new IllegalStateException("message type doesn't support message");
-        }
-
-        public static ChatProtoMessage connected() {
-            return new ChatProtoMessage(CPMType.CONNECTED, null, null);
-        }
-
-        public static ChatProtoMessage alreadyConnected() {
-            return new ChatProtoMessage(CPMType.ALREADY_CONNECTED, null, null);
-        }
-
-        public static ChatProtoMessage chatRequested(int nchat) {
-            return new ChatProtoMessage(CPMType.CHAT_REQUESTED, nchat, null);
-        }
-
-        public static ChatProtoMessage chatConnected(String username) {
-            return new ChatProtoMessage(CPMType.CHAT_CONNECTED, null, username);
-        }
-
-        public static ChatProtoMessage chatDisconnected() {
-            return new ChatProtoMessage(CPMType.CHAT_DISCONNECTED, null, null);
-        }
-
-        public static ChatProtoMessage messageReceived(String message) {
-            return new ChatProtoMessage(CPMType.MESSAGE_RECEIVED, null, message);
-        }
-
-        public static ChatProtoMessage noChatAvailable() {
-            return new ChatProtoMessage(CPMType.NO_CHAT_AVAILABLE, null, null);
-        }
-
-
     }
 
     @Override
@@ -216,9 +137,9 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
             return HandshakeResult.refuse("Connection refused");
         }
         ctx.user = userService.getUser(sessionData.getUsername());
-        if(dispatcher.containsKey(ctx.user.getUsername())) {
-            return HandshakeResult.refuse("User already connected");
-        }
+        //if(dispatcher.containsKey(ctx.user.getUsername())) {
+        //    return HandshakeResult.refuse("User already connected");
+        //}
         if(availableService.length == 0) {
             return HandshakeResult.accept("chat");
         }
@@ -234,7 +155,7 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
     public void onHandshakeComplete(WebsocketWriterImpl websocketWriter, WsState ctx) {
         final String username = ctx.user.getUsername();
         ctx.writer = new ConnectedUser(ctx.user, websocketWriter);
-        if(!dispatcher.registerClient(username, ctx.writer)) {
+        if(connectedUsers.putIfAbsent(username, ctx.writer) != null) {
             try {
                 ctx.writer.sendMsg(ChatProtoMessage.alreadyConnected());
             } catch (IOException e) {
@@ -243,7 +164,15 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
             ctx.writer.sendClose();
         }
         try {
-            ctx.writer.sendMsg(ChatProtoMessage.connected());
+            if(ctx.user.getRole() == Role.user) {
+                ctx.writer.sendMsg(ChatProtoMessage.connected());
+            } else {
+                if(waitingToChat.isEmpty()) {
+                    ctx.writer.sendMsg(ChatProtoMessage.noChatAvailable());
+                } else {
+                    ctx.writer.sendMsg(ChatProtoMessage.chatAvailable());
+                }
+            }
         } catch (IOException e) {
             log.error("Error while sending message: {}", e.getMessage(), e);
         }
@@ -259,12 +188,12 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
         ChatProtoMessage message = JsonMapper.parse(msg.data[0], ChatProtoMessage.class);
         log.info("Received message: {}", message);
         final User user = ctx.user;
-        if(!message.type.canBeSentBy(user)) {
-            log.warn("User sent invalid message. User role: {}, Message type: {}", user.getRole(), message.type);
+        if(!message.getType().canBeSentBy(user)) {
+            log.warn("User sent invalid message. User role: {}, Message type: {}", user.getRole(), message.getType());
             ctx.writer.sendClose();
             return;
         }
-        switch (message.type) {
+        switch (message.getType()) {
             case WANT_TO_CHAT -> addToChatQueue(user.getUsername(), ctx.writer);
             case ACCEPT_CHAT -> connectToAvailable(ctx.writer);
             case SEND_MESSAGE -> sendMessage(ctx.writer, message.getMessage());
@@ -273,8 +202,8 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
     }
 
     private void endChat(ConnectedUser disconnectingUser) {
+        final ConnectedUser connectedUser = connectedUsers.get(disconnectingUser.connectedTo);
         disconnectingUser.connectedTo = null;
-        final ConnectedUser connectedUser = dispatcher.get(disconnectingUser.connectedTo);
         if(connectedUser != null) {
             connectedUser.connectedTo = null;
             try {
@@ -287,7 +216,7 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
 
     private void connectToAvailable(ConnectedUser acceptingUser) {
         final String queuedUsername = waitingToChat.poll();
-        final ConnectedUser connectedUser = dispatcher.get(queuedUsername);
+        final ConnectedUser connectedUser = connectedUsers.get(queuedUsername);
         if(connectedUser == null || !connectedUser.requestChat.compareAndSet(true, false)) {
             try {
                 acceptingUser.sendMsg(ChatProtoMessage.noChatAvailable());
@@ -311,7 +240,7 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
         ConnectedUser target;
         try {
             if(source.connectedTo == null || // Sender is not connected
-                    (target = dispatcher.get(source.connectedTo))  == null || // Receiver is not connected
+                    (target = connectedUsers.get(source.connectedTo))  == null || // Receiver is not connected
                     !source.user.getUsername().equals(target.connectedTo)) { // Receiver is not connected to the sender
                 //The other user disconnected
                 log.warn("Target user disconnected before receiving message");
@@ -319,6 +248,7 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
                 return;
             }
             target.sendMsg(ChatProtoMessage.messageReceived(message));
+            source.sendMsg(ChatProtoMessage.messageSent(message));
         } catch (IOException e) {
             log.error("An exception occurred while sending a message: {}", e.getMessage(), e);
         }
@@ -330,11 +260,10 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
         } else {
             log.warn("Multiple requests to chat received");
         }
-        int size = waitingToChat.size();
-        dispatcher.values().forEach(v -> {
-            if(v.user.getRole() == Role.employee) {
+        connectedUsers.values().forEach(v -> {
+            if(v.user.getRole() == Role.employee && v.connectedTo == null) {
                 try {
-                    v.sendMsg(ChatProtoMessage.chatRequested(size));
+                    v.sendMsg(ChatProtoMessage.chatAvailable());
                 } catch (Exception e) {
                     log.error("Error while sending message request queue size to {}: {}", v.user.getUsername(), e.getMessage(), e);
                 }
@@ -345,6 +274,6 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
 
     @Override
     public void onClose(WsState ctx) {
-        dispatcher.remove(ctx.user.getUsername());
+        connectedUsers.remove(ctx.user.getUsername());
     }
 }

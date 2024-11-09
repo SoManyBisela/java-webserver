@@ -7,11 +7,13 @@ public class ChatSection extends HtmlElement {
         super("div");
         attr(
                 "class", "chat-section",
-                "id", "class-section",
+                "id", "chat-section",
                 "ws-connect", "/chatroom"
         );
         hxExt("debug");
         hxExt("ws");
-        content(div().attr( "id", "chatcontainer" ).text("connecting..."));
+        content(
+                div().attr( "id", "chat-container" ).text("connecting...")
+        );
     }
 }
