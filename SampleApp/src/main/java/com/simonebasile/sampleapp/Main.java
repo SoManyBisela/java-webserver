@@ -68,8 +68,7 @@ public class Main {
         var loginController = new LoginController(authenticationService);
         var logoutController = new LogoutController(sessionService);
         var registerController = new RegisterController(authenticationService);
-        var homeController = new HomeController();
-        var pageLinkController = new PageLinksController(sessionService, userService);
+        var homeController = new HomeController(sessionService, userService);
         var ticketsController = new TicketsController(sessionService, userService, ticketService);
         var createTicketController = new CreateTicketController(sessionService, userService, ticketService);
         var ticketController = new TicketController(sessionService, userService, ticketService);
@@ -124,7 +123,6 @@ public class Main {
         webServer.registerHttpHandler("/register", registerController);
 
         webServer.registerHttpHandler("/", homeController);
-        webServer.registerHttpHandler("/page-links", pageLinkController);
         webServer.registerHttpHandler("/tickets", ticketsController);
         webServer.registerHttpHandler("/ticket/create", createTicketController);
         webServer.registerHttpHandler("/ticket", ticketController);
@@ -133,7 +131,7 @@ public class Main {
         webServer.registerHttpHandler("/attachment", attachmentController);
 
         webServer.registerHttpHandler("/chat", chatController);
-        webServer.registerWebSocketHandler("/chatroom", chatWsController);
+        webServer.registerWebSocketHandler("/chat", chatWsController);
 
         webServer.start();
 

@@ -15,19 +15,34 @@ body {
     width: 100%;
 }
 
+.header {
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: row;
+}
+
 .container {
     display: flex;
     flex-grow: 1;
 }
 
-.sidebar {
+.main {
+    flex-grow: 1;
+    padding: 8px;
+}
+
+.chatbox {
+    position: fixed;
+    bottom: 0;
+    right: 0;
     padding: 8px;
     background-color: #f0f0f0;
-    height: 100%;
 }
 
 .nav-btn {
     --ico-size: 30px;
+    padding: 4px;
+
 }
 
 .nav-btn-ico {
@@ -48,11 +63,25 @@ body {
     text-transform: capitalize;
 }
 
-.sidebar.closed .nav-btn-text{
+.chatbox.closed .chatbox-content{
     display: none;
+}
+
+.chatbox > .chatbox-toggle{
+    display: none;
+}
+
+.chatbox.closed > .chatbox-toggle{
+    display: block;
 }
 
 .btn {
     user-select: none;
     cursor: pointer;
+}
+
+.chat-header {
+    width: 100%;
+    display: flex;
+    flex-direction: row-reverse;
 }

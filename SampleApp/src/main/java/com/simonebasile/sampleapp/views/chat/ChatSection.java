@@ -8,7 +8,7 @@ public class ChatSection extends HtmlElement {
         attr(
                 "class", "chat-section",
                 "id", "chat-section",
-                "ws-connect", "/chatroom"
+                "ws-connect", "/chat"
         );
         hxExt("ws,debug");
         content(

@@ -7,9 +7,9 @@ import com.simonebasile.sampleapp.views.html.HtmlElement;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
-public class SidebarButtons extends ElementGroup {
+public class NavbarButtons extends ElementGroup {
 
-    public SidebarButtons(User u) {
+    public NavbarButtons(User u) {
         if(u.getRole() == Role.user || u.getRole() == Role.employee) {
             content.add(navButton("Tickets", "/tickets", "#main").hxTrigger("click, load"));
         } else if (u.getRole() == Role.admin) {
