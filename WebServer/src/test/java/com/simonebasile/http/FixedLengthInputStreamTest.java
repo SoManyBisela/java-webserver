@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Random;
 
 public class FixedLengthInputStreamTest {
 
@@ -129,5 +130,18 @@ public class FixedLengthInputStreamTest {
         fixedLengthInputStream.close();
         bytes = source.readAllBytes();
         Assertions.assertEquals(bytes.length, buf.length - 15);
+    }
+
+    @Test
+    void testReadAllLong() throws IOException {
+        Random random = new Random();
+        int l = random.nextInt(18000, 20000);
+        byte[] buf = new byte[l];
+        ByteArrayInputStream source = new ByteArrayInputStream(buf);
+        int length = 16000;
+        FixedLengthInputStream flis = new FixedLengthInputStream(source, length);
+        byte[] bytes = flis.readAllBytes();
+        Assertions.assertEquals(length, bytes.length);
+        Assertions.assertEquals(l - length, source.readAllBytes().length);
     }
 }

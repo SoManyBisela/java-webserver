@@ -3,7 +3,6 @@ package com.simonebasile.http;
 
 public interface NewWsHandler<Context> {
 
-
     enum HandshakeResultType{
         Accept,
         Refuse,

@@ -60,7 +60,7 @@ public class HttpHeaders {
     List<String> connection() {
         final String connection = getExact("Connection");
         if(connection == null) return null;
-        return Arrays.stream(connection.split(",")).map(String::trim).map(String::toUpperCase).toList();
+        return Arrays.stream(connection.split(",")).map(String::trim).map(String::toLowerCase).toList();
     }
 
     public Iterable<Map.Entry<String, List<String>>> entries() {

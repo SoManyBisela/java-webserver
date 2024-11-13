@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -19,12 +20,19 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.simonebasile.http.unpub.WebSocket.WSDataFrame.*;
 
 public class WebServer implements HttpHandlerContext<InputStream>{
     private static final Logger log = LoggerFactory.getLogger(WebServer.class);
     private final int port;
+
+    private ServerSocket serverSocket;
+    private final Lock socketLock;
 
     private final HttpRoutingContext routingContext;
 
@@ -37,12 +45,16 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         this.websocketHandlers = new HandlerRegistry<>();
         this.routingContext = new HttpRoutingContext();
         this.interceptors = new ArrayList<>();
+        this.socketLock = new ReentrantLock();
     }
 
+    @Override
     public void registerHttpContext(String path, HttpRequestHandler<InputStream> handler){
+
         routingContext.registerHttpContext(path, handler);
     }
 
+    @Override
     public void registerHttpHandler(String path, HttpRequestHandler<InputStream> handler){
         routingContext.registerHttpHandler(path, handler);
     }
@@ -66,6 +78,93 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         }
     }
 
+
+    public void stop() throws IOException {
+        socketLock.lock();
+        try {
+            if(serverSocket == null) {
+                throw new CustomException("Server is not running");
+            }
+            serverSocket.close();
+        } finally {
+            socketLock.unlock();
+        }
+
+    }
+
+    public void start() {
+        start(null);
+    }
+    public void start(Runnable onstart) {
+        final ExecutorService executor = Executors.newCachedThreadPool();
+        try {
+            socketLock.lock();
+            try {
+                if(serverSocket != null) {
+                    throw new CustomException("Server is already running");
+                }
+                serverSocket = new ServerSocket(port);
+            } catch (Exception e) {
+                log.error("An error occurred while starting the server: {}", e.getMessage(), e);
+                return;
+            } finally {
+                socketLock.unlock();
+            }
+            if(onstart != null) {
+                onstart.run();
+            }
+            log.info("Server started on port {}", port);
+            while(!serverSocket.isClosed()) {
+                HttpProtocolHandler handler;
+                Socket c;
+                try {
+                    c = serverSocket.accept();
+                    //TODO add timeout c.setSoTimeout();
+                } catch (IOException e) {
+                    log.error("An exception occurred while accepting the socket", e);
+                    continue;
+                }
+                try {
+                    handler = new HttpProtocolHandler(c);
+                } catch (IOException e) {
+                    log.error("An exception occurred while creating the handler", e);
+                    try {
+                        c.close();
+                    } catch (IOException closeException) {
+                        log.error("An exception occurred while closing the socket", closeException);
+                    }
+                    continue;
+                }
+                try {
+                    executor.submit(handler);
+                } catch (RejectedExecutionException e) {
+                    log.error("Error submitting handler for execution", e);
+                    handler.close();
+                }
+            }
+        } finally {
+            socketLock.lock();
+            try {
+                if(serverSocket != null) {
+                    try {
+                        serverSocket.close();
+                        serverSocket = null;
+                    } catch (IOException closeEx) {
+                        log.error("Error closing server socket {}", serverSocket, closeEx);
+                    }
+                }
+            } finally {
+                socketLock.unlock();
+            }
+            executor.shutdown();
+            try {
+                executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+            } catch (InterruptedException e) {
+                log.error("Interrupted before finishing all tasks");
+            }
+        }
+    }
+
     class HttpProtocolHandler implements Runnable, AutoCloseable {
         private static final Logger log = LoggerFactory.getLogger(HttpProtocolHandler.class);
         private static final String MAGIC = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -85,13 +184,8 @@ public class WebServer implements HttpHandlerContext<InputStream>{
 
         public HttpProtocolHandler(Socket client) throws IOException {
             this.client = Objects.requireNonNull(client);
-            try {
-                this.inputStream = new HttpInputStream(client.getInputStream());
-                this.outputStream = new HttpOutputStream(client.getOutputStream());
-            } catch (Exception e) {
-                closeClient();
-                throw e;
-            }
+            this.inputStream = new HttpInputStream(client.getInputStream());
+            this.outputStream = new HttpOutputStream(client.getOutputStream());
         }
 
         private void closeClient() {
@@ -129,15 +223,6 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                     req.body.close();
 
                     res.write(outputStream);
-                    if (log.isDebugEnabled()) {
-                        try (var out = new FileOutputStream("response.http")) {
-                            HttpOutputStream outputStream1 = new HttpOutputStream(out);
-                            res.write(outputStream1);
-                            outputStream1.flush();
-                        } catch (Exception e) {
-                            log.error("Debug logging of response failed: {}", e.getMessage(), e);
-                        }
-                    }
                     //TODO handle connection and keep-alive header, handle timeouts, handle max amt of requests
                 }
             } catch (ConnectionClosedBeforeRequestStartException ignored) {
@@ -177,7 +262,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                 new HttpResponse<>(req.getVersion(), 101, httpHeaders, null).write(outputStream);
                 boolean hsComplete = false;
                 try {
-                    final WebSocket webSocket = new WebSocket(req, client, inputStream, outputStream);
+                    final WebSocket webSocket = new WebSocket(client, inputStream, outputStream);
                     wsHandler.onHandshakeComplete(new WebsocketWriterImpl(webSocket), ctx);
                     hsComplete = true;
                     boolean close = false;
@@ -188,6 +273,9 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                         int opcode = -1;
                         while(!last) {
                             try (final WebSocket.WSDataFrame dataFrame = webSocket.getDataFrame()){
+                                if(!dataFrame.masked) {
+                                    throw new CustomException("Dataframe is not masked");
+                                }
                                 if(opcode == -1) {
                                     opcode = dataFrame.opcode;
                                 } else if(opcode != dataFrame.opcode){
@@ -197,6 +285,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                                 switch(opcode) {
                                     case OP_CLOSE:
                                         log.debug("Received close");
+                                        webSocket.sendUnmaskedDataframe(FIN, OP_CLOSE, new byte[0]);
                                         //TODO send close
                                         close = true;
                                         last = true;
@@ -244,43 +333,6 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         @Override
         public void close() {
             closeClient();
-        }
-    }
-
-    public void start() {
-        final ExecutorService executor = Executors.newCachedThreadPool();
-        ServerSocket s = null;
-        try {
-            s = new ServerSocket(port);
-            log.info("Server started on port {}", port);
-            while(true) {
-                HttpProtocolHandler handler;
-                try {
-                    Socket c = s.accept();
-                    //TODO add timeout c.setSoTimeout();
-                    handler = new HttpProtocolHandler(c);
-                } catch (IOException e) {
-                    log.error("An exception occurred while accepting the socket", e);
-                    continue;
-                }
-                try {
-                    executor.submit(handler);
-                } catch (RejectedExecutionException e) {
-                    log.error("Error submitting handler for execution", e);
-                    handler.close();
-                }
-            }
-        } catch (IOException e) {
-            log.error("Error starting http server", e);
-            throw new CustomException("Error starting http server", e);
-        } finally {
-            if(s != null) {
-                try {
-                    s.close();
-                } catch (IOException closeEx) {
-                    log.error("Error closing server socket {}", s, closeEx);
-                }
-            }
         }
     }
 

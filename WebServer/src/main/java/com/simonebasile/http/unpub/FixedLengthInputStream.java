@@ -26,6 +26,7 @@ public class FixedLengthInputStream extends InputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
+        if(len == 0) return 0;
         len = (int)Math.min(len, this.length);
         if(len == 0) {
             return -1;

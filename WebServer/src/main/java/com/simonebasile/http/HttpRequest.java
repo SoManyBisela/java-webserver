@@ -33,6 +33,7 @@ public class HttpRequest<T> extends HttpMessage<T> {
 
     //TODO pattern
     public static <T> HttpRequest<T> parse(HttpInputStream his, BodyReader<T> bodyReader) throws IOException {
+
         String line;
         try {
             line = his.readLine();
@@ -64,7 +65,7 @@ public class HttpRequest<T> extends HttpMessage<T> {
 
         return "GET".equalsIgnoreCase(method)
                 && "websocket".equalsIgnoreCase(upgrade)
-                && connection != null && connection.contains("UPGRADE");
+                && connection != null && connection.contains("upgrade");
     }
 
     public String getResource() {

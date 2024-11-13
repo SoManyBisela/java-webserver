@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class WebSocket implements Closeable{
@@ -15,18 +16,19 @@ public class WebSocket implements Closeable{
     private boolean canGetDataframe;
     private final ReentrantLock sendDataframeLock;
 
-    private final HttpRequest<Void> connectionRequest;
     private final Socket connection;
     private final BufferedInputStream inputStream;
     private final BufferedOutputStream outputStream;
 
 
-    public WebSocket(HttpRequest<Void> connectionRequest, Socket connection, BufferedInputStream inputStream, BufferedOutputStream outputStream) {
+    private final static Random RNG = new Random();
+
+
+    public WebSocket(Socket connection, BufferedInputStream inputStream, BufferedOutputStream outputStream) {
         this.getDataframeLock = new ReentrantLock();
         this.canGetDataframe = true;
         this.sendDataframeLock = new ReentrantLock();
 
-        this.connectionRequest = connectionRequest;
         this.connection = connection;
         this.inputStream = inputStream;
         this.outputStream = outputStream;
@@ -67,30 +69,6 @@ public class WebSocket implements Closeable{
         }
     }
 
-    /*
-    public static void main(String[] args) {
-        int source = 255;
-        byte r = (byte)source;
-        System.out.println(r);
-        System.out.println((r & 0b10000000));
-        System.out.println((byte)(r & 0b10000000));
-
-        for(int i = 0; i < 255; i++) {
-            byte t = (byte)i;
-            boolean isMSB0 = (t & 0b10000000) == 0;
-            System.out.println("Int [" + i + "] is Byte [" + t + "] with isMSB0 [" + isMSB0 + "]");
-        }
-
-    }
-     */
-
-    private boolean canRead() {
-        try {
-            return inputStream.available() > 0;
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     public WSDataFrame getDataFrame() throws IOException {
         //TODO handle exceptions
@@ -110,9 +88,15 @@ public class WebSocket implements Closeable{
         try {
             // https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#decoding_payload_length
             int unsignedByte = inputStream.read();
+            if(unsignedByte == -1) {
+                throw new EOFException();
+            }
             flags = (0b11110000 & unsignedByte) >> 4;
             opcode = 0b00001111 & unsignedByte;
             unsignedByte = inputStream.read();
+            if(unsignedByte == -1) {
+                throw new EOFException();
+            }
             masked = (0b10000000 & unsignedByte) == 0b10000000;
 
             //length
@@ -157,6 +141,15 @@ public class WebSocket implements Closeable{
 
     public void sendUnmaskedDataframe(int flags, int opcode, byte[] body) throws IOException {
         sendDataFrameRaw(flags, opcode, body, null);
+    }
+
+    public void maskAndSendDataframe(int flags, int opcode, byte[] body) throws IOException {
+        byte[] mask = new byte[4];
+        RNG.nextBytes(mask);
+        for(int i = 0; i < body.length; i++) {
+            body[i] ^= mask[i & 3];
+        }
+        sendDataFrameRaw(flags, opcode, body, mask);
     }
 
     private void sendDataFrameRaw(int flags, int opcode, byte[] body, byte[] mask) throws IOException {

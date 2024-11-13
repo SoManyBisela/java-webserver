@@ -47,10 +47,6 @@ public class HttpOutputStream extends BufferedOutputStream {
     public void endHeaders() throws IOException {
         nl();
     }
-    public void end() throws IOException {
-        nl();
-        flush();
-    }
 
     private void space() throws IOException {
         write(SPACE);

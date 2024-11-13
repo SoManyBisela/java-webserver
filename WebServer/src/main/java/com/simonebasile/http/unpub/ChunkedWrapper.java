@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ChunkedWrapper extends OutputStream {
     private final OutputStream target;
-    public ChunkedWrapper(HttpOutputStream outputStream) {
+    public ChunkedWrapper(OutputStream outputStream) {
         target = outputStream;
     }
 
