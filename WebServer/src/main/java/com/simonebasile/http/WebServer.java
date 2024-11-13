@@ -286,18 +286,15 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                                     case OP_CLOSE:
                                         log.debug("Received close");
                                         webSocket.sendUnmaskedDataframe(FIN, OP_CLOSE, new byte[0]);
-                                        //TODO send close
                                         close = true;
                                         last = true;
                                         break;
                                     case OP_PING:
+                                        webSocket.sendUnmaskedDataframe(FIN, OP_PONG, dataFrame.body.readAllBytes());
                                         log.debug("Received ping");
-                                        //TODO send close
-                                        //TODO send pong
                                         break;
                                     case OP_PONG:
                                         log.debug("Received pong");
-                                        //TODO handler
                                         break;
                                     case OP_TEXT:
                                     case OP_BIN:
