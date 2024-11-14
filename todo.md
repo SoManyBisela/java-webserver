@@ -7,7 +7,7 @@
 - Move context handling to webserver
 - (probably stored in context ^) Tell handler what path it was registered on and what path matched 
 - (needs matching info ^) Add wildcard paths support
-- Rewrite Websocket based on use case
+- Add events to server
 
 ## Application
 

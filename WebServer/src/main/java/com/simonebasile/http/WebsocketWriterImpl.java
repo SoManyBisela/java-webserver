@@ -24,9 +24,9 @@ public class WebsocketWriterImpl implements WebsocketWriter {
     }
 
     @Override
-    public void sendBytes(String s) throws IOException {
+    public void sendBytes(byte[] bytes) throws IOException {
         //TODO bytes length test
-        websocket.sendUnmaskedDataframe(WebSocket.WSDataFrame.FIN, WebSocket.WSDataFrame.OP_BIN, s.getBytes(StandardCharsets.UTF_8));
+        websocket.sendUnmaskedDataframe(WebSocket.WSDataFrame.FIN, WebSocket.WSDataFrame.OP_BIN, bytes);
     }
 
     @Override

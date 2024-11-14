@@ -1,6 +1,6 @@
 package com.simonebasile.sampleapp.controllers;
 
-import com.simonebasile.http.NewWsHandler;
+import com.simonebasile.http.WebsocketHandler;
 import com.simonebasile.http.WebsocketMessage;
 import com.simonebasile.http.WebsocketWriter;
 import com.simonebasile.http.WebsocketWriterImpl;
@@ -27,7 +27,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
 //TODO increase logging
 //TODO maybe move message rendering outside
 @Slf4j
-public class ChatWsController implements NewWsHandler<ChatWsController.WsState> {
+public class ChatWsController implements WebsocketHandler<ChatWsController.WsState> {
     private final SessionService sessionService;
     private final UserService userService;
     private final ConcurrentHashMap<String, ConnectedUser> connectedUsers;
@@ -113,8 +113,8 @@ public class ChatWsController implements NewWsHandler<ChatWsController.WsState> 
         }
 
         @Override
-        public void sendBytes(String s) throws IOException {
-            writer.sendBytes(s);
+        public void sendBytes(byte[] bytes) throws IOException {
+            writer.sendBytes(bytes);
         }
 
         @Override

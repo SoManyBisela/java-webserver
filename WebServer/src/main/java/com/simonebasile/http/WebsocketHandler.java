@@ -1,7 +1,7 @@
 package com.simonebasile.http;
 
 
-public interface NewWsHandler<Context> {
+public interface WebsocketHandler<Context> {
 
     enum HandshakeResultType{
         Accept,
@@ -33,7 +33,7 @@ public interface NewWsHandler<Context> {
 
     HandshakeResult onServiceHandshake(String[] availableService, Context context);
 
-    void onHandshakeComplete(WebsocketWriterImpl websocketWriter, Context ctx);
+    void onHandshakeComplete(WebsocketWriterImpl websocketWriter, Context context);
 
     void onMessage(WebsocketMessage msg, Context context);
 

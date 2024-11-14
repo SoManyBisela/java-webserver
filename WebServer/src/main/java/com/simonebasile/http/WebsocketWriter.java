@@ -7,7 +7,7 @@ public interface WebsocketWriter {
 
     void sendTextBytes(byte[] bytes) throws IOException;
 
-    void sendBytes(String s) throws IOException;
+    void sendBytes(byte[] bytes) throws IOException;
 
     void sendClose();
 }

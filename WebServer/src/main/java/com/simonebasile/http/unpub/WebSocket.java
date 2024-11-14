@@ -143,6 +143,10 @@ public class WebSocket implements Closeable{
         sendDataFrameRaw(flags, opcode, body, null);
     }
 
+    /*
+    * Changes body array.
+    * //TODO make it not change body array without copying
+    * */
     public void maskAndSendDataframe(int flags, int opcode, byte[] body) throws IOException {
         byte[] mask = new byte[4];
         RNG.nextBytes(mask);

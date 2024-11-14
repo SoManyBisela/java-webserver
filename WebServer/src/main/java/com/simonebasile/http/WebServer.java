@@ -4,12 +4,10 @@ import com.simonebasile.http.unpub.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,7 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -36,7 +33,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
 
     private final HttpRoutingContext routingContext;
 
-    private final HandlerRegistry<NewWsHandler<?>> websocketHandlers;
+    private final HandlerRegistry<WebsocketHandler<?>> websocketHandlers;
 
     private final List<HttpInterceptor<InputStream>> interceptors;
 
@@ -50,7 +47,6 @@ public class WebServer implements HttpHandlerContext<InputStream>{
 
     @Override
     public void registerHttpContext(String path, HttpRequestHandler<InputStream> handler){
-
         routingContext.registerHttpContext(path, handler);
     }
 
@@ -64,14 +60,14 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         this.interceptors.add(preprocessor);
     }
 
-    public void registerWebSocketContext(String path, NewWsHandler<?> handler){
+    public void registerWebSocketContext(String path, WebsocketHandler<?> handler){
         log.debug("Registered new websocket handler for path [{}]", path);
         if(!websocketHandlers.insertCtx(path, handler)) {
             throw new CustomException("A websocket context for path [" + path + "] already exists");
         }
     }
 
-    public void registerWebSocketHandler(String path, NewWsHandler<?> handler){
+    public void registerWebSocketHandler(String path, WebsocketHandler<?> handler){
         log.debug("Registered new websocket handler for path [{}]", path);
         if(!websocketHandlers.insertExact(path, handler)) {
             throw new CustomException("A websocket handler for path [" + path + "] already exists");
@@ -97,12 +93,13 @@ public class WebServer implements HttpHandlerContext<InputStream>{
     }
     public void start(Runnable onstart) {
         final ExecutorService executor = Executors.newCachedThreadPool();
+        socketLock.lock();
+        if(serverSocket != null) {
+            socketLock.unlock();
+            throw new CustomException("Server is already running");
+        }
         try {
-            socketLock.lock();
             try {
-                if(serverSocket != null) {
-                    throw new CustomException("Server is already running");
-                }
                 serverSocket = new ServerSocket(port);
             } catch (Exception e) {
                 log.error("An error occurred while starting the server: {}", e.getMessage(), e);
@@ -242,17 +239,17 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         }
 
         private void handleWebsocket(HttpRequest<Void> req) throws IOException {
-            NewWsHandler<?> wsHandler = websocketHandlers.getHandler(req.getResource());
+            WebsocketHandler<?> wsHandler = websocketHandlers.getHandler(req.getResource());
             _handleWebsocket(req, wsHandler);
         }
 
-        private <T> void _handleWebsocket(HttpRequest<Void> req, NewWsHandler<T> wsHandler) throws IOException {
+        private <T> void _handleWebsocket(HttpRequest<Void> req, WebsocketHandler<T> wsHandler) throws IOException {
             final T ctx = wsHandler.newContext();
             final HttpHeaders headers = req.getHeaders();
             final String protocolsHeader = headers.getFirst("Sec-WebSocket-Protocol");
             final String[] protocols = protocolsHeader == null ? new String[0] : protocolsHeader.split(",");
-            final NewWsHandler.HandshakeResult handshakeResult = wsHandler.onServiceHandshake(protocols, ctx);
-            if(handshakeResult.resultType == NewWsHandler.HandshakeResultType.Accept) {
+            final WebsocketHandler.HandshakeResult handshakeResult = wsHandler.onServiceHandshake(protocols, ctx);
+            if(handshakeResult.resultType == WebsocketHandler.HandshakeResultType.Accept) {
                 String wsSec = req.getHeaders().getFirst("Sec-WebSocket-Key");
                 String wsAccept = Base64.getEncoder().encodeToString(SHA1.digest((wsSec + MAGIC).getBytes(StandardCharsets.UTF_8)));
                 final HttpHeaders httpHeaders = new HttpHeaders();
@@ -276,29 +273,32 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                                 if(!dataFrame.masked) {
                                     throw new CustomException("Dataframe is not masked");
                                 }
-                                if(opcode == -1) {
-                                    opcode = dataFrame.opcode;
-                                } else if(opcode != dataFrame.opcode){
-                                    log.error("Unexpected opcode change [last: {}, current: {}]", opcode, dataFrame.opcode);
-                                    throw new CustomException("Opcode changed in packet chain");
-                                }
-                                switch(opcode) {
+                                switch(dataFrame.opcode) {
                                     case OP_CLOSE:
                                         log.debug("Received close");
                                         webSocket.sendUnmaskedDataframe(FIN, OP_CLOSE, new byte[0]);
                                         close = true;
                                         last = true;
+                                        opcode = -1;
                                         break;
                                     case OP_PING:
                                         webSocket.sendUnmaskedDataframe(FIN, OP_PONG, dataFrame.body.readAllBytes());
                                         log.debug("Received ping");
+                                        opcode = -1;
                                         break;
                                     case OP_PONG:
                                         log.debug("Received pong");
+                                        opcode = -1;
                                         break;
                                     case OP_TEXT:
                                     case OP_BIN:
                                         final int flags = dataFrame.flags;
+                                        if(opcode == -1) {
+                                            opcode = dataFrame.opcode;
+                                        } else if(opcode != dataFrame.opcode){
+                                            log.error("Unexpected opcode change [last: {}, current: {}]", opcode, dataFrame.opcode);
+                                            throw new CustomException("Opcode changed in packet chain");
+                                        }
                                         last = (flags & WebSocket.WSDataFrame.FIN) == WebSocket.WSDataFrame.FIN;
                                         bytes.add(dataFrame.body.readAllBytes());
                                 }
@@ -308,8 +308,10 @@ public class WebServer implements HttpHandlerContext<InputStream>{
                             WebsocketMessage.MsgType type;
                             if (opcode == OP_TEXT) {
                                 type = WebsocketMessage.MsgType.TEXT;
-                            } else { //opcode == WebSocket.WSDataFrame.OP_BIN
+                            } else if(opcode == WebSocket.WSDataFrame.OP_BIN){
                                 type = WebsocketMessage.MsgType.BINARY;
+                            } else {
+                                continue;
                             }
                             wsHandler.onMessage(new WebsocketMessage(bytes.toArray(new byte[bytes.size()][]), type), ctx);
                         }
