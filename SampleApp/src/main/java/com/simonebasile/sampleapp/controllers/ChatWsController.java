@@ -11,9 +11,7 @@ import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.UserService;
-import com.simonebasile.sampleapp.views.chat.*;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.chat.HtmxChatMessageEncoder;
 import com.simonebasile.sampleapp.views.html.IHtmlElement;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
 //TODO increase logging
 //TODO maybe move message rendering outside
 @Slf4j
@@ -38,12 +35,15 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         private String connectedTo;
         private AtomicBoolean requestChat;
         private WebsocketWriter writer;
+        private ChatMessageEncoder encoder;
 
-        public ConnectedUser(User user, WebsocketWriter writer) {
+        public ConnectedUser(User user, WebsocketWriter writer, ChatMessageEncoder encoder) {
             this.user = user;
             this.writer = writer;
+            this.encoder = encoder;
             this.connectedTo = null;
             this.requestChat = new AtomicBoolean(false);
+
         }
 
         @Override
@@ -51,60 +51,8 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
             writer.sendText(s);
         }
 
-        private static HtmlElement obswap(String id, HtmlElement el) {
-            return obswap(id, "true", el);
-        }
-
-        private static HtmlElement obswap(String id, String swap, HtmlElement el) {
-            return el.attr( "id", id).hxSwapOob(swap);
-        }
-
         public void sendMsg(ChatProtoMessage msg) throws IOException {
-            final IHtmlElement s = switch (msg.getType()) {
-                case CONNECTED -> obswap("chat-container", div().content(
-                        new WantToChatElement()
-                ));
-                case WAIT_FOR_CHAT -> obswap("chat-container", div().content(
-                        div().text("Waiting for connection"),
-                        new StopWaitingElement()
-                ));
-                case ALREADY_CONNECTED -> obswap("chat-section", new AlreadyConnectedSection());
-                case CHAT_CONNECTED -> obswap("chat-container", div().content(
-                        div().attr("id", "messages", "class", "message-container"),
-                        div().attr("id", "chat-inputs-container").content(
-                                new SendMessageElement(),
-                                new EndChatElement()
-                        )
-                ));
-                case CHAT_DISCONNECTED -> obswap("chat-inputs-container", div().content(
-                        div().text("Chat disconnected"),
-                        new RestartChatElement()
-                ));
-                case MESSAGE_RECEIVED ->
-                        obswap("messages", "beforeend", div().content(
-                                div().attr("class", "message-row received").content(
-                                        div().attr("class", "message").text(msg.getMessage()))));
-                case MESSAGE_SENT ->
-                        new ElementGroup(
-                                obswap("messages", "beforeend", div().content(
-                                        div().attr("class", "message-row sent").content(
-                                                div().attr("class", "message").text(msg.getMessage())))),
-                                new SendMessageElement().focusOnLoad()
-                        );
-                case CHAT_AVAILABLE -> obswap("chat-container", div().content(
-                        new ElementGroup(
-                                div().text("There are users waiting to chat"),
-                                new AcceptChatElement()
-                        )
-                ));
-                case NO_CHAT_AVAILABLE -> obswap("chat-container", div().content(
-                        div().text("There are no chat requests")
-                ));
-                default -> throw new IllegalStateException("Unexpected type: " + msg.getType());
-            };
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            s.write(out);
-            sendTextBytes(out.toByteArray());
+            sendTextBytes(encoder.encode(msg));
         }
 
         @Override
@@ -163,7 +111,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
     @Override
     public void onHandshakeComplete(WebsocketWriterImpl websocketWriter, WsState ctx) {
         final String username = ctx.user.getUsername();
-        ctx.writer = new ConnectedUser(ctx.user, websocketWriter);
+        ctx.writer = new ConnectedUser(ctx.user, websocketWriter, new HtmxChatMessageEncoder());
         if(connectedUsers.putIfAbsent(username, ctx.writer) != null) {
             try {
                 ctx.writer.sendMsg(ChatProtoMessage.alreadyConnected());
