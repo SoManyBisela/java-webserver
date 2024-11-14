@@ -6,9 +6,16 @@ import com.mongodb.client.result.InsertOneResult;
 import com.simonebasile.sampleapp.model.User;
 import org.bson.BsonValue;
 
+import java.util.Objects;
 import java.util.Optional;
 
-public record UserRepository(MongoCollection<User> collection) {
+public final class UserRepository {
+    private final MongoCollection<User> collection;
+
+    public UserRepository(MongoCollection<User> collection) {
+        this.collection = collection;
+    }
+
     public User getUser(String username) {
         return collection.find(Filters.eq("username", username)).first();
     }
@@ -16,7 +23,7 @@ public record UserRepository(MongoCollection<User> collection) {
     public void insert(User u) {
         InsertOneResult insertOneResult = collection.insertOne(u);
         BsonValue insertedId = insertOneResult.getInsertedId();
-        if(insertedId != null) {
+        if (insertedId != null) {
             u.setId(insertedId.asObjectId().getValue());
         }
     }
