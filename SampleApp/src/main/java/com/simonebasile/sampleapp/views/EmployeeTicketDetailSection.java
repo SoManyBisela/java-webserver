@@ -45,7 +45,7 @@ public class EmployeeTicketDetailSection extends ElementGroup {
                 }
             }
         }
-        if(ticket.getAssegnee() == null) {
+        if(ticket.getAssignee() == null) {
             content.add(
                     button().text("Assign to me")
                             .hxTarget("#main")
@@ -54,7 +54,7 @@ public class EmployeeTicketDetailSection extends ElementGroup {
                                     "assign", "")
             );
         }
-        if(ticket.getState() == TicketState.OPEN && user.getUsername().equals(ticket.getAssegnee())) {
+        if(ticket.getState() == TicketState.OPEN && user.getUsername().equals(ticket.getAssignee())) {
             content.add(
                     button().text("Close")
                             .hxTarget("#main")

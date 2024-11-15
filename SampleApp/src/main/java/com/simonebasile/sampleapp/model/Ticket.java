@@ -18,7 +18,7 @@ public class Ticket {
     private String object;
     private String message;
     private TicketState state;
-    private String assegnee;
+    private String assignee;
     private List<Attachment> attachments;
     private List<Comment> comments;
 

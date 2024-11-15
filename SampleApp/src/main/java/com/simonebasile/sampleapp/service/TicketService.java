@@ -66,7 +66,7 @@ public class TicketService {
             addComment(ticket, user, body.getComment());
         }
         if(body.isAssign()) {
-            ticket.setAssegnee(user.getUsername());
+            ticket.setAssignee(user.getUsername());
         }
         if(ticket.getState() == TicketState.OPEN && body.isClose()) {
             ticket.setState(TicketState.CLOSED);

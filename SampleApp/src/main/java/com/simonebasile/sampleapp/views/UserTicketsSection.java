@@ -54,7 +54,7 @@ public class UserTicketsSection extends ElementGroup {
                 .content(
                         td().text(ticket.getObject()),
                         td().text(ticket.getState().name()),
-                        td().text(ticket.getAssegnee() != null ? "Yes" : "No"),
+                        td().text(ticket.getAssignee() != null ? "Yes" : "No"),
                         td().content(button().text("Delete")
                                 .hxDelete("/ticket")
                                 .hxVals("id", ticket.getId())

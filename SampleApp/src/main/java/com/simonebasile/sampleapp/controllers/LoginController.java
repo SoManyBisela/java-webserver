@@ -20,12 +20,12 @@ public class LoginController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
         return new HttpResponse<>(r.getVersion(), new LoginView());
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r) {
         LoginRequest body = FormHttpMapper.map(r.getBody(), LoginRequest.class);
         try {
             authService.login(body);

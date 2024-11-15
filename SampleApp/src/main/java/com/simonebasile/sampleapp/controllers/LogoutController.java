@@ -17,7 +17,7 @@ public class LogoutController implements HttpRequestHandler<InputStream> {
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<InputStream> r) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends InputStream> r) {
         sessionService.updateSession(s -> s.setUsername(null));
         return ResponseUtils.redirect(r, "/login");
     }

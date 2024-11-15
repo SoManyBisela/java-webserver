@@ -39,7 +39,7 @@ public class AttachmentController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         if(user.getRole() != Role.user) {
@@ -90,7 +90,7 @@ public class AttachmentController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         if(user.getRole() != Role.user) {

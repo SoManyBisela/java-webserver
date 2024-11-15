@@ -8,7 +8,7 @@ import com.simonebasile.http.HttpResponse;
 public class MethodHandler<T> implements HttpRequestHandler<T> {
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<T> r) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends T> r) {
         return switch (r.getMethod()) {
             case "GET" -> handleGet(r);
             case "POST" -> handlePost(r);
@@ -18,20 +18,20 @@ public class MethodHandler<T> implements HttpRequestHandler<T> {
         };
     }
 
-    private HttpResponse<? extends HttpResponse.ResponseBody> methodNotAllowed(HttpRequest<T> r) {
+    private HttpResponse<? extends HttpResponse.ResponseBody> methodNotAllowed(HttpRequest<? extends T> r) {
         return new HttpResponse<>(r.getVersion(), 405, new HttpHeaders(), null);
     }
 
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<T> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends T> r) {
         return methodNotAllowed(r);
     }
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<T> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends T> r) {
         return methodNotAllowed(r);
     }
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePut(HttpRequest<T> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePut(HttpRequest<? extends T> r) {
         return methodNotAllowed(r);
     }
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleDelete(HttpRequest<T> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleDelete(HttpRequest<? extends T> r) {
         return methodNotAllowed(r);
     }
 }

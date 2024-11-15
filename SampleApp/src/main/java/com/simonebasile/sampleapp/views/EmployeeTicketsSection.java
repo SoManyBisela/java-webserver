@@ -39,7 +39,7 @@ public class EmployeeTicketsSection extends ElementGroup {
                 .content(
                         td().text(ticket.getObject()),
                         td().text(ticket.getState().name()),
-                        td().text(ticket.getAssegnee() == null ? "None" : ticket.getAssegnee()),
+                        td().text(ticket.getAssignee() == null ? "None" : ticket.getAssignee()),
                         td().text(ticket.getOwner())
                 );
     }

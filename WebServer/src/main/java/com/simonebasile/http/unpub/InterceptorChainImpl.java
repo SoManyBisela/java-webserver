@@ -19,7 +19,7 @@ public class InterceptorChainImpl<T> implements HttpRequestHandler<T> {
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<T> r) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends T> r) {
         if(toProcess < interceptors.size()) {
             return interceptors.get(toProcess++).preprocess(r, this);
         } else {

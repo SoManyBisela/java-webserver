@@ -83,12 +83,12 @@ public class Main {
 
         //Webserver config
         var webServer = new WebServer(10131);
-        Predicate<HttpRequest<InputStream>> skipSession = (r) -> {
+        Predicate<HttpRequest<? extends InputStream>> skipSession = (r) -> {
             String resource = r.getResource();
             return !resource.equals("/favicon.ico") &&
                     !resource.startsWith("/static");
         };
-        Predicate<HttpRequest<InputStream>> skipAuth = (r) -> {
+        Predicate<HttpRequest<? extends InputStream>> skipAuth = (r) -> {
             String resource = r.getResource();
             return skipSession.test(r) &&
                     !resource.equals("/register") &&
@@ -108,10 +108,6 @@ public class Main {
                 }
             }
             log.info("Processing time: {}ms", System.currentTimeMillis() - start);
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-            }
             return res;
         });
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(sessionInterceptor, skipSession));

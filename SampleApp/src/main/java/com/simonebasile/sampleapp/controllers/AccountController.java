@@ -30,13 +30,13 @@ public class AccountController extends MethodHandler<InputStream> {
     }
 
 
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         return new HttpResponse<>(r.getVersion(), new AccountSection(user));
     }
 
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         ChangePasswordRequest changePasswordReq = FormHttpMapper.map(r.getBody(), ChangePasswordRequest.class);

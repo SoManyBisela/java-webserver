@@ -41,7 +41,7 @@ public class TicketController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         IdRequest id = FormHttpMapper.mapHttpResource(r.getResource(), IdRequest.class);
@@ -62,7 +62,7 @@ public class TicketController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePut(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePut(HttpRequest<? extends InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         Ticket ticket;
@@ -91,7 +91,7 @@ public class TicketController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleDelete(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleDelete(HttpRequest<? extends InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         if(user.getRole() != Role.user) {

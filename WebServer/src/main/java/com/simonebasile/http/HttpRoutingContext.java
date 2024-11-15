@@ -41,7 +41,7 @@ public class HttpRoutingContext implements HttpRequestHandler<InputStream>, Http
     }
 
     @Override
-    public HttpResponse<?> handle(HttpRequest<InputStream> req) {
+    public HttpResponse<?> handle(HttpRequest<? extends InputStream> req) {
         //TODO preprocess
         var httpHandler = handlers.getHandler(req.getResource());
         if(httpHandler != null) {

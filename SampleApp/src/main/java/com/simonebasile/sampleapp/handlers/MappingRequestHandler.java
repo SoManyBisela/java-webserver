@@ -5,7 +5,7 @@ import com.simonebasile.http.*;
 
 public abstract class MappingRequestHandler<T, R, U> implements HttpRequestHandler<T> {
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<T> r) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends T> r) {
         MappableHttpResponse<? extends U> httpResponse = handleRequest(new HttpRequest<>(r, mapRequestBody(r.getBody())));
         return new HttpResponse<>(httpResponse, httpResponse.statusCode, mapResponseBody(httpResponse.getBody()));
     }

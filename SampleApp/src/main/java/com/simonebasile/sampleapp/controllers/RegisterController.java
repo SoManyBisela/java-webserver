@@ -20,12 +20,12 @@ public class RegisterController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
         return new HttpResponse<>(r.getVersion(), new RegisterView());
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r) {
         RegisterRequest body = FormHttpMapper.map(r.getBody(), RegisterRequest.class);
         try {
             authService.registerUser(body);

@@ -34,7 +34,7 @@ public class AdminToolsController extends MethodHandler<InputStream> {
     }
 
 
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         if(user.getRole() != Role.admin) {
@@ -44,7 +44,7 @@ public class AdminToolsController extends MethodHandler<InputStream> {
         return new HttpResponse<>(r.getVersion(), new AdminToolsSection());
     }
 
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r) {
         SessionData sessionData = sessionService.currentSession();
         User user = userService.getUser(sessionData.getUsername());
         if(user.getRole() != Role.admin) {

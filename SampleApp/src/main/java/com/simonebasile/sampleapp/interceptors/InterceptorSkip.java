@@ -15,7 +15,7 @@ public abstract class InterceptorSkip<T> implements HttpInterceptor<T> {
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<T> request, HttpRequestHandler<T> next) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<? extends T> request, HttpRequestHandler<T> next) {
         if(shouldIntercept(request)) {
             return target.preprocess(request, next);
         } else {
@@ -23,12 +23,12 @@ public abstract class InterceptorSkip<T> implements HttpInterceptor<T> {
         }
     }
 
-    protected abstract boolean shouldIntercept(HttpRequest<T> request);
+    protected abstract boolean shouldIntercept(HttpRequest<? extends T> request);
 
-    public static <T> InterceptorSkip<T> fromPredicate(HttpInterceptor<T> target, Predicate<HttpRequest<T>> test) {
+    public static <T> InterceptorSkip<T> fromPredicate(HttpInterceptor<T> target, Predicate<HttpRequest<? extends T>> test) {
         return new InterceptorSkip<>(target) {
             @Override
-            protected boolean shouldIntercept(HttpRequest<T> request) {
+            protected boolean shouldIntercept(HttpRequest<? extends T> request) {
                 return test.test(request);
             }
         };

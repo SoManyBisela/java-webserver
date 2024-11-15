@@ -20,7 +20,7 @@ public class HomeController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
         final String username = sessionService.currentSession().getUsername();
         final User user = userService.getUser(username);
         return new HttpResponse<>(r.getVersion(), new MainView(user));

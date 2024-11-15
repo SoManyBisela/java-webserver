@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.handlers;
 import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.FileResponseBody;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream> {
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<InputStream> r) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends InputStream> r) {
         log.debug("Into static file handler");
         String method = r.getMethod();
         try {
@@ -39,7 +40,7 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream> {
         }
     }
 
-    private HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<InputStream> r) {
+    private HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
         String path = getFilePath(r.getResource());
         File targetFile = new File(rootDirectory + path);
         if(!targetFile.exists()) {
@@ -65,7 +66,7 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream> {
         return filePath;
     }
 
-    private HttpResponse<? extends HttpResponse.ResponseBody> handleHead(HttpRequest<InputStream> r) {
+    private HttpResponse<? extends HttpResponse.ResponseBody> handleHead(HttpRequest<? extends InputStream> r) {
         return new HttpResponse<>(handleGet(r), null);
     }
 

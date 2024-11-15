@@ -115,7 +115,7 @@ class TicketServiceTest {
 
         Ticket updatedTicket = ticketService.update(updateRequest, employee);
 
-        assertEquals(employee.getUsername(), updatedTicket.getAssegnee());
+        assertEquals(employee.getUsername(), updatedTicket.getAssignee());
         assertEquals(TicketState.CLOSED, updatedTicket.getState());
         assertEquals(1, updatedTicket.getComments().size());
     }

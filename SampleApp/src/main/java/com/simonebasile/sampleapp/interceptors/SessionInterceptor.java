@@ -14,7 +14,7 @@ public class SessionInterceptor<T> implements HttpInterceptor<T> {
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<T> request, HttpRequestHandler<T> next) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<? extends T> request, HttpRequestHandler<T> next) {
         String sessionCookie = request.getHeaders().getCookie("session");
         sessionCookie = sessionService.loadSession(sessionCookie);
         HttpResponse<? extends HttpResponse.ResponseBody> response = next.handle(request);
