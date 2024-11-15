@@ -20,9 +20,7 @@ public class WebSocket implements Closeable{
     private final BufferedInputStream inputStream;
     private final BufferedOutputStream outputStream;
 
-
     private final static Random RNG = new Random();
-
 
     public WebSocket(Socket connection, BufferedInputStream inputStream, BufferedOutputStream outputStream) {
         this.getDataframeLock = new ReentrantLock();
@@ -164,7 +162,7 @@ public class WebSocket implements Closeable{
         sendDataframeLock.lock();
         try {
             outputStream.write( (flags  << 4) | (opcode & 0b00001111) );
-            if(body.length < 125) {
+            if(body.length <= 125) {
                 outputStream.write((body.length & 0b01111111) | (masked ? 0b10000000 : 0));
             } else if(body.length >= (1 << 16)) {
                 outputStream.write(127 | (masked ? 0b10000000 : 0));

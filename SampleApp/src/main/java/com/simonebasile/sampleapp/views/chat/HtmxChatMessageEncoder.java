@@ -31,6 +31,7 @@ public class HtmxChatMessageEncoder implements ChatMessageEncoder {
             ));
             case ALREADY_CONNECTED -> obswap("chat-section", new AlreadyConnectedSection());
             case CHAT_CONNECTED -> obswap("chat-container", div().content(
+                    div().text("Connected with: " + msg.getUsername()),
                     div().attr("id", "messages", "class", "message-container"),
                     div().attr("id", "chat-inputs-container").content(
                             new SendMessageElement(),

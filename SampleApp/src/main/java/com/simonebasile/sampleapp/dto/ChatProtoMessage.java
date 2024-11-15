@@ -22,6 +22,14 @@ public class ChatProtoMessage {
         throw new IllegalStateException("message type doesn't support message");
     }
 
+    public String getUsername() {
+        if (this.type == CPMType.CHAT_CONNECTED) {
+            return sval;
+        }
+        throw new IllegalStateException("message type doesn't support message");
+    }
+
+
     public static ChatProtoMessage connected() {
         return new ChatProtoMessage(CPMType.CONNECTED, null);
     }

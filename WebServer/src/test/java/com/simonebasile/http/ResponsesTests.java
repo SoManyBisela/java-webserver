@@ -9,25 +9,22 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import static com.simonebasile.testutils.Utils.fromResource;
+
 public class ResponsesTests {
-
-    private static File resourceFile(String s) {
-        return new File(Thread.currentThread().getContextClassLoader().getResource(s).getFile());
-
-    }
 
     @Test
     void testFileResponseBody() throws IOException {
-        File test = resourceFile("responseBodies/test");
+        File test = fromResource("responseBodies/test");
 
         FileResponseBody rawTest = new FileResponseBody(test);
-        FileResponseBody textTest = new FileResponseBody(resourceFile("responseBodies/test.txt"));
-        FileResponseBody jsTest = new FileResponseBody(resourceFile("responseBodies/test.js"));
-        FileResponseBody htmlTest = new FileResponseBody(resourceFile("responseBodies/test.html"));
-        FileResponseBody xmlTest = new FileResponseBody(resourceFile("responseBodies/test.xml"));
-        FileResponseBody cssTest = new FileResponseBody(resourceFile("responseBodies/test.css"));
-        FileResponseBody jsonTest = new FileResponseBody(resourceFile("responseBodies/test.json"));
-        FileResponseBody customTest = new FileResponseBody(resourceFile("responseBodies/test.custom"));
+        FileResponseBody textTest = new FileResponseBody(fromResource("responseBodies/test.txt"));
+        FileResponseBody jsTest = new FileResponseBody(fromResource("responseBodies/test.js"));
+        FileResponseBody htmlTest = new FileResponseBody(fromResource("responseBodies/test.html"));
+        FileResponseBody xmlTest = new FileResponseBody(fromResource("responseBodies/test.xml"));
+        FileResponseBody cssTest = new FileResponseBody(fromResource("responseBodies/test.css"));
+        FileResponseBody jsonTest = new FileResponseBody(fromResource("responseBodies/test.json"));
+        FileResponseBody customTest = new FileResponseBody(fromResource("responseBodies/test.custom"));
 
         Assertions.assertEquals("application/octet-stream", rawTest.contentType());
         Assertions.assertEquals("application/octet-stream", customTest.contentType());
@@ -63,8 +60,6 @@ public class ResponsesTests {
         byteResponseBody = new ByteResponseBody(content);
         byteResponseBody = new ByteResponseBody(content.getBytes());
         byteResponseBody = new ByteResponseBody(content.getBytes(), "text/css");
-
-
     }
 
 

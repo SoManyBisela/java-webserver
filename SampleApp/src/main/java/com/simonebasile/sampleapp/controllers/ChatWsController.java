@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 //TODO increase logging
-//TODO maybe move message rendering outside
 @Slf4j
 public class ChatWsController implements WebsocketHandler<ChatWsController.WsState> {
     private final SessionService sessionService;
@@ -94,9 +93,9 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
             return HandshakeResult.refuse("Connection refused");
         }
         ctx.user = userService.getUser(sessionData.getUsername());
-        //if(dispatcher.containsKey(ctx.user.getUsername())) {
-        //    return HandshakeResult.refuse("User already connected");
-        //}
+        if(connectedUsers.containsKey(ctx.user.getUsername())) {
+            return HandshakeResult.refuse("User already connected");
+        }
         if(availableService.length == 0) {
             return HandshakeResult.accept("chat");
         }
@@ -191,7 +190,6 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         }
         acceptingUser.connectedTo = queuedUsername;
         connectedUser.connectedTo = acceptingUser.user.getUsername();
-        //TODO handle error
         try {
             acceptingUser.sendMsg(ChatProtoMessage.chatConnected(acceptingUser.connectedTo));
             connectedUser.sendMsg(ChatProtoMessage.chatConnected(connectedUser.connectedTo));
