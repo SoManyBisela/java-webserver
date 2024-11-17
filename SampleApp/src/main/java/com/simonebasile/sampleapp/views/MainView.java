@@ -10,10 +10,16 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class MainView extends HtmxView {
     public MainView(User u) {
+        addHead(
+                new HtmlElement("title").text("Ticketing"),
+                new HtmlElement("link").attr("rel", "icon", "href", "/static/favicon.png")
+        );
         addCss("/static/userview.css");
+        addCss("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0");
         addJs("/static/body-file-extension.js");
         addJs("https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js");
         addContent(
+
                 div().attr("class", "header").content(
                         new NavbarButtons(u)
                 ),

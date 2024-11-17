@@ -2,27 +2,38 @@ package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
+import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.html.custom.ErrorMessage;
-import com.simonebasile.sampleapp.views.html.custom.InputForm;
+import com.simonebasile.sampleapp.views.html.custom.SelectInputElement;
 import com.simonebasile.sampleapp.views.html.custom.SuccessMessage;
+import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
 
 import java.util.Arrays;
 
+import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
+
 public class AdminToolsSection extends ElementGroup {
 
-    private final InputForm inputForm;
+    private final HtmlElement inputForm;
 
     public AdminToolsSection() {
-        inputForm = new InputForm()
+        inputForm = form()
                 .hxPost("/admin-tools")
                 .hxTarget("#main")
-                .input("username", "text")
-                .input("password", "password")
-                .select("role", Arrays.stream(Role.values())
-                        .map(Enum::name)
-                        .map(InputForm.SelectOption::new)
-                        .toArray(InputForm.SelectOption[]::new))
-                .button(a -> a.text("Create New User").attr("type", "submit"));
+                .content(
+                        div().attr("class", "stack-vertical").content(
+                                new TextInputElement("username", "username"),
+                                new TextInputElement("password", "password").typePassword(),
+                                new TextInputElement("cpassword", "confirm password").typePassword(),
+                                new SelectInputElement(Arrays.stream(Role.values())
+                                        .map(Enum::name)
+                                        .map(SelectInputElement.SelectOption::new)
+                                        .toArray(SelectInputElement.SelectOption[]::new))
+                                        .name("role"),
+                                button().text("Create New User").attr("type", "submit")
+                        )
+
+                );
         content.add(inputForm);
     }
 

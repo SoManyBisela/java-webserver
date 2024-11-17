@@ -6,7 +6,7 @@ import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.custom.InputForm;
+import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
 
 import java.util.List;
 
@@ -64,13 +64,17 @@ public class EmployeeTicketDetailSection extends ElementGroup {
             );
         }
         content.add(
-                new InputForm()
+                form()
                         .hxVals("id", ticket.getId())
-                        .attr( "id", "add-comment-form")
+                        .attr("id", "add-comment-form")
                         .hxPost("/ticket")
                         .hxTarget("#main")
-                        .input("comment", "text")
-                        .button(b -> b.text("Send"))
+                        .content(
+                                div().attr("class", "stack-horizontal")
+                                        .content(
+                                                new TextInputElement("comment", "Comment")),
+                                button().attr("type", "submit").text("Send")
+                        )
         );
     }
 }

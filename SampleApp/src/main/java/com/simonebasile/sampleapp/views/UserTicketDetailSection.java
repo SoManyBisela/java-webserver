@@ -7,7 +7,7 @@ import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.html.custom.ErrorMessage;
-import com.simonebasile.sampleapp.views.html.custom.InputForm;
+import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
 
 import java.util.List;
 
@@ -23,15 +23,21 @@ public class UserTicketDetailSection extends ElementGroup {
 
     HtmlElement draftTicket(Ticket t) {
         return div().content(
-                        new InputForm().hxPut("/ticket")
-                                .hxVals("id", t.getId())
-                                .hxTarget("#main")
-                                .input("object", "text", a -> a.input().attr("value", t.getObject(), "class", "ticket-object"))
-                                .input("message", "text", a -> a.input().attr("value", t.getMessage(), "class", "ticket-message"))
-                                .button( b -> b.text("Submit").attr("name", "submit"))
-                                .button( b -> b.text("Save as draft")),
-                        attachmentList(t.getAttachments(), t.getId()))
-                .content(uploadAttachment(t.getId()));
+                form().hxPut("/ticket")
+                        .hxVals("id", t.getId())
+                        .hxTarget("#main")
+                        .content(
+                                div().attr("class", "stack-vertical")
+                                        .content(
+                                                new TextInputElement("object", "Object"),
+                                                new TextInputElement("message", "Message"),
+                                                button().text("Submit").attr("type", "submit", "name", "submit"),
+                                                button().text("Save as draft").attr("type", "submit")
+                                        )
+                        ),
+                attachmentList(t.getAttachments(), t.getId()),
+                uploadAttachment(t.getId())
+        );
     }
 
     private HtmlElement uploadAttachment(String id) {
@@ -106,13 +112,17 @@ public class UserTicketDetailSection extends ElementGroup {
         }
 
         ticketData.content(
-                new InputForm()
+                form()
                         .attr( "id", "add-comment-form")
                         .hxPut("/ticket")
                         .hxTarget("#main")
                         .hxVals("id", ticketId)
-                        .input("comment", "text")
-                        .button(b -> b.text("Send"))
+                        .content(
+                                div().attr("class", "stack-horizontal")
+                                        .content(
+                                                new TextInputElement("comment", "Comment")),
+                                button().attr("type", "submit").text("Send")
+                        )
         );
         return commentSection;
     }

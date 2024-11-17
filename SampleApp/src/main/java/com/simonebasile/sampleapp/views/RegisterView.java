@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.views;
 import com.simonebasile.sampleapp.views.base.View;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.html.custom.ErrorMessage;
+import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
@@ -14,36 +15,15 @@ public class RegisterView extends View {
                         "method", "POST"
                 )
                 .content(
-                        table().content(
-                                tr().content(
-                                        td().content(
-                                                label().attr("for", "user")
-                                                        .text("username: ")
-                                        ),
-                                        td().content(
-                                                input()
-                                                        .attr("type", "text",
-                                                                "id", "user",
-                                                                "name", "username")
-                                        )
-                                ),
-                                tr().content(
-                                        td().content(
-                                                label().attr("for", "pw")
-                                                        .text("password: ")
-                                        ),
-                                        td().content(
-                                                input()
-                                                        .attr("type", "password",
-                                                                "id", "pw",
-                                                                "name", "password")
-                                        )
-                                )
-                        ),
-                        button().attr("type", "submit")
-                                .text("Register")
+                        div().attr("class", "stack-vertical").content(
+                                new TextInputElement("username", "username"),
+                                new TextInputElement("password", "password").typePassword(),
+                                new TextInputElement("cpassword", "confirm password").typePassword(),
+                                button().attr("type", "submit", "class", "default-button")
+                                        .text("Register")
+                        )
                 );
-        if(errorMessage != null && !errorMessage.isEmpty()) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
             loginForm.content(new ErrorMessage(errorMessage));
         }
         addContent(
@@ -53,6 +33,7 @@ public class RegisterView extends View {
                 a().attr("href", "/login").text("Already registered? login")
         );
     }
+
     public RegisterView() {
         this(null);
     }

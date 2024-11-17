@@ -217,6 +217,22 @@ public class HtmlElement extends ElementGroup{
         return new HtmlElement("table");
     }
 
+    public static HtmlElement thead() {
+        return new HtmlElement("thead");
+    }
+
+    public static HtmlElement tbody() {
+        return new HtmlElement("tbody");
+    }
+
+    public static HtmlElement colgroup() {
+        return new HtmlElement("colgroup");
+    }
+
+    public static HtmlElement col() {
+        return new HtmlElement("col");
+    }
+
     public static HtmlElement tr() {
         return new HtmlElement("tr");
     }

@@ -16,7 +16,11 @@ body {
 }
 
 .header {
-    background-color: #f0f0f0;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #f5f5f5;
     display: flex;
     flex-direction: row;
 }
@@ -28,7 +32,7 @@ body {
 
 .main {
     flex-grow: 1;
-    padding: 8px;
+    padding: 16px;
 }
 
 .chatbox {
@@ -40,23 +44,41 @@ body {
 }
 
 .nav-btn {
-    --ico-size: 30px;
-    padding: 4px;
+    padding: 16px 24px;
+    font-size: 1.15rem;
+    font-weight: bold;
 
-}
-
-.nav-btn-ico {
-    width: var(--ico-size);
-    height: var(--ico-size);
-    display: inline-block;
-    background-size: cover;
+    color: #3a73d6;
+    &:hover {
+        color: #6295e3;
+    }
+    &:active {
+        color: #2754b0;
+    }
+    &:last-child {
+        .nav-btn-text {
+            opacity: 0;
+            transition: all 0.15s;
+        }
+        flex-direction: row-reverse;
+        margin-left: auto;
+        color: #f5222d;
+        &:hover {
+            color: #ff4d4f;
+            .nav-btn-text {
+                opacity: 1;
+            }
+        }
+        &:active {
+            color: #cf1322;
+        }
+    }
 }
 
 .nav-btn {
     display: flex;
-    justify-content: center;
-    text-align: center;
-    line-height: var(--ico-size);
+    gap: 8px;
+    flex-direction: row;
 }
 
 .nav-btn-text {
@@ -116,4 +138,166 @@ body {
 
 .message-container {
     overflow: auto
+}
+
+.delete-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #f5222d;
+    &:hover {
+        color: #ff4d4f;
+    }
+    &:active {
+        color: #cf1322;
+    }
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    tr {
+
+        &:first-child {
+            th, td {
+                border-top: 1px solid #bfbfbf;
+            }
+        }
+        &:last-child {
+            :first-child {
+                border-bottom-left-radius: 2px;
+            }
+            :last-child {
+                border-bottom-right-radius: 2px;
+            }
+        }
+    }
+
+    th {
+        padding: 8px 16px;
+        text-align: left;
+        background: #d9d9d9;
+        border-bottom: 1px solid #bfbfbf;
+        &:first-child {
+            border-top-left-radius: 2px;
+            border-left: 1px solid #bfbfbf;
+        }
+        &:last-child {
+            border-top-right-radius: 2px;
+            border-right: 1px solid #bfbfbf;
+        }
+    }
+
+    td {
+        padding: 4px 16px;
+        border-bottom: 1px solid #bfbfbf;
+        &:first-child {
+            border-left: 1px solid #bfbfbf;
+        }
+        &:last-child {
+            border-right: 1px solid #bfbfbf;
+        }
+    }
+}
+
+.input-container {
+    margin-top: 0.4rem;
+    position: relative;
+    background: white;
+    label {
+        font-weight: bold;
+        color: #434343;
+        text-transform: capitalize;
+        position: absolute;
+        top: -0.4rem;
+        font-size: 0.8rem;
+        left: 8px;
+        padding: 0 4px;
+        background: inherit;
+        cursor: text;
+        transition: all 0.15s;
+        pointer-events: none;
+        height: 1rem;
+        line-height: 1rem;
+    }
+    input[type="text"], input[type="password"] {
+        width: 100%;
+        border: 1px solid #8c8c8c;
+        cursor: text;
+        height: 2.75rem;
+        padding: 0 16px;
+        outline: none;
+        font-size: 1rem;
+        border-radius: 4px;
+        transition: border-color 0.15s;
+        &:active, &:focus {
+            border: 2px solid #3a73d6;
+            padding: 0 15px;
+            & + label {
+                color: #3a73d6;
+            }
+        }
+    }
+}
+
+.stack-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stack-horizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.open-detail-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #3a73d6;
+    &:hover {
+        color: #6295e3;
+    }
+    &:active {
+        color: #2754b0;
+    }
+}
+
+.buttons-cell {
+    div {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        button {
+            display: block;
+        }
+    }
+
+}
+
+.default-button {
+    background-color: #3a73d6;
+    &:hover {
+        background-color: #2754b0;
+    }
+    &:active {
+        background-color: #173a8a;
+    }
+    color: rgb(240, 240, 240);
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    position: relative;
+    padding: 6px 12px;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    gap: 4px;
 }

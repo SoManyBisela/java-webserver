@@ -18,12 +18,24 @@ public class EmployeeTicketsSection extends ElementGroup {
                     th().text("Object"),
                     th().text("State"),
                     th().text("Assignee"),
-                    th().text("Owner")
+                    th().text("Owner"),
+                    th()
             );
             List<HtmlElement> rows = tickets.stream().map(EmployeeTicketsSection::toRow).toList();
             content.add(
                     div().attr("class", "ticket-container")
-                            .content(table().content(heading).content(rows)));
+                            .content(table().content(
+                                            colgroup().content(
+                                                    col(),
+                                                    col().attr("style", "width: 1rem"),
+                                                    col().attr("style", "width: 1rem"),
+                                                    col().attr("style", "width: 1rem"),
+                                                    col().attr("style", "width: 40px")
+                                            ),
+                                            heading
+                                    ).content(rows)
+                            )
+            );
         } else {
             content.add(
                     div().attr("class", "empty-tickets")
@@ -33,14 +45,21 @@ public class EmployeeTicketsSection extends ElementGroup {
 
     private static HtmlElement toRow(Ticket ticket) {
         return tr()
-                .hxGet("/ticket")
-                .hxVals("id", ticket.getId())
-                .hxTarget("#main")
                 .content(
                         td().text(ticket.getObject()),
                         td().text(ticket.getState().name()),
                         td().text(ticket.getAssignee() == null ? "None" : ticket.getAssignee()),
-                        td().text(ticket.getOwner())
+                        td().text(ticket.getOwner()),
+                        td().attr("class", "buttons-cell").content(
+                                div().content(
+                                        button().content(span().attr("class", "material-symbols-outlined").text("visibility"))
+                                                .attr("class", "open-detail-button")
+                                                .hxGet("/ticket")
+                                                .hxVals("id", ticket.getId())
+                                                .hxSwap("inner-html")
+                                                .hxTarget("#main")
+                                )
+                        )
                 );
     }
 }
