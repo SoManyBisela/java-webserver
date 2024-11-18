@@ -5,9 +5,16 @@ import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
 import com.simonebasile.sampleapp.controller.*;
 import com.simonebasile.sampleapp.controller.HomeController;
+import com.simonebasile.sampleapp.controller.admin.AdminToolsController;
+import com.simonebasile.sampleapp.controller.employee.EmployeeTicketController;
+import com.simonebasile.sampleapp.controller.employee.EmployeeTicketsController;
+import com.simonebasile.sampleapp.controller.user.AttachmentController;
+import com.simonebasile.sampleapp.controller.user.UserTicketsController;
+import com.simonebasile.sampleapp.controller.user.UserTicketController;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
+import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.repository.SessionRepository;
 import com.simonebasile.sampleapp.repository.TicketRepository;
@@ -68,13 +75,20 @@ public class Main {
         var loginController = new LoginController(authenticationService);
         var logoutController = new LogoutController(sessionService);
         var registerController = new RegisterController(authenticationService);
+
         var homeController = new HomeController();
-        var ticketsController = new TicketsController(ticketService);
-        var ticketController = new TicketController(ticketService);
-        var adminToolsController = new AdminToolsController(authenticationService);
         var accountController = new AccountController(authenticationService);
-        var attachmentController = new AttachmentController(ticketService);
+
+        var adminToolsController = new AdminToolsController(authenticationService);
+
         var chatWsController = new ChatWsController();
+
+        var attachmentController = new AttachmentController(ticketService);
+        var userTicketsController = new UserTicketsController(ticketService);
+        var userTicketController = new UserTicketController(ticketService);
+
+        var employeeTicketsController = new EmployeeTicketsController(ticketService);
+        var employeeTicketController = new EmployeeTicketController(ticketService);
 
         //Interceptor config
         var authInterceptor = new AuthenticationInterceptor<InputStream>(sessionService, userService);
@@ -93,10 +107,10 @@ public class Main {
         };
         webServer.registerInterceptor((req, ctx, n) ->  {
             long start = System.currentTimeMillis();
-            log.info("Requets received {} {}", req.getMethod(), req.getResource());
+            log.debug("Requets received {} {}", req.getMethod(), req.getResource());
             HttpResponse<? extends HttpResponse.ResponseBody> res = n.handle(req, ctx);
             res.getHeaders().add("Connection", "Keep-Alive");
-            log.info("Response status: {}", res.getStatusCode());
+            log.debug("Response status: {}", res.getStatusCode());
             if(log.isDebugEnabled()) {
                 log.debug("Response headers: ");
                 HttpHeaders headers = res.getHeaders();
@@ -114,13 +128,22 @@ public class Main {
         webServer.registerHttpHandler("/register", registerController);
 
         webServer.registerHttpHandler("/", homeController);
-        webServer.registerHttpHandler("/tickets", ticketsController);
-        webServer.registerHttpHandler("/ticket", ticketController);
-        webServer.registerHttpHandler("/admin-tools", adminToolsController);
         webServer.registerHttpHandler("/account", accountController);
-        webServer.registerHttpHandler("/attachment", attachmentController);
+
+        webServer.registerHttpHandler("/attachment", RoleBasedHandler.of(Role.user, attachmentController));
+        webServer.registerHttpHandler("/tickets", RoleBasedHandler.builder()
+                .handle(Role.user, userTicketsController)
+                .handle(Role.employee, employeeTicketsController)
+                .build());
+        webServer.registerHttpHandler("/ticket", RoleBasedHandler.builder()
+                .handle(Role.user, userTicketController)
+                .handle(Role.employee, employeeTicketController)
+                .build());
 
         webServer.registerWebSocketHandler("/chat", chatWsController);
+
+        webServer.registerHttpHandler("/admin-tools", RoleBasedHandler.of(Role.admin, adminToolsController));
+
 
         try {
             webServer.start();

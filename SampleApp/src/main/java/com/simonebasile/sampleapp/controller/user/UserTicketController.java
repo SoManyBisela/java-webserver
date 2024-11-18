@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.controller;
+package com.simonebasile.sampleapp.controller.user;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
@@ -25,11 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.InputStream;
 
 @Slf4j
-public class TicketController extends MethodHandler<InputStream, ApplicationRequestContext> {
+public class UserTicketController extends MethodHandler<InputStream, ApplicationRequestContext> {
 
     private final TicketService ticketService;
 
-    public TicketController(TicketService ticketService) {
+    public UserTicketController(TicketService ticketService) {
         this.ticketService = ticketService;
     }
 
@@ -37,30 +37,13 @@ public class TicketController extends MethodHandler<InputStream, ApplicationRequ
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         IdRequest id = FormHttpMapper.mapHttpResource(r.getResource(), IdRequest.class);
-        if(user.getRole() == null || user.getRole() == Role.admin) {
-            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
-            return ResponseUtils.redirect(r, "/");
-        }
-        if(user.getRole() == Role.user) {
-            Ticket ticket = ticketService.getById(id.getId(), user);
-            return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket));
-        } else if(user.getRole() == Role.employee) {
-            Ticket ticket = ticketService.getById(id.getId(), user);
-            if(ticket == null) {
-                return new HttpResponse<>(r.getVersion(), 404, new TicketNotFoundSection(id.getId()));
-            }
-            return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetailSection(ticket, user));
-        }
-        throw new UnreachableBranchException();
+        Ticket ticket = ticketService.getById(id.getId(), user);
+        return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket));
     }
 
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
-        if(user.getRole() != Role.user) {
-            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
-            ResponseUtils.redirect(r, "/");
-        }
         CreateTicket body = FormHttpMapper.map(r.getBody(), CreateTicket.class);
         Ticket ticket = new Ticket(body);
         String id;
@@ -71,44 +54,25 @@ public class TicketController extends MethodHandler<InputStream, ApplicationRequ
         }
         Ticket t = ticketService.getById(id, user);
         return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(t).successMessage("Ticket saved"));
-
     }
 
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePut(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         Ticket ticket;
-        if (user.getRole() == Role.user) {
-            UserUpdateTicket body = FormHttpMapper.map(r.getBody(), UserUpdateTicket.class);
-            try {
-                ticket = ticketService.update(body, user);
-            } catch (UpdateTicketException e) {
-                ticket = ticketService.getById(body.getId(), user);
-                return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket).errorMessage(e.getMessage()));
-            }
-            return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket));
-        } else if(user.getRole() == Role.employee) {
-            EmployeeUpdateTicket body = FormHttpMapper.map(r.getBody(), EmployeeUpdateTicket.class);
-            try {
-                ticket = ticketService.update(body, user);
-            } catch (UpdateTicketException e) {
-                ticket = ticketService.getById(body.getId(), user);
-                return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetailSection(ticket, user, e.getMessage()));
-            }
-            return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetailSection(ticket, user).successMessage("Ticket saved"));
-        } else {
-            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
-            return ResponseUtils.redirect(r, "/");
+        UserUpdateTicket body = FormHttpMapper.map(r.getBody(), UserUpdateTicket.class);
+        try {
+            ticket = ticketService.update(body, user);
+        } catch (UpdateTicketException e) {
+            ticket = ticketService.getById(body.getId(), user);
+            return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket).errorMessage(e.getMessage()));
         }
+        return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket));
     }
 
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleDelete(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
-        if(user.getRole() != Role.user) {
-            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
-            return ResponseUtils.redirect(r, "/");
-        }
         IdRequest id = FormHttpMapper.mapHttpResource(r.getResource(), IdRequest.class);
         if(ticketService.delete(id.getId(), user)) {
             return new HttpResponse<>(r.getVersion(), null);

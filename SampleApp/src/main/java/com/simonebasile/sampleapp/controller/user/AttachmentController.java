@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.controller;
+package com.simonebasile.sampleapp.controller.user;
 
 import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
@@ -36,10 +36,6 @@ public class AttachmentController extends MethodHandler<InputStream, Application
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
-        if(user.getRole() != Role.user) {
-            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
-            ResponseUtils.redirect(r, "/");
-        }
         UploadAttachmentRequest uploadAttachmentRequest = FormHttpMapper.mapHttpResource(r.getResource(), UploadAttachmentRequest.class);
         String ticketId = uploadAttachmentRequest.getTicketId();
         Ticket ticket = ticketService.getById(ticketId, user);
@@ -47,7 +43,6 @@ public class AttachmentController extends MethodHandler<InputStream, Application
             log.warn("User {} Tried to upload attachment for ticket with id {}",user.getUsername(), ticketId);
             return new HttpResponse<>(r.getVersion(), new TicketNotFoundSection(ticketId));
         }
-
         if(!uploadAttachmentRequest.valid()) {
             log.warn("Invalid upload request {}", uploadAttachmentRequest);
             return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket)
@@ -86,10 +81,6 @@ public class AttachmentController extends MethodHandler<InputStream, Application
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
-        if(user.getRole() != Role.user) {
-            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
-            ResponseUtils.redirect(r, "/");
-        }
         DownloadAttachmentRequest downloadReq = FormHttpMapper.mapHttpResource(r.getResource(), DownloadAttachmentRequest.class);
         Ticket t = ticketService.getById(downloadReq.getTicketId(), user);
         if(t == null) {

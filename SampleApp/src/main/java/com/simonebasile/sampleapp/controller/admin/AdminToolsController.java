@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.controller;
+package com.simonebasile.sampleapp.controller.admin;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
@@ -18,13 +18,11 @@ import java.io.InputStream;
 @Slf4j
 public class AdminToolsController extends MethodHandler<InputStream, ApplicationRequestContext> {
 
-
     private final AuthenticationService authService;
 
     public AdminToolsController(AuthenticationService authenticationService) {
         this.authService = authenticationService;
     }
-
 
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
