@@ -6,6 +6,8 @@ import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.html.custom.ErrorMessage;
+import com.simonebasile.sampleapp.views.html.custom.SuccessMessage;
 import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class EmployeeTicketDetailSection extends ElementGroup {
+    private HtmlElement container = div();// WIP prevents npe TODO replace with real element
     public EmployeeTicketDetailSection(Ticket ticket, User user) {
         this(ticket, user, null);
     }
@@ -76,5 +79,15 @@ public class EmployeeTicketDetailSection extends ElementGroup {
                                 button().attr("type", "submit").text("Send")
                         )
         );
+    }
+
+    public EmployeeTicketDetailSection successMessage(String msg) {
+        container.content(new SuccessMessage(msg));
+        return this;
+    }
+
+    public EmployeeTicketDetailSection errorMessage(String msg) {
+        container.content(new ErrorMessage(msg));
+        return this;
     }
 }

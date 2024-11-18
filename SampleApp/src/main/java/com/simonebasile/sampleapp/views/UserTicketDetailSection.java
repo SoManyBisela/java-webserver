@@ -54,7 +54,7 @@ public class UserTicketDetailSection extends ElementGroup {
                                 attachmentList(t.getAttachments(), t.getId()),
                                 uploadAttachment(t.getId())
                         ) : NoElement.instance,
-                        div().attr("class", "stack-horizontal fl-grow").content(
+                        div().attr("class", "stack-horizontal child-grow").content(
                                 createTicket ? button().attr("class", "default-button")
                                         .text("Submit").attr("type", "submit", "name", "submit", "form", formId) : NoElement.instance,
                                 button().attr("class", "default-button")
@@ -82,7 +82,7 @@ public class UserTicketDetailSection extends ElementGroup {
 
 
     HtmlElement ticket(Ticket t) {
-        HtmlElement ticketData = div().content(
+        HtmlElement ticketData = container = div().content(
                 div().attr("class", "ticket-object")
                         .text(t.getObject()),
                 div().attr("class", "ticket-message")
@@ -144,11 +144,19 @@ public class UserTicketDetailSection extends ElementGroup {
                         .content(
                                 div().attr("class", "stack-horizontal")
                                         .content(
-                                                new TextInputElement("comment", "Comment")),
-                                button().attr("type", "submit").text("Send")
+                                                new TextInputElement("comment", "Comment").style("flex-grow: 1"),
+                                                button().attr("style", "margin-top: 0.4rem",
+                                                        "class", "default-button",
+                                                        "type", "submit").text("Send")
+                                        )
                         )
         );
         return commentSection;
+    }
+
+    public UserTicketDetailSection successMessage(String msg) {
+        container.content(new SuccessMessage(msg));
+        return this;
     }
 
     public UserTicketDetailSection errorMessage(String msg) {

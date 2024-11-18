@@ -70,7 +70,7 @@ public class TicketController extends MethodHandler<InputStream, ApplicationRequ
             return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket).errorMessage(e.getMessage()));
         }
         Ticket t = ticketService.getById(id, user);
-        return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(t));
+        return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(t).successMessage("Ticket saved"));
 
     }
 
@@ -95,7 +95,7 @@ public class TicketController extends MethodHandler<InputStream, ApplicationRequ
                 ticket = ticketService.getById(body.getId(), user);
                 return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetailSection(ticket, user, e.getMessage()));
             }
-            return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetailSection(ticket, user));
+            return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetailSection(ticket, user).successMessage("Ticket saved"));
         } else {
             log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             return ResponseUtils.redirect(r, "/");

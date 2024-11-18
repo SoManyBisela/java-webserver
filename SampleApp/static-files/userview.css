@@ -321,7 +321,7 @@ table {
     color: #52c41a;
 }
 
-.fl-grow {
+.child-grow {
     * {
         flex-grow: 1;
     }

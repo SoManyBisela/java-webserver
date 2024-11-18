@@ -39,4 +39,9 @@ public class TextInputElement extends IHtmlElement {
         input.attr("value", value);
         return this;
     }
+
+    public TextInputElement style(String style) {
+        container.attr("style", style);
+        return this;
+    }
 }
