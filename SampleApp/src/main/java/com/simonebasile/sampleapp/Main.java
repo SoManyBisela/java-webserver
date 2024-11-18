@@ -124,7 +124,11 @@ public class Main {
 
         webServer.registerWebSocketHandler("/chat", chatWsController);
 
-        webServer.start();
+        try {
+            webServer.start();
+        } finally {
+            mongoClient.close();
+        }
 
     }
 }

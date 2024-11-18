@@ -121,9 +121,7 @@ public class HtmlElement extends ElementGroup{
 
     public HtmlElement content(IHtmlElement element, IHtmlElement ...more) {
         content.add(element);
-        for(IHtmlElement child : more) {
-            content.add(child);
-        }
+        content.addAll(Arrays.asList(more));
         return this;
     }
 

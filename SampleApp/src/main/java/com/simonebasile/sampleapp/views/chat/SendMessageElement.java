@@ -18,5 +18,5 @@ public class SendMessageElement extends HtmlElement {
     public SendMessageElement focusOnLoad() {
         input.attr("hx-on::load", "this.focus()");
         return this;
-    };
+    }
 }

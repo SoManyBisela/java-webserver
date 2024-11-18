@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -34,33 +35,25 @@ public class Html5View extends IHtmlElement {
 
     public Html5View addHead(IHtmlElement el, IHtmlElement... more) {
         headElements.add(el);
-        for(IHtmlElement e : more) {
-            headElements.add(e);
-        }
+        headElements.addAll(Arrays.asList(more));
         return this;
     }
 
     public Html5View addJs(String script, String... more) {
         scripts.add(script);
-        for(String m: more) {
-            scripts.add(m);
-        }
+        scripts.addAll(Arrays.asList(more));
         return this;
     }
 
     public Html5View addCss(String script, String ...more) {
         stylesheets.add(script);
-        for(String m: more) {
-            stylesheets.add(m);
-        }
+        stylesheets.addAll(Arrays.asList(more));
         return this;
     }
 
     public Html5View addContent(IHtmlElement el, IHtmlElement... more) {
         content.add(el);
-        for (IHtmlElement htmlElement : more) {
-            content.add(htmlElement);
-        }
+        content.addAll(Arrays.asList(more));
         return this;
     }
 
