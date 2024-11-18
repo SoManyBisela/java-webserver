@@ -16,13 +16,16 @@ public class TextAreaElement extends IHtmlElement {
 
     public TextAreaElement(String name, String labelText) {
         String id = IdGenerator.get();
+        String autosize = "this.style.height = ''; this.style.height = this.scrollHeight +'px'";
         container = div()
                 .attr("class", "input-container")
                 .content(
-                        input = textarea().attr("type", "text",
-                                "name", name,
-                                "id", id,
-                                "oninput", "this.style.height = ''; this.style.height = this.scrollHeight +'px'"
+                        input = textarea().hxExt("simple-loaded-event")
+                                .attr("type", "text",
+                                        "name", name,
+                                        "id", id,
+                                        "hx-sle-onload", autosize,
+                                        "oninput", autosize
                         ),
                         label().text(labelText).attr("for", id)
                 );

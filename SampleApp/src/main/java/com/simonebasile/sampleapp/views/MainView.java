@@ -17,6 +17,7 @@ public class MainView extends HtmxView {
         addCss("/static/userview.css");
         addCss("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0");
         addJs("/static/body-file-extension.js");
+        addJs("/static/simple-loaded-event.js");
         addJs("https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js");
         addJs("https://unpkg.com/htmx-ext-debug@2.0.0/debug.js");
         addContent(

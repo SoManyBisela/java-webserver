@@ -14,37 +14,37 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class AdminToolsSection extends ElementGroup {
 
-    private final HtmlElement inputForm;
+    private final HtmlElement container;
 
     public AdminToolsSection() {
-        inputForm = form()
-                .hxPost("/admin-tools")
-                .hxTarget("#main")
-                .content(
-                        h(1).text("Create new user"),
-                        div().attr("class", "stack-vertical").content(
-                                new TextInputElement("username", "username"),
-                                new TextInputElement("password", "password").typePassword(),
-                                new TextInputElement("cpassword", "confirm password").typePassword(),
-                                new SelectInputElement(Arrays.stream(Role.values())
-                                        .map(Enum::name)
-                                        .map(SelectInputElement.SelectOption::new)
-                                        .toArray(SelectInputElement.SelectOption[]::new))
-                                        .name("role"),
-                                button().text("Create New User").attr("type", "submit")
-                        )
+        content.add(
+                form()
+                        .hxPost("/admin-tools")
+                        .hxTarget("#main")
+                        .content(
+                                container = div().attr("class", "stack-vertical").content(
+                                        h(1).text("Create new user"),
+                                        new TextInputElement("username", "username"),
+                                        new TextInputElement("password", "password").typePassword(),
+                                        new TextInputElement("cpassword", "confirm password").typePassword(),
+                                        new SelectInputElement("role", "Role", Arrays.stream(Role.values())
+                                                .map(Enum::name)
+                                                .map(SelectInputElement.SelectOption::new)
+                                                .toArray(SelectInputElement.SelectOption[]::new)),
+                                        button().text("Create New User").attr("type", "submit", "class", "default-button")
+                                )
 
-                );
-        content.add(inputForm);
+                        )
+        );
     }
 
     public AdminToolsSection createUserError(String error) {
-        inputForm.content(new ErrorMessage(error));
+        container.content(new ErrorMessage(error));
         return this;
     }
 
     public AdminToolsSection successMessage(String text) {
-        inputForm.content(new SuccessMessage(text));
+        container.content(new SuccessMessage(text));
         return this;
     }
 

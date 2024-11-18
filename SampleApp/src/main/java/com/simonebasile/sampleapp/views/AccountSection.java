@@ -11,31 +11,32 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class AccountSection extends ElementGroup {
 
-    private final HtmlElement inputForm;
+    private final HtmlElement container;
 
     public AccountSection(User u) {
-        inputForm = form()
+        content.add(form()
                 .hxPost("/account")
                 .hxTarget("#main")
                 .content(
-                        div().attr("class", "stack-vertical").content(
-                                new TextInputElement("oldPassword", "old password").typePassword(),
-                                new TextInputElement("newPassword", "new password").typePassword(),
-                                new TextInputElement("conPassword", "confirm password").typePassword(),
-                                button().attr("type", "submit").text("Change password")
+                        container = div().attr("class", "stack-vertical").content(
+                                h(1).text("Change password"),
+                                div().attr("class", "stack-vertical").content(
+                                        new TextInputElement("oldPassword", "old password").typePassword(),
+                                        new TextInputElement("newPassword", "new password").typePassword(),
+                                        new TextInputElement("conPassword", "confirm password").typePassword(),
+                                        button().attr("class", "default-button", "type", "submit").text("Change password")
+                                )
                         )
-                );
-        content.add(h(1).text("Hello " + u.getUsername()));
-        content.add(inputForm);
+                ));
     }
 
     public AccountSection changePasswordError(String error) {
-        inputForm.content(new ErrorMessage(error));
+        container.content(new ErrorMessage(error));
         return this;
     }
 
     public AccountSection successMessage(String text) {
-        inputForm.content(new SuccessMessage(text));
+        container.content(new SuccessMessage(text));
         return this;
     }
 

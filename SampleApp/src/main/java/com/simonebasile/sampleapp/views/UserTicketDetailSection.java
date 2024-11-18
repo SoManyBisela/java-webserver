@@ -51,8 +51,12 @@ public class UserTicketDetailSection extends ElementGroup {
                                         attachmentList(t.getAttachments(), t.getId()),
                                         uploadAttachment(t.getId())
                                 ),
-                        t == null ? NoElement.instance : button().text("Submit").attr("type", "submit", "name", "submit", "form", formId),
-                        button().text("Save as draft").attr("type", "submit", "form", formId)
+                        div().attr("class", "stack-horizontal fl-grow").content(
+                                t == null ? NoElement.instance : button().attr("class", "default-button")
+                                        .text("Submit").attr("type", "submit", "name", "submit", "form", formId),
+                                button().attr("class", "default-button")
+                                        .text("Save as draft").attr("type", "submit", "form", formId)
+                        )
                 );
     }
 
@@ -68,7 +72,7 @@ public class UserTicketDetailSection extends ElementGroup {
                 .content(
                         div().attr("class", "stack-horizontal").content(
                                 input().attr("type", "file", "name", "filecontent"),
-                                button().text("Upload").attr("class", "upload-button", "type", "submit")
+                                button().attr("class", "default-button").text("Upload").attr("class", "upload-button", "type", "submit")
                         )
                 );
     }
@@ -90,19 +94,18 @@ public class UserTicketDetailSection extends ElementGroup {
         return ticketData;
     }
 
-    private HtmlElement attachmentList(List<Attachment> attachments, String id) {
+    private IHtmlElement attachmentList(List<Attachment> attachments, String id) {
+        if(attachments == null || attachments.isEmpty()) return NoElement.instance;
         HtmlElement container = table().attr("class", "attachments", "id", "attachmentlist");
-        if(attachments != null) {
-            for (int i = 0; i < attachments.size(); i++) {
-                Attachment attachment = attachments.get(i);
-                container.content(tr().content(
-                        td().text(attachment.getName()),
-                        td().content(a().attr(
-                                "href", "/attachment?ticketId=" + id + "&ati=" + i,
-                                "target", "_blank"
-                        ).text("Download"))
-                ));
-            }
+        for (int i = 0; i < attachments.size(); i++) {
+            Attachment attachment = attachments.get(i);
+            container.content(tr().content(
+                    td().text(attachment.getName()),
+                    td().content(a().attr(
+                            "href", "/attachment?ticketId=" + id + "&ati=" + i,
+                            "target", "_blank"
+                    ).text("Download"))
+            ));
         }
         return container;
 

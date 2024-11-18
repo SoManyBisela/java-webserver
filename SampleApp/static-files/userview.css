@@ -309,3 +309,68 @@ table {
     user-select: none;
     gap: 4px;
 }
+
+.input-container {
+    margin-top: 0.4rem;
+    position: relative;
+    background: white;
+    label {
+        font-weight: bold;
+        color: #434343;
+        text-transform: capitalize;
+        position: absolute;
+        top: -0.4rem;
+        font-size: 0.8rem;
+        left: 8px;
+        padding: 0 4px;
+        background: inherit;
+        cursor: text;
+        transition: all 0.15s;
+        pointer-events: none;
+        height: 1rem;
+        line-height: 1rem;
+    }
+    input[type="text"], input[type="password"], textarea, select{
+        width: 100%;
+        border: 1px solid #8c8c8c;
+        cursor: text;
+        height: 2.75rem;
+        padding: 0 16px;
+        outline: none;
+        font-size: 1rem;
+        border-radius: 4px;
+        transition: border-color 0.15s;
+        &:active, &:focus {
+            border: 2px solid #3a73d6;
+            padding: 0 15px;
+            & + label {
+                color: #3a73d6;
+            }
+        }
+    }
+    textarea[type="text"]{
+        overflow-y: hidden;
+        padding: 12px 16px;
+        resize: vertical;
+        &:active, &:focus {
+            padding: 12px 15px;
+        }
+    }
+    select {
+        background: white;
+    }
+}
+
+.error-msg {
+    color: #f5222d;
+}
+
+.success-msg {
+    color: #52c41a;
+}
+
+.fl-grow {
+    * {
+        flex-grow: 1;
+    }
+}
