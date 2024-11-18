@@ -5,9 +5,9 @@ import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
 import com.simonebasile.sampleapp.controllers.*;
 import com.simonebasile.sampleapp.controllers.HomeController;
+import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
-import com.simonebasile.sampleapp.interceptors.SessionInterceptor;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.repository.SessionRepository;
 import com.simonebasile.sampleapp.repository.TicketRepository;
@@ -68,36 +68,34 @@ public class Main {
         var loginController = new LoginController(authenticationService);
         var logoutController = new LogoutController(sessionService);
         var registerController = new RegisterController(authenticationService);
-        var homeController = new HomeController(sessionService, userService);
-        var ticketsController = new TicketsController(sessionService, userService, ticketService);
-        var createTicketController = new CreateTicketController(sessionService, userService, ticketService);
-        var ticketController = new TicketController(sessionService, userService, ticketService);
-        var adminToolsController = new AdminToolsController(sessionService, userService, authenticationService);
-        var accountController = new AccountController(sessionService, userService, authenticationService);
-        var attachmentController = new AttachmentController(sessionService, userService, ticketService);
-        var chatWsController = new ChatWsController(sessionService, userService);
+        var homeController = new HomeController();
+        var ticketsController = new TicketsController(ticketService);
+        var createTicketController = new CreateTicketController(ticketService);
+        var ticketController = new TicketController(ticketService);
+        var adminToolsController = new AdminToolsController(authenticationService);
+        var accountController = new AccountController(authenticationService);
+        var attachmentController = new AttachmentController(ticketService);
+        var chatWsController = new ChatWsController();
 
         //Interceptor config
-        var sessionInterceptor = new SessionInterceptor<InputStream>(sessionService);
-        var authInterceptor = new AuthenticationInterceptor<InputStream>(sessionService);
+        var authInterceptor = new AuthenticationInterceptor<InputStream>(sessionService, userService);
 
         //Webserver config
-        var webServer = new WebServer(10131);
-        Predicate<HttpRequest<? extends InputStream>> skipSession = (r) -> {
-            String resource = r.getResource();
-            return !resource.equals("/favicon.ico") &&
-                    !resource.startsWith("/static");
-        };
+        var webServer = WebServer.builder()
+                .port(10131)
+                .requestContextFactory(ApplicationRequestContext::new)
+                .build();
+
         Predicate<HttpRequest<? extends InputStream>> skipAuth = (r) -> {
             String resource = r.getResource();
-            return skipSession.test(r) &&
-                    !resource.equals("/register") &&
-                    !resource.equals("/login");
+            return !resource.equals("/favicon.ico") &&
+                    !resource.startsWith("/static") &&
+                    !resource.equals("/register");
         };
-        webServer.registerInterceptor((req, n) ->  {
+        webServer.registerInterceptor((req, ctx, n) ->  {
             long start = System.currentTimeMillis();
             log.info("Requets received {} {}", req.getMethod(), req.getResource());
-            HttpResponse<? extends HttpResponse.ResponseBody> res = n.handle(req);
+            HttpResponse<? extends HttpResponse.ResponseBody> res = n.handle(req, ctx);
             res.getHeaders().add("Connection", "Keep-Alive");
             log.info("Response status: {}", res.getStatusCode());
             if(log.isDebugEnabled()) {
@@ -110,7 +108,6 @@ public class Main {
             log.info("Processing time: {}ms", System.currentTimeMillis() - start);
             return res;
         });
-        webServer.registerInterceptor(InterceptorSkip.fromPredicate(sessionInterceptor, skipSession));
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(authInterceptor, skipAuth));
         webServer.registerHttpContext("/static", new StaticFileHandler("/static", "static-files"));
         webServer.registerHttpHandler("/login", loginController);

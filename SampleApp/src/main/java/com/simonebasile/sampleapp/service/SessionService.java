@@ -4,42 +4,27 @@ import com.simonebasile.sampleapp.DebugRegistry;
 import com.simonebasile.sampleapp.repository.SessionRepository;
 import com.simonebasile.sampleapp.model.SessionData;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Slf4j
 public class SessionService {
 
-    private final ThreadLocal<SessionData> sessionData;
     private final SessionRepository sessionRepository;
 
     public SessionService(SessionRepository sessionRepository) {
         this.sessionRepository = sessionRepository;
-        this.sessionData = new ThreadLocal<>();
         DebugRegistry.add("sessionService", this);
     }
 
-    public String loadSession(String sessionCookie) {
-        SessionData s = getOrCreateSession(sessionCookie);
-        sessionData.set(s);
-        return s.getId();
-    }
-
-    public SessionData currentSession() {
-        return sessionData.get();
-    }
-
-    public SessionData updateSession(Consumer<SessionData> op) {
-        SessionData data = sessionData.get();
+    public SessionData updateSession(String sessionId, Consumer<SessionData> op) {
+        SessionData data= sessionRepository.getSession(sessionId);
         op.accept(data);
         return sessionRepository.update(data);
     }
 
-    private SessionData getOrCreateSession(String sessionId) {
+    public SessionData getOrCreateSession(String sessionId) {
         log.debug("Requested session: {}", sessionId);
         SessionData data = sessionRepository.getSession(sessionId);
         if(data == null) {
@@ -52,7 +37,4 @@ public class SessionService {
         return data;
     }
 
-    public void unloadSession() {
-        sessionData.remove();
-    }
 }

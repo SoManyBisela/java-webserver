@@ -20,22 +20,21 @@ public class WebserverTests {
 
     @Test
     public void testWebserverHttp() throws IOException, InterruptedException {
-        int port = (int)(Math.random() * 10000) + 2000;
-        WebServer webServer = new WebServer(port);
+        var webServer = WebServer.builder().build();
         boolean[] ctxCalled = new boolean[1];
         boolean[] handlerCalled = new boolean[1];
         boolean[] interceptorCalled = new boolean[1];
-        webServer.registerInterceptor((a, n) -> {
+        webServer.registerInterceptor((a, c, n) -> {
             interceptorCalled[0] = true;
             a.getHeaders().add("Intercepted", "true");
-            return n.handle(a);
+            return n.handle(a, c);
         });
-        webServer.registerHttpHandler("/", (r) -> {
+        webServer.registerHttpHandler("/", (r, c) -> {
             handlerCalled[0] = true;
             Assertions.assertEquals("true", r.getHeaders().getFirst("Intercepted"));
             return new HttpResponse<>(r.getVersion(), 200, new ByteResponseBody("resp"));
         });
-        webServer.registerHttpContext("/", (r) -> {
+        webServer.registerHttpContext("/", (r, c) -> {
             ctxCalled[0] = true;
             Assertions.assertEquals("true", r.getHeaders().getFirst("Intercepted"));
             return new HttpResponse<>(r.getVersion(), 200, new HttpHeaders(), new ByteResponseBody("<html><body><h1>Ciao</h1></body></html>", "text/html"));
@@ -44,7 +43,7 @@ public class WebserverTests {
         Thread thread = new Thread(() -> webServer.start(semaphore::release));
         thread.start();
         semaphore.acquire();
-        try (Socket c = new Socket("localhost", port)) {
+        try (Socket c = new Socket("localhost", webServer.getPort())) {
             String request = """
                     GET /index.html HTTP/1.1\r
                     Accept: text/html\r
@@ -65,9 +64,9 @@ public class WebserverTests {
         Assertions.assertTrue(interceptorCalled[0]);
     }
 
-    static class RefuseWsHandler implements WebsocketHandler<Void> {
+    static class RefuseWsHandler implements WebsocketHandler<Void, RequestContext> {
         @Override
-        public Void newContext() {
+        public Void newContext(RequestContext o) {
             return null;
         }
 
@@ -88,44 +87,31 @@ public class WebserverTests {
 
     @Test
     public void testWebserverHandlerErrors() {
-        int port = (int)(Math.random() * 10000) + 2000;
-        WebServer webServer = new WebServer(port);
-        webServer.registerInterceptor((a, n) -> n.handle(a));
-        webServer.registerHttpHandler("/handler", (r) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("resp")));
-        webServer.registerHttpContext("/handler", (r) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("<html><body><h1>Ciao</h1></body></html>", "text/html")));
+        var webServer = WebServer.builder().build();
+        webServer.registerInterceptor((a, c, n) -> n.handle(a, c));
+        webServer.registerHttpHandler("/handler", (r, c) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("resp")));
+        webServer.registerHttpContext("/handler", (r, c) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("<html><body><h1>Ciao</h1></body></html>", "text/html")));
         RefuseWsHandler handler = new RefuseWsHandler();
         webServer.registerWebSocketHandler("/handler", handler);
         webServer.registerWebSocketContext("/handler", handler);
-        try {
-            webServer.registerHttpHandler("/handler", (r) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("<html><body><h1>AltroBody</h1></body></html>", "text/html")));
-            Assertions.fail("Should Throw");
-        } catch (Exception e) {
-            Assertions.assertInstanceOf(CustomException.class, e);
-        }
-        try {
-            webServer.registerHttpContext("/handler", (r) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("<html><body><h1>AltroBody</h1></body></html>", "text/html")));
-            Assertions.fail("Should Throw");
-        } catch (Exception e) {
-            Assertions.assertInstanceOf(CustomException.class, e);
-        }
-        try {
-            webServer.registerWebSocketContext("/handler", handler);
-            Assertions.fail("Should Throw");
-        } catch (Exception e) {
-            Assertions.assertInstanceOf(CustomException.class, e);
-        }
-        try {
-            webServer.registerWebSocketHandler("/handler", handler);
-            Assertions.fail("Should Throw");
-        } catch (Exception e) {
-            Assertions.assertInstanceOf(CustomException.class, e);
-        }
+
+        Assertions.assertThrows(CustomException.class, () ->
+                webServer.registerHttpHandler("/handler", (r, c) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("<html><body><h1>AltroBody</h1></body></html>", "text/html")))
+        );
+        Assertions.assertThrows(CustomException.class, () ->
+                webServer.registerHttpContext("/handler", (r, c) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("<html><body><h1>AltroBody</h1></body></html>", "text/html")))
+        );
+        Assertions.assertThrows(CustomException.class, () ->
+            webServer.registerWebSocketContext("/handler", handler)
+        );
+        Assertions.assertThrows(CustomException.class, () ->
+            webServer.registerWebSocketHandler("/handler", handler)
+        );
     }
 
     @Test
     public void testWebsocketText() throws IOException, InterruptedException {
-        int port = (int)(Math.random() * 10000) + 2000;
-        WebServer webServer = new WebServer(port);
+        var webServer = WebServer.builder().build();
         boolean[] error = new boolean[1];
         boolean[] written = new boolean[1];
         boolean[] closed = new boolean[1];
@@ -142,7 +128,7 @@ public class WebserverTests {
 
         webServer.registerWebSocketContext("/", new WebsocketHandler<>() {
             @Override
-            public Object newContext() {
+            public Object newContext(RequestContext c) {
                 return new Object();
             }
 
@@ -186,7 +172,7 @@ public class WebserverTests {
         thread.start();
         semaphore.acquire();
 
-        try(Socket c = new Socket("localhost", port)) {
+        try(Socket c = new Socket("localhost", webServer.getPort())) {
             HttpInputStream is = new HttpInputStream(c.getInputStream());
             HttpOutputStream os = new HttpOutputStream(c.getOutputStream());
             os.write("GET /index.html HTTP/1.1\r\n");
@@ -226,12 +212,11 @@ public class WebserverTests {
 
     @Test
     public void testWebSocketPingPong() throws IOException, InterruptedException {
-        int port = (int)(Math.random() * 10000) + 2000;
-        WebServer webServer = new WebServer(port);
+        var webServer = WebServer.builder().build();
         webServer.registerWebSocketContext("/", new WebsocketHandler<>() {
             @Override
-            public Object newContext() {
-                return new Object();
+            public Object newContext(RequestContext c) {
+                return c;
             }
 
             @Override
@@ -255,7 +240,7 @@ public class WebserverTests {
         thread.start();
         semaphore.acquire();
 
-        try (Socket c = new Socket("localhost", port)) {
+        try (Socket c = new Socket("localhost", webServer.getPort())) {
             HttpInputStream is = new HttpInputStream(c.getInputStream());
             HttpOutputStream os = new HttpOutputStream(c.getOutputStream());
             os.write("GET /index.html HTTP/1.1\r\n");
@@ -288,8 +273,7 @@ public class WebserverTests {
     }
     @Test
     public void testWebSocketBinary() throws IOException, InterruptedException {
-        int port = (int)(Math.random() * 10000) + 2000;
-        WebServer webServer = new WebServer(port);
+        var webServer = WebServer.builder().build();
         boolean[] binaryMessageReceived = new boolean[1];
         boolean[] errors = new boolean[1];
         byte[][] receivedData = new byte[1][];
@@ -298,9 +282,9 @@ public class WebserverTests {
         byte[] returnMsg = new byte[] {0x06, 0x07, 0x08, 0x09, 0x0a};
 
 
-        webServer.registerWebSocketContext("/", new WebsocketHandler<WebsocketWriter[]>() {
+        webServer.registerWebSocketContext("/", new WebsocketHandler<WebsocketWriter[], RequestContext>() {
             @Override
-            public WebsocketWriter[] newContext() {
+            public WebsocketWriter[] newContext(RequestContext r) {
                 return new WebsocketWriter[1];
             }
 
@@ -337,7 +321,7 @@ public class WebserverTests {
         thread.start();
         semaphore.acquire();
 
-        try (Socket c = new Socket("localhost", port)) {
+        try (Socket c = new Socket("localhost", webServer.getPort())) {
             HttpInputStream is = new HttpInputStream(c.getInputStream());
             HttpOutputStream os = new HttpOutputStream(c.getOutputStream());
             os.write("GET /index.html HTTP/1.1\r\n");
@@ -369,24 +353,13 @@ public class WebserverTests {
 
     @Test
     public void doubleStartAndStopTest() throws InterruptedException, IOException {
-        int port = (int)(Math.random() * 10000) + 2000;
-        WebServer webServer = new WebServer(port);
+        var webServer = WebServer.builder().build();
         Semaphore startedSemaphore = new Semaphore(0);
-        try {
-            webServer.stop();
-            Assertions.fail("Should throw");
-        }  catch (Exception e) {
-            assertInstanceOf(CustomException.class, e);
-        }
+        Assertions.assertThrows(CustomException.class, webServer::stop);
         Thread thread = new Thread(() -> webServer.start(startedSemaphore::release));
         thread.start();
         startedSemaphore.acquire();
-        try {
-            webServer.start();
-            Assertions.fail("Should throw");
-        } catch (Exception e) {
-            assertInstanceOf(CustomException.class, e);
-        }
+        Assertions.assertThrows(CustomException.class, webServer::start);
         webServer.stop();
     }
 

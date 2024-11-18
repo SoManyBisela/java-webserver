@@ -2,6 +2,7 @@ package com.simonebasile.sampleapp.controllers;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
+import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.ChangePasswordRequest;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
@@ -12,33 +13,24 @@ import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.AccountSection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
 public class AccountController extends MethodHandler<InputStream> {
 
     private final AuthenticationService authService;
-    private final SessionService sessionService;
-    private final UserService userService;
 
-    public AccountController(SessionService sessionService, UserService userService, AuthenticationService authenticationService) {
+    public AccountController(AuthenticationService authenticationService) {
         this.authService = authenticationService;
-        this.sessionService = sessionService;
-        this.userService = userService;
     }
 
-
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
-        SessionData sessionData = sessionService.currentSession();
-        User user = userService.getUser(sessionData.getUsername());
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+        User user = context.getLoggedUser();
         return new HttpResponse<>(r.getVersion(), new AccountSection(user));
     }
 
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r) {
-        SessionData sessionData = sessionService.currentSession();
-        User user = userService.getUser(sessionData.getUsername());
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+        User user = context.getLoggedUser();
         ChangePasswordRequest changePasswordReq = FormHttpMapper.map(r.getBody(), ChangePasswordRequest.class);
         changePasswordReq.setUsername(user.getUsername());
         try {

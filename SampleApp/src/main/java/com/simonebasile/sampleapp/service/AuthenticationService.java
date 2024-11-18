@@ -18,11 +18,11 @@ public class AuthenticationService {
         this.sessionService = sessionService;
     }
 
-    public void login(LoginRequest req) {
+    public void login(String sessionId, LoginRequest req) {
         User user = userRepository.getUser(req.getUsername());
         if(user != null) {
             if(ArgonUtils.verify(req.getPassword(), user.getPassword())) {
-                sessionService.updateSession(s -> s.setUsername(user.getUsername()));
+                sessionService.updateSession(sessionId, s -> s.setUsername(user.getUsername()));
             } else {
                 throw new UserAuthException("Invalid username or password");
             }

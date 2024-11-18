@@ -14,19 +14,19 @@ public class TestInterceptorChain {
 
         boolean[] called = new boolean[1];
 
-        List<HttpInterceptor<Integer>> httpInterceptorList = new ArrayList<>();
-        httpInterceptorList.add((r, next) -> {
+        List<HttpInterceptor<Integer, Void>> httpInterceptorList = new ArrayList<>();
+        httpInterceptorList.add((r, c, next) -> {
             HttpRequest<Integer> oneReq = new HttpRequest<>("", "", HttpVersion.V1_1, new HttpHeaders(), 1);
             called[0] = true;
-            return next.handle(oneReq);
+            return next.handle(oneReq, c);
         });
-        HttpRequestHandler<Integer> handler = (r) -> {
+        HttpRequestHandler<Integer, Void> handler = (r, c) -> {
             Assertions.assertEquals(1, r.getBody());
             return null;
         };
-        InterceptorChainImpl<Integer> objectInterceptorChain = new InterceptorChainImpl<>(httpInterceptorList, handler);
+        InterceptorChainImpl<Integer, Void> objectInterceptorChain = new InterceptorChainImpl<>(httpInterceptorList, handler);
         HttpRequest<Integer> zeroReq = new HttpRequest<>("", "", HttpVersion.V1_1, new HttpHeaders(), 1);
-        objectInterceptorChain.handle(zeroReq);
+        objectInterceptorChain.handle(zeroReq, null);
 
         Assertions.assertTrue(called[0]);
     }

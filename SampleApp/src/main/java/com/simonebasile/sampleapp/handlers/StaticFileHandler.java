@@ -3,15 +3,12 @@ package com.simonebasile.sampleapp.handlers;
 import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.FileResponseBody;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 @Slf4j
-public class StaticFileHandler implements HttpRequestHandler<InputStream> {
+public class StaticFileHandler implements HttpRequestHandler<InputStream, RequestContext> {
     private final String registrationPath;
     private final String rootDirectory;
 
@@ -24,7 +21,7 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream> {
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends InputStream> r) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends InputStream> r, RequestContext ctx) {
         log.debug("Into static file handler");
         String method = r.getMethod();
         try {

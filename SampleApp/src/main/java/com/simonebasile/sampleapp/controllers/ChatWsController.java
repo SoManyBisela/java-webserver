@@ -4,18 +4,14 @@ import com.simonebasile.http.WebsocketHandler;
 import com.simonebasile.http.WebsocketMessage;
 import com.simonebasile.http.WebsocketWriter;
 import com.simonebasile.http.WebsocketWriterImpl;
+import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.ChatProtoMessage;
 import com.simonebasile.sampleapp.json.JsonMapper;
 import com.simonebasile.sampleapp.model.Role;
-import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.User;
-import com.simonebasile.sampleapp.service.SessionService;
-import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.views.chat.HtmxChatMessageEncoder;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -23,9 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 //TODO increase logging
 @Slf4j
-public class ChatWsController implements WebsocketHandler<ChatWsController.WsState> {
-    private final SessionService sessionService;
-    private final UserService userService;
+public class ChatWsController implements WebsocketHandler<ChatWsController.WsState, ApplicationRequestContext> {
     private final ConcurrentHashMap<String, ConnectedUser> connectedUsers;
     private final ConcurrentLinkedQueue<String> waitingToChat;
 
@@ -69,30 +63,30 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
             writer.sendClose();
         }
     }
-    public ChatWsController(SessionService sessionService, UserService userService) {
-        this.sessionService = sessionService;
-        this.userService = userService;
+    public ChatWsController() {
         this.waitingToChat = new ConcurrentLinkedQueue<>();
         this.connectedUsers = new ConcurrentHashMap<>();
     }
 
     public static class WsState{
-        private User user;
+        private final User user;
         private ConnectedUser writer;
+
+        public WsState(User user) {
+            this.user = user;
+        }
     }
 
     @Override
-    public WsState newContext() {
-        return new WsState();
+    public WsState newContext(ApplicationRequestContext requestContext) {
+        return new WsState(requestContext.getLoggedUser());
     }
 
     @Override
     public HandshakeResult onServiceHandshake(String[] availableService, WsState ctx) {
-        SessionData sessionData = sessionService.currentSession();
-        if(sessionData == null) {
+        if(ctx.user == null) {
             return HandshakeResult.refuse("Connection refused");
         }
-        ctx.user = userService.getUser(sessionData.getUsername());
         if(connectedUsers.containsKey(ctx.user.getUsername())) {
             return HandshakeResult.refuse("User already connected");
         }

@@ -5,6 +5,7 @@ import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.http.response.FileResponseBody;
 import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.DownloadAttachmentRequest;
 import com.simonebasile.sampleapp.dto.UploadAttachmentRequest;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
@@ -28,20 +29,15 @@ import java.util.UUID;
 @Slf4j
 public class AttachmentController extends MethodHandler<InputStream> {
 
-    private final SessionService sessionService;
-    private final UserService userService;
     private final TicketService ticketService;
 
-    public AttachmentController(SessionService sessionService, UserService userService, TicketService ticketService) {
-        this.sessionService = sessionService;
-        this.userService = userService;
+    public AttachmentController(TicketService ticketService) {
         this.ticketService = ticketService;
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r) {
-        SessionData sessionData = sessionService.currentSession();
-        User user = userService.getUser(sessionData.getUsername());
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+        User user = context.getLoggedUser();
         if(user.getRole() != Role.user) {
             log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             ResponseUtils.redirect(r, "/");
@@ -90,9 +86,8 @@ public class AttachmentController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
-        SessionData sessionData = sessionService.currentSession();
-        User user = userService.getUser(sessionData.getUsername());
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+        User user = context.getLoggedUser();
         if(user.getRole() != Role.user) {
             log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             ResponseUtils.redirect(r, "/");

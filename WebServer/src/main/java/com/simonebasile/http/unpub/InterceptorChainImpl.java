@@ -1,29 +1,26 @@
 package com.simonebasile.http.unpub;
 
-import com.simonebasile.http.HttpInterceptor;
-import com.simonebasile.http.HttpRequest;
-import com.simonebasile.http.HttpRequestHandler;
-import com.simonebasile.http.HttpResponse;
+import com.simonebasile.http.*;
 
 import java.util.List;
 
-public class InterceptorChainImpl<T> implements HttpRequestHandler<T> {
-    private final List<HttpInterceptor<T>> interceptors;
-    private final HttpRequestHandler<T> handler;
+public class InterceptorChainImpl<Body, Context> implements HttpRequestHandler<Body, Context> {
+    private final List<HttpInterceptor<Body, Context>> interceptors;
+    private final HttpRequestHandler<Body, ? super Context> handler;
     private int toProcess;
 
-    public InterceptorChainImpl(List<HttpInterceptor<T>> interceptors, HttpRequestHandler<T> handler) {
+    public InterceptorChainImpl(List<HttpInterceptor<Body, Context>> interceptors, HttpRequestHandler<Body, ? super Context> handler) {
         this.interceptors = interceptors;
         this.handler = handler;
         toProcess = 0;
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends T> r) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends Body> r, Context context) {
         if(toProcess < interceptors.size()) {
-            return interceptors.get(toProcess++).preprocess(r, this);
+            return interceptors.get(toProcess++).preprocess(r, context, this);
         } else {
-            return handler.handle(r);
+            return handler.handle(r, context);
         }
     }
 }

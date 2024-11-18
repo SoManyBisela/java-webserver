@@ -1,7 +1,7 @@
 package com.simonebasile.http;
 
 
-public interface WebsocketHandler<Context> {
+public interface WebsocketHandler<WebsocketContext, HttpRequestContext> {
 
     enum HandshakeResultType{
         Accept,
@@ -29,13 +29,13 @@ public interface WebsocketHandler<Context> {
     }
 
 
-    Context newContext();
+    WebsocketContext newContext(HttpRequestContext ctx);
 
-    HandshakeResult onServiceHandshake(String[] availableService, Context context);
+    HandshakeResult onServiceHandshake(String[] availableService, WebsocketContext context);
 
-    void onHandshakeComplete(WebsocketWriterImpl websocketWriter, Context context);
+    void onHandshakeComplete(WebsocketWriterImpl websocketWriter, WebsocketContext context);
 
-    void onMessage(WebsocketMessage msg, Context context);
+    void onMessage(WebsocketMessage msg, WebsocketContext context);
 
-    void onClose(Context context);
+    void onClose(WebsocketContext context);
 }

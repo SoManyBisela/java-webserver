@@ -39,26 +39,29 @@ class AuthenticationServiceTest {
         String password = "password123";
         String hashedPassword = ArgonUtils.hash(password);
 
+        String sessionId = "sessionId123";
+
         LoginRequest request = new LoginRequest(username, password);
         User mockUser = new User(username, hashedPassword, Role.user);
 
         when(mockUserRepository.getUser(username)).thenReturn(mockUser);
 
-        authenticationService.login(request);
+        authenticationService.login(sessionId, request);
 
-        verify(mockSessionService).updateSession(any());
+        verify(mockSessionService).updateSession(eq(sessionId), any());
     }
 
     @Test
     void testLogin_UserNotFound() {
         String username = "nonExistentUser";
         String password = "password123";
+        String sessionId = "sessionId123";
 
         LoginRequest request = new LoginRequest(username, password);
 
         when(mockUserRepository.getUser(username)).thenReturn(null);
 
-        assertThrows(UserAuthException.class, () -> authenticationService.login(request));
+        assertThrows(UserAuthException.class, () -> authenticationService.login(sessionId, request));
     }
 
     @Test
@@ -66,13 +69,14 @@ class AuthenticationServiceTest {
         String username = "testUser";
         String password = "wrongPassword";
         String hashedPassword = ArgonUtils.hash("correctPassword");
+        String sessionId = "sessionId123";
 
         LoginRequest request = new LoginRequest(username, password);
         User mockUser = new User(username, hashedPassword, Role.user);
 
         when(mockUserRepository.getUser(username)).thenReturn(mockUser);
 
-        assertThrows(UserAuthException.class, () -> authenticationService.login(request));
+        assertThrows(UserAuthException.class, () -> authenticationService.login(sessionId, request));
     }
 
     @Test

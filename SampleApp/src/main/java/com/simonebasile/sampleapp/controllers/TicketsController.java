@@ -4,6 +4,7 @@ import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.SessionData;
@@ -17,29 +18,22 @@ import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.EmployeeTicketsSection;
 import com.simonebasile.sampleapp.views.UserTicketsSection;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
 
 @Slf4j
 public class TicketsController extends MethodHandler<InputStream> {
-    private final SessionService sessionService;
-    private final UserService userService;
     private final TicketService ticketService;
 
 
-    public TicketsController(SessionService sessionService, UserService userService, TicketService ticketService) {
-        this.sessionService = sessionService;
-        this.userService = userService;
+    public TicketsController(TicketService ticketService) {
         this.ticketService = ticketService;
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
-        SessionData sessionData = sessionService.currentSession();
-        User user = userService.getUser(sessionData.getUsername());
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+        User user = context.getLoggedUser();
         Role role = user.getRole();
         if(role == Role.user) {
             return userPage(r, user);

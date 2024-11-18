@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.controllers;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.RegisterRequest;
 import com.simonebasile.sampleapp.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
@@ -20,12 +21,12 @@ public class RegisterController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         return new HttpResponse<>(r.getVersion(), new RegisterView());
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r) {
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         RegisterRequest body = FormHttpMapper.map(r.getBody(), RegisterRequest.class);
         try {
             authService.registerUser(body);

@@ -4,6 +4,7 @@ import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.assertions.UnreachableBranchException;
+import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
 import com.simonebasile.sampleapp.dto.IdRequest;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
@@ -21,29 +22,21 @@ import com.simonebasile.sampleapp.views.TicketNotFoundSection;
 import com.simonebasile.sampleapp.views.UserTicketDetailSection;
 import com.simonebasile.sampleapp.views.EmployeeTicketDetailSection;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
 @Slf4j
 public class TicketController extends MethodHandler<InputStream> {
 
-    private final SessionService sessionService;
-    private final UserService userService;
     private final TicketService ticketService;
 
-
-    public TicketController(SessionService sessionService, UserService userService, TicketService ticketService) {
-        this.sessionService = sessionService;
-        this.userService = userService;
+    public TicketController(TicketService ticketService) {
         this.ticketService = ticketService;
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
-        SessionData sessionData = sessionService.currentSession();
-        User user = userService.getUser(sessionData.getUsername());
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+        User user = context.getLoggedUser();
         IdRequest id = FormHttpMapper.mapHttpResource(r.getResource(), IdRequest.class);
         if(user.getRole() == null || user.getRole() == Role.admin) {
             log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
@@ -62,9 +55,8 @@ public class TicketController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePut(HttpRequest<? extends InputStream> r) {
-        SessionData sessionData = sessionService.currentSession();
-        User user = userService.getUser(sessionData.getUsername());
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePut(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+        User user = context.getLoggedUser();
         Ticket ticket;
         if (user.getRole() == Role.user) {
             UserUpdateTicket body = FormHttpMapper.map(r.getBody(), UserUpdateTicket.class);
@@ -91,9 +83,8 @@ public class TicketController extends MethodHandler<InputStream> {
     }
 
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleDelete(HttpRequest<? extends InputStream> r) {
-        SessionData sessionData = sessionService.currentSession();
-        User user = userService.getUser(sessionData.getUsername());
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handleDelete(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+        User user = context.getLoggedUser();
         if(user.getRole() != Role.user) {
             log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             return ResponseUtils.redirect(r, "/");

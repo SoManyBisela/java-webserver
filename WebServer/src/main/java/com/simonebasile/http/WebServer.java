@@ -6,8 +6,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,50 +26,126 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static com.simonebasile.http.unpub.WebSocket.WSDataFrame.*;
 
-public class WebServer implements HttpHandlerContext<InputStream>{
+public class WebServer<Context extends RequestContext> implements HttpHandlerContext<InputStream, Context>{
     private static final Logger log = LoggerFactory.getLogger(WebServer.class);
-    private final int port;
+
+    private final ServerSocketFactory socketFactory;
+    private final RequestContextFactory<Context> requestContextFactory;
 
     private ServerSocket serverSocket;
     private final Lock socketLock;
 
-    private final HttpRoutingContext routingContext;
+    private final HttpRoutingContext<InputStream, Context> routingContext;
 
-    private final HandlerRegistry<WebsocketHandler<?>> websocketHandlers;
+    private final HandlerRegistry<WebsocketHandler<?, ? super Context>> websocketHandlers;
 
-    private final List<HttpInterceptor<InputStream>> interceptors;
+    private final List<HttpInterceptor<InputStream, Context>> interceptors;
 
-    public WebServer(int port) {
-        this.port = port;
+    private WebServer(ServerSocketFactory socketFactory, RequestContextFactory<Context> requestContextFactory) {
+        this.socketFactory = socketFactory;
+        this.requestContextFactory = requestContextFactory;
         this.websocketHandlers = new HandlerRegistry<>();
-        this.routingContext = new HttpRoutingContext();
+        this.routingContext = new HttpRoutingContext<>();
         this.interceptors = new ArrayList<>();
         this.socketLock = new ReentrantLock();
     }
 
+    public static WebServerBuilder<RequestContext> builder() {
+        return new WebServerBuilder<>(RequestContext::new);
+    }
+
+    public static class WebServerBuilder<Context extends RequestContext> {
+        private Integer port;
+        private InetAddress address;
+        private Integer backlog;
+        private ServerSocketFactory serverSocketFactory;
+        private RequestContextFactory<?> requestContextFactory;
+
+        private WebServerBuilder(RequestContextFactory<Context> requestContextFactory) {
+            this.requestContextFactory = requestContextFactory;
+        }
+
+        public WebServerBuilder<Context> port(Integer port) {
+            this.port = port;
+            return this;
+        }
+
+        public WebServerBuilder<Context> address(InetAddress address) {
+            this.address = address;
+            return this;
+        }
+
+        public WebServerBuilder<Context> address(String address) throws UnknownHostException {
+            this.address = InetAddress.getByName(address);
+            return this;
+        }
+
+        public WebServerBuilder<Context> backlog(Integer backlog) {
+            this.backlog = backlog;
+            return this;
+        }
+
+        public WebServerBuilder<Context> serverSocketFactory(ServerSocketFactory serverSocketFactory) {
+            this.serverSocketFactory = serverSocketFactory;
+            return this;
+        }
+
+        public <NewContext extends RequestContext> WebServerBuilder<NewContext> requestContextFactory(RequestContextFactory<NewContext> requestContextFactory) {
+            this.requestContextFactory = requestContextFactory;
+            return (WebServerBuilder<NewContext>) this;
+        }
+
+        public WebServer<Context> build() {
+            var serverSocketFactory = this.serverSocketFactory;
+            if(serverSocketFactory == null) {
+                var port = this.port == null ? 0 : this.port;
+                var backlog = this.backlog == null ? 50 : this.backlog;
+                var address = this.address;
+                serverSocketFactory = () -> new ServerSocket(port, backlog, address);
+            }
+            return new WebServer<>(
+                    serverSocketFactory,
+                    (RequestContextFactory<Context>) requestContextFactory
+            );
+
+        }
+    }
+
+    public int getPort() {
+        if(serverSocket == null) {
+            throw new CustomException("Server not started");
+        } else {
+            try {
+                return serverSocket.getLocalPort();
+            } catch (NullPointerException e) {
+                throw new CustomException("Server not started");
+            }
+        }
+    }
+
     @Override
-    public void registerHttpContext(String path, HttpRequestHandler<InputStream> handler){
+    public void registerHttpContext(String path, HttpRequestHandler<InputStream, ? super Context> handler){
         routingContext.registerHttpContext(path, handler);
     }
 
     @Override
-    public void registerHttpHandler(String path, HttpRequestHandler<InputStream> handler){
+    public void registerHttpHandler(String path, HttpRequestHandler<InputStream, ? super Context> handler){
         routingContext.registerHttpHandler(path, handler);
     }
 
     @Override
-    public void registerInterceptor(HttpInterceptor<InputStream> preprocessor) {
+    public void registerInterceptor(HttpInterceptor<InputStream, Context> preprocessor) {
         this.interceptors.add(preprocessor);
     }
 
-    public void registerWebSocketContext(String path, WebsocketHandler<?> handler){
+    public void registerWebSocketContext(String path, WebsocketHandler<?, ? super Context> handler){
         log.debug("Registered new websocket handler for path [{}]", path);
         if(!websocketHandlers.insertCtx(path, handler)) {
             throw new CustomException("A websocket context for path [" + path + "] already exists");
         }
     }
 
-    public void registerWebSocketHandler(String path, WebsocketHandler<?> handler){
+    public void registerWebSocketHandler(String path, WebsocketHandler<?, ? super Context> handler){
         log.debug("Registered new websocket handler for path [{}]", path);
         if(!websocketHandlers.insertExact(path, handler)) {
             throw new CustomException("A websocket handler for path [" + path + "] already exists");
@@ -100,7 +178,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
         }
         try {
             try {
-                serverSocket = new ServerSocket(port);
+                serverSocket = socketFactory.createSocket();
             } catch (Exception e) {
                 log.error("An error occurred while starting the server: {}", e.getMessage(), e);
                 return;
@@ -110,7 +188,7 @@ public class WebServer implements HttpHandlerContext<InputStream>{
             if(onstart != null) {
                 onstart.run();
             }
-            log.info("Server started on port {}", port);
+            log.info("Server started {}", serverSocket);
             while(!serverSocket.isClosed()) {
                 HttpProtocolHandler handler;
                 Socket c;
@@ -163,7 +241,6 @@ public class WebServer implements HttpHandlerContext<InputStream>{
     }
 
     class HttpProtocolHandler implements Runnable, AutoCloseable {
-        private static final Logger log = LoggerFactory.getLogger(HttpProtocolHandler.class);
         private static final String MAGIC = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         private static final MessageDigest SHA1 = initSha1();
 
@@ -202,21 +279,22 @@ public class WebServer implements HttpHandlerContext<InputStream>{
             try {
                 while (true) {
                     HttpRequest<InputStream> req = HttpRequest.parse(inputStream, FixedLengthInputStream::new);
+                    Context context = requestContextFactory.createContext();
                     log.debug("Incoming http request [{}] on socket [{}]", req, client);
-                    HttpResponse<?> res = new InterceptorChainImpl<>(interceptors, r -> {
-                        if (req.isWebSocketConnection()) {
+                    HttpResponse<?> res = new InterceptorChainImpl<>(interceptors, (r, c) -> {
+                        if (r.isWebSocketConnection()) {
                             try {
-                                handleWebsocket(discardBody(req));
+                                handleWebsocket(discardBody(r), c);
                                 throw new HandledByWebsocket();
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
                         } else {
-                            return routingContext.handle(req);
+                            return routingContext.handle(r, c);
                         }
-                    }).handle(req);
+                    }).handle(req, context);
 
-                    //consuming remaining body TODO is it the right way?
+                    //consuming remaining body
                     req.body.close();
 
                     res.write(outputStream);
@@ -233,18 +311,18 @@ public class WebServer implements HttpHandlerContext<InputStream>{
             }
         }
 
-        private HttpRequest<Void> discardBody(HttpRequest<InputStream> req) throws IOException {
+        private HttpRequest<Void> discardBody(HttpRequest<? extends InputStream> req) throws IOException {
             req.body.close();
             return new HttpRequest<>(req.method, req.resource, req.version, req.headers, null);
         }
 
-        private void handleWebsocket(HttpRequest<Void> req) throws IOException {
-            WebsocketHandler<?> wsHandler = websocketHandlers.getHandler(req.getResource());
-            _handleWebsocket(req, wsHandler);
+        private void handleWebsocket(HttpRequest<Void> req, Context context) throws IOException {
+            WebsocketHandler<?, ? super Context> wsHandler = websocketHandlers.getHandler(req.getResource());
+            _handleWebsocket(req, context, wsHandler);
         }
 
-        private <T> void _handleWebsocket(HttpRequest<Void> req, WebsocketHandler<T> wsHandler) throws IOException {
-            final T ctx = wsHandler.newContext();
+        private <T> void _handleWebsocket(HttpRequest<Void> req, Context context, WebsocketHandler<T, ? super Context> wsHandler) throws IOException {
+            final T ctx = wsHandler.newContext(context);
             final HttpHeaders headers = req.getHeaders();
             final String protocolsHeader = headers.getFirst("Sec-WebSocket-Protocol");
             final String[] protocols = protocolsHeader == null ? new String[0] : protocolsHeader.split(",");

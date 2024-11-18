@@ -1,5 +1,5 @@
 package com.simonebasile.http;
 
-public interface HttpInterceptor<T> {
-    HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<? extends T> request, HttpRequestHandler<T> next);
+public interface HttpInterceptor<Body, Context> {
+    HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<? extends Body> request, Context requestContext, HttpRequestHandler<Body, Context> next);
 }
