@@ -8,15 +8,12 @@ import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
 import com.simonebasile.sampleapp.dto.IdRequest;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
-import com.simonebasile.sampleapp.handlers.MethodHandler;
+import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.Role;
-import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.User;
-import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
-import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
 import com.simonebasile.sampleapp.views.TicketNotFoundSection;
 import com.simonebasile.sampleapp.views.UserTicketDetailSection;
@@ -26,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.InputStream;
 
 @Slf4j
-public class TicketController extends MethodHandler<InputStream> {
+public class TicketController extends MethodHandler<InputStream, ApplicationRequestContext> {
 
     private final TicketService ticketService;
 

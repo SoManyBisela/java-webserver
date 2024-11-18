@@ -1,21 +1,19 @@
-package com.simonebasile.sampleapp.handlers;
+package com.simonebasile.http.handlers;
 
 import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.FileResponseBody;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
-@Slf4j
 public class StaticFileHandler implements HttpRequestHandler<InputStream, RequestContext> {
-    private final String registrationPath;
+    private static final Logger log = LoggerFactory.getLogger(StaticFileHandler.class);
     private final String rootDirectory;
 
 
-    public StaticFileHandler(String registrationPath, String rootDirectory) {
-        //TODO in the future the webserver should tell the handler the registration path that matched
-        this.registrationPath = registrationPath;
+    public StaticFileHandler(String rootDirectory) {
         if(!rootDirectory.endsWith("/")) rootDirectory += "/";
         this.rootDirectory = rootDirectory;
     }
@@ -26,9 +24,9 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream, Reques
         String method = r.getMethod();
         try {
             if ("GET".equalsIgnoreCase(method)) {
-                return handleGet(r);
+                return handleGet(r, ctx);
             } else if ("HEAD".equalsIgnoreCase(method)) {
-                return handleHead(r);
+                return handleHead(r, ctx);
             } else {
                 throw new StatusErr(405);
             }
@@ -37,8 +35,8 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream, Reques
         }
     }
 
-    private HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r) {
-        String path = getFilePath(r.getResource());
+    private HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, RequestContext ctx) {
+        String path = getFilePath(ctx.getContextMatch().remainingPath());
         File targetFile = new File(rootDirectory + path);
         if(!targetFile.exists()) {
             throw new StatusErr(404);
@@ -53,18 +51,17 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream, Reques
     }
 
     private String getFilePath(String resource) {
-        if(!resource.startsWith(registrationPath) || resource.contains("..")) {
+        if(resource.contains("..")) {
             throw new StatusErr(404);
         }
-        String filePath = resource.substring(registrationPath.length());
-        while(filePath.startsWith("/")) {
-            filePath = filePath.substring(1);
+        while(resource.startsWith("/")) {
+            resource = resource.substring(1);
         }
-        return filePath;
+        return resource;
     }
 
-    private HttpResponse<? extends HttpResponse.ResponseBody> handleHead(HttpRequest<? extends InputStream> r) {
-        return new HttpResponse<>(handleGet(r), null);
+    private HttpResponse<? extends HttpResponse.ResponseBody> handleHead(HttpRequest<? extends InputStream> r, RequestContext ctx) {
+        return new HttpResponse<>(handleGet(r, ctx), null);
     }
 
     private static class StatusErr extends RuntimeException {

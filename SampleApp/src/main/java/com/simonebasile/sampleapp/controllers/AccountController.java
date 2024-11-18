@@ -4,19 +4,16 @@ import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.ChangePasswordRequest;
-import com.simonebasile.sampleapp.handlers.MethodHandler;
+import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
-import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
-import com.simonebasile.sampleapp.service.SessionService;
-import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.AccountSection;
 
 import java.io.InputStream;
 
-public class AccountController extends MethodHandler<InputStream> {
+public class AccountController extends MethodHandler<InputStream, ApplicationRequestContext> {
 
     private final AuthenticationService authService;
 

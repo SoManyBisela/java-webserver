@@ -13,7 +13,7 @@ import com.simonebasile.sampleapp.repository.SessionRepository;
 import com.simonebasile.sampleapp.repository.TicketRepository;
 import com.simonebasile.sampleapp.repository.UserRepository;
 import com.simonebasile.sampleapp.model.SessionData;
-import com.simonebasile.sampleapp.handlers.StaticFileHandler;
+import com.simonebasile.http.handlers.StaticFileHandler;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.SessionService;
@@ -109,7 +109,7 @@ public class Main {
             return res;
         });
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(authInterceptor, skipAuth));
-        webServer.registerHttpContext("/static", new StaticFileHandler("/static", "static-files"));
+        webServer.registerHttpContext("/static", new StaticFileHandler("static-files"));
         webServer.registerHttpHandler("/login", loginController);
         webServer.registerHttpHandler("/logout", logoutController);
         webServer.registerHttpHandler("/register", registerController);

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class HttpRoutingContext<Body, Context> implements HttpRequestHandler<Body, Context>, HttpHandlerContext<Body, Context> {
+public class HttpRoutingContext<Body, Context extends RequestContext> implements HttpRequestHandler<Body, Context>, HttpHandlerContext<Body, Context> {
     private static final Logger log = LoggerFactory.getLogger(HttpRoutingContext.class);
 
     private final HandlerRegistry<HttpRequestHandler<Body, ? super Context>> handlers;
@@ -42,7 +42,20 @@ public class HttpRoutingContext<Body, Context> implements HttpRequestHandler<Bod
 
     @Override
     public HttpResponse<?> handle(HttpRequest<? extends Body> req, Context requestContext) {
-        var httpHandler = handlers.getHandler(req.getResource());
+        String prevMatched = "";
+        String resource = req.getResource();
+        final ResourceMatch contextMatch = requestContext.getContextMatch();
+        if(contextMatch != null) {
+            //In case this is a nested context only match on the remaining part
+            prevMatched = contextMatch.matchedPath();
+            resource = contextMatch.remainingPath();
+        }
+        var match = handlers.getHandler(resource);
+        requestContext.setContextMatch(new ResourceMatch(
+                prevMatched + match.match().matchedPath(),
+                match.match().remainingPath()
+        ));
+        var httpHandler = match.handler();
         if(httpHandler != null) {
             if(!interceptors.isEmpty()){
                 httpHandler = new InterceptorChainImpl<>(interceptors, httpHandler);

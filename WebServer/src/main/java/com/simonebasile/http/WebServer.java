@@ -317,7 +317,9 @@ public class WebServer<Context extends RequestContext> implements HttpHandlerCon
         }
 
         private void handleWebsocket(HttpRequest<Void> req, Context context) throws IOException {
-            WebsocketHandler<?, ? super Context> wsHandler = websocketHandlers.getHandler(req.getResource());
+            var match = websocketHandlers.getHandler(req.getResource());
+            WebsocketHandler<?, ? super Context> wsHandler = match.handler();
+            context.setContextMatch(match.match());
             _handleWebsocket(req, context, wsHandler);
         }
 

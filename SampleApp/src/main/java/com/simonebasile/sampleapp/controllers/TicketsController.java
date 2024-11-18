@@ -5,14 +5,11 @@ import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
-import com.simonebasile.sampleapp.handlers.MethodHandler;
+import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.model.Role;
-import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.User;
-import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
-import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.views.base.Html5View;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.EmployeeTicketsSection;
@@ -23,7 +20,7 @@ import java.io.InputStream;
 import java.util.List;
 
 @Slf4j
-public class TicketsController extends MethodHandler<InputStream> {
+public class TicketsController extends MethodHandler<InputStream, ApplicationRequestContext> {
     private final TicketService ticketService;
 
 

@@ -1,5 +1,8 @@
 package com.simonebasile.http;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 /**
@@ -7,6 +10,7 @@ import java.util.*;
  */
 class HandlerRegistry<T> {
 
+    private static final Logger log = LoggerFactory.getLogger(HandlerRegistry.class);
     private final PrefixTreeNode<T> tree = new PrefixTreeNode<>();
 
     private static class PrefixTreeNode<T> {
@@ -63,32 +67,55 @@ class HandlerRegistry<T> {
         return true;
     }
 
-    public T getHandler(String path) {
+    public record Match<T>(T handler, ResourceMatch match) {
+        private Match(T handler, String matched, StringBuilder all) {
+            this(handler, new ResourceMatch(matched, all.substring(matched.length())));
+        }
+    }
+
+    public Match<T> getHandler(String path) {
         int qpStart = path.indexOf("?");
         if(qpStart != -1) {
             path = path.substring(0, qpStart);
         }
         Objects.requireNonNull(path);
         final String[] parts = path.split("/");
+        StringBuilder matchedPath = new StringBuilder();
         PrefixTreeNode<T> target = tree;
+        String lastMatchPath = null;
         T lastCtxHandler = null;
-        for(String part : parts) {
-            if(part.isEmpty()) continue;
-            if(target.contextHandler != null) {
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            if (part.isEmpty()) continue;
+            if (target.contextHandler != null) {
+                lastMatchPath = matchedPath.toString();
                 lastCtxHandler = target.contextHandler;
             }
             var child = target.get(part);
-            if(child == null) {
-                return lastCtxHandler;
+            if (child == null) {
+                if(lastCtxHandler != null) {
+                    //Add remaining to result
+                    for(; i < parts.length; i++) {
+                        part = parts[i];
+                        if (part.isEmpty()) continue;
+                        matchedPath.append("/").append(part);
+                    }
+                    return new Match<>(lastCtxHandler, lastMatchPath, matchedPath);
+                } else {
+                    return null;
+                }
             }
+            matchedPath.append("/").append(part);
             target = child;
         }
         if(target.exactHandler != null) {
-            return target.exactHandler;
+            return new Match<>(target.exactHandler, new ResourceMatch(matchedPath.toString(), ""));
         } else if(target.contextHandler != null){
-            return target.contextHandler;
+            return new Match<>(target.contextHandler, new ResourceMatch(matchedPath.toString(), ""));
+        } else if(lastCtxHandler != null){
+            return new Match<>(lastCtxHandler, lastMatchPath, matchedPath);
         } else {
-            return lastCtxHandler;
+            return null;
         }
     }
 

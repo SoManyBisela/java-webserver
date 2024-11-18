@@ -4,14 +4,11 @@ import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
-import com.simonebasile.sampleapp.handlers.MethodHandler;
+import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.Role;
-import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
-import com.simonebasile.sampleapp.service.SessionService;
-import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.AdminToolsSection;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.InputStream;
 
 @Slf4j
-public class AdminToolsController extends MethodHandler<InputStream> {
+public class AdminToolsController extends MethodHandler<InputStream, ApplicationRequestContext> {
 
 
     private final AuthenticationService authService;

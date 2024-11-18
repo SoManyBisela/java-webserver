@@ -8,12 +8,10 @@ import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.DownloadAttachmentRequest;
 import com.simonebasile.sampleapp.dto.UploadAttachmentRequest;
-import com.simonebasile.sampleapp.handlers.MethodHandler;
+import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.*;
-import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
-import com.simonebasile.sampleapp.service.UserService;
 import com.simonebasile.sampleapp.views.TicketNotFoundSection;
 import com.simonebasile.sampleapp.views.UserTicketDetailSection;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +25,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 @Slf4j
-public class AttachmentController extends MethodHandler<InputStream> {
+public class AttachmentController extends MethodHandler<InputStream, ApplicationRequestContext> {
 
     private final TicketService ticketService;
 

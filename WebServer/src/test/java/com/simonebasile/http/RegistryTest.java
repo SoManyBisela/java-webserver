@@ -5,16 +5,22 @@ import org.junit.jupiter.api.Test;
 
 public class RegistryTest {
 
+    private <T> T getHandler(HandlerRegistry<T> reg, String path) {
+        var m = reg.getHandler(path);
+        if(m == null) return null;
+        return m.handler();
+    }
+
     @Test
     void testContext() {
         HandlerRegistry<Object> handlerRegistry = new HandlerRegistry<>();
         Object o = new Object();
         handlerRegistry.insertCtx("/lama", o);
-        Assertions.assertEquals(o, handlerRegistry.getHandler("/lama"));
-        Assertions.assertEquals(o, handlerRegistry.getHandler("/lama/cane"));
-        Assertions.assertEquals(o, handlerRegistry.getHandler("/lama/costruzione"));
-        Assertions.assertEquals(o, handlerRegistry.getHandler("/lama/altroPathLungo"));
-        Assertions.assertNull(handlerRegistry.getHandler("/alpaca"));
+        Assertions.assertEquals(o, getHandler(handlerRegistry, "/lama"));
+        Assertions.assertEquals(o, getHandler(handlerRegistry, "/lama/cane"));
+        Assertions.assertEquals(o, getHandler(handlerRegistry, "/lama/costruzione"));
+        Assertions.assertEquals(o, getHandler(handlerRegistry, "/lama/altroPathLungo"));
+        Assertions.assertNull(getHandler(handlerRegistry, "/alpaca"));
     }
 
     @Test
@@ -22,12 +28,12 @@ public class RegistryTest {
         HandlerRegistry<Object> handlerRegistry = new HandlerRegistry<>();
         Object o = new Object();
         handlerRegistry.insertExact("/lama/pinguino", o);
-        Assertions.assertEquals(o, handlerRegistry.getHandler("/lama/pinguino"));
-        Assertions.assertNull(handlerRegistry.getHandler("/lama"));
-        Assertions.assertNull(handlerRegistry.getHandler("/lama/cane"));
-        Assertions.assertNull(handlerRegistry.getHandler("/lama/costruzione"));
-        Assertions.assertNull(handlerRegistry.getHandler("/lama/altroPathLungo"));
-        Assertions.assertNull(handlerRegistry.getHandler("/alpaca"));
+        Assertions.assertEquals(o, getHandler(handlerRegistry, "/lama/pinguino"));
+        Assertions.assertNull(getHandler(handlerRegistry, "/lama"));
+        Assertions.assertNull(getHandler(handlerRegistry, "/lama/cane"));
+        Assertions.assertNull(getHandler(handlerRegistry, "/lama/costruzione"));
+        Assertions.assertNull(getHandler(handlerRegistry, "/lama/altroPathLungo"));
+        Assertions.assertNull(getHandler(handlerRegistry, "/alpaca"));
     }
 
     @Test
@@ -45,12 +51,12 @@ public class RegistryTest {
         handlerRegistry.insertCtx("/lama/pinguino/armadillo", lamaPinguinoArmadilloCtx);
         handlerRegistry.insertExact("/gatto/canguro", gattoCanguroEx);
 
-        Assertions.assertEquals(lamaCtx, handlerRegistry.getHandler("/lama"));
-        Assertions.assertEquals(lamaCtx, handlerRegistry.getHandler("/lama/alpaca"));
-        Assertions.assertEquals(lamaPinguinoEx, handlerRegistry.getHandler("/lama/pinguino"));
-        Assertions.assertEquals(lamaPinguinoCtx, handlerRegistry.getHandler("/lama/pinguino/altro"));
-        Assertions.assertEquals(lamaPinguinoArmadilloCtx, handlerRegistry.getHandler("/lama/pinguino/armadillo"));
-        Assertions.assertNull(handlerRegistry.getHandler("/gatto"));
+        Assertions.assertEquals(lamaCtx, getHandler(handlerRegistry, "/lama"));
+        Assertions.assertEquals(lamaCtx, getHandler(handlerRegistry, "/lama/alpaca"));
+        Assertions.assertEquals(lamaPinguinoEx, getHandler(handlerRegistry, "/lama/pinguino"));
+        Assertions.assertEquals(lamaPinguinoCtx, getHandler(handlerRegistry, "/lama/pinguino/altro"));
+        Assertions.assertEquals(lamaPinguinoArmadilloCtx, getHandler(handlerRegistry, "/lama/pinguino/armadillo"));
+        Assertions.assertNull(getHandler(handlerRegistry, "/gatto"));
     }
 
     @Test
@@ -62,7 +68,7 @@ public class RegistryTest {
         handlerRegistry.insertCtx("/a", o1);
         handlerRegistry.insertCtx("/a/b/c", o2);
 
-        Assertions.assertEquals(o1, handlerRegistry.getHandler("/a/b"));
+        Assertions.assertEquals(o1, getHandler(handlerRegistry, "/a/b"));
     }
 
     @Test

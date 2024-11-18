@@ -5,7 +5,7 @@ import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.LoginRequest;
-import com.simonebasile.sampleapp.handlers.MethodHandler;
+import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.errors.UserAuthException;
@@ -13,7 +13,7 @@ import com.simonebasile.sampleapp.views.LoginView;
 
 import java.io.InputStream;
 
-public class LoginController extends MethodHandler<InputStream> {
+public class LoginController extends MethodHandler<InputStream, ApplicationRequestContext> {
     AuthenticationService authService;
 
     public LoginController(AuthenticationService authService) {
