@@ -1,13 +1,15 @@
 package com.simonebasile.sampleapp.views;
 
+import com.mongodb.internal.connection.tlschannel.NeedsReadException;
 import com.simonebasile.sampleapp.model.Attachment;
 import com.simonebasile.sampleapp.model.Comment;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.custom.ErrorMessage;
-import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
+import com.simonebasile.sampleapp.views.html.IHtmlElement;
+import com.simonebasile.sampleapp.views.html.NoElement;
+import com.simonebasile.sampleapp.views.html.custom.*;
 
 import java.util.List;
 
@@ -15,29 +17,43 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class UserTicketDetailSection extends ElementGroup {
     public UserTicketDetailSection(Ticket ticket) {
-        content.add( ticket.getState() == TicketState.DRAFT ?
+        content.add( ticket == null || ticket.getState() == TicketState.DRAFT ?
                 draftTicket(ticket) :
                 ticket(ticket)
         );
     }
 
     HtmlElement draftTicket(Ticket t) {
-        return div().content(
-                form().hxPut("/ticket")
-                        .hxVals("id", t.getId())
-                        .hxTarget("#main")
-                        .content(
-                                div().attr("class", "stack-vertical")
-                                        .content(
-                                                new TextInputElement("object", "Object"),
-                                                new TextInputElement("message", "Message"),
-                                                button().text("Submit").attr("type", "submit", "name", "submit"),
-                                                button().text("Save as draft").attr("type", "submit")
-                                        )
-                        ),
-                attachmentList(t.getAttachments(), t.getId()),
-                uploadAttachment(t.getId())
-        );
+        String object = "";
+        String message = "";
+        if(t != null) {
+            object = t.getObject();
+            message = t.getMessage();
+        }
+        String formId = IdGenerator.get();
+        var editForm = t == null ? form().hxPost("/ticket") : form().hxPut("/ticket").hxVals("id", t.getId());
+        return div().attr("class", "stack-vertical")
+                .content(
+                        h(1).text(t == null ? "Crea ticket" : "Modifica ticket"),
+                        editForm
+                                .attr("id", formId)
+                                .hxTarget("#main")
+                                .content(
+                                        div().attr("class", "stack-vertical")
+                                                .content(
+                                                        new TextInputElement("object", "Object").value(object),
+                                                        new TextAreaElement("message", "Message").value(message)
+                                                )
+                                ),
+                        t == null ?
+                                NoElement.instance :
+                                new ElementGroup(
+                                        attachmentList(t.getAttachments(), t.getId()),
+                                        uploadAttachment(t.getId())
+                                ),
+                        t == null ? NoElement.instance : button().text("Submit").attr("type", "submit", "name", "submit", "form", formId),
+                        button().text("Save as draft").attr("type", "submit", "form", formId)
+                );
     }
 
     private HtmlElement uploadAttachment(String id) {
@@ -50,8 +66,10 @@ public class UserTicketDetailSection extends ElementGroup {
                 .hxTarget("#main")
                 .hxSwap("innerHTML")
                 .content(
-                        input().attr("type", "file", "name", "filecontent"),
-                        button().text("Upload").attr("class", "upload-button", "type", "submit")
+                        div().attr("class", "stack-horizontal").content(
+                                input().attr("type", "file", "name", "filecontent"),
+                                button().text("Upload").attr("class", "upload-button", "type", "submit")
+                        )
                 );
     }
 

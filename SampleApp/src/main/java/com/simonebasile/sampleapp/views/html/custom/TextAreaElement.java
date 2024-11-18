@@ -9,17 +9,21 @@ import java.io.OutputStream;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
-public class TextInputElement extends IHtmlElement {
+public class TextAreaElement extends IHtmlElement {
 
     private final HtmlElement container;
     private final HtmlElement input;
 
-    public TextInputElement(String name, String labelText) {
+    public TextAreaElement(String name, String labelText) {
         String id = IdGenerator.get();
         container = div()
                 .attr("class", "input-container")
                 .content(
-                        input = input().attr("type", "text", "name", name, "id", id),
+                        input = textarea().attr("type", "text",
+                                "name", name,
+                                "id", id,
+                                "oninput", "this.style.height = ''; this.style.height = this.scrollHeight +'px'"
+                        ),
                         label().text(labelText).attr("for", id)
                 );
     }
@@ -29,14 +33,10 @@ public class TextInputElement extends IHtmlElement {
         container.write(out);
     }
 
-    public TextInputElement typePassword() {
-        input.attr("type", "password");
+    public TextAreaElement value(String value) {
+        if(value == null) value = "";
+        input.text(value);
         return this;
     }
 
-    public TextInputElement value(String value) {
-        if(value == null) value = "";
-        input.attr("value", value);
-        return this;
-    }
 }

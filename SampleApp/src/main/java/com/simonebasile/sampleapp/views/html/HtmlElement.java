@@ -259,6 +259,10 @@ public class HtmlElement extends ElementGroup{
         return new HtmlElement("input");
     }
 
+    public static HtmlElement textarea() {
+        return new HtmlElement("textarea");
+    }
+
     public static HtmlElement button() {
         return new HtmlElement("button");
     }

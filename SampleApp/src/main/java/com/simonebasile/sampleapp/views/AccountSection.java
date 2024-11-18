@@ -21,6 +21,7 @@ public class AccountSection extends ElementGroup {
                         div().attr("class", "stack-vertical").content(
                                 new TextInputElement("oldPassword", "old password").typePassword(),
                                 new TextInputElement("newPassword", "new password").typePassword(),
+                                new TextInputElement("conPassword", "confirm password").typePassword(),
                                 button().attr("type", "submit").text("Change password")
                         )
                 );

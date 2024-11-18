@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.controllers;
+package com.simonebasile.sampleapp.controller;
 
 import com.simonebasile.sampleapp.dto.ChatProtoMessage;
 

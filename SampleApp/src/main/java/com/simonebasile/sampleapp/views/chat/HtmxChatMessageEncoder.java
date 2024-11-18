@@ -1,6 +1,6 @@
 package com.simonebasile.sampleapp.views.chat;
 
-import com.simonebasile.sampleapp.controllers.ChatMessageEncoder;
+import com.simonebasile.sampleapp.controller.ChatMessageEncoder;
 import com.simonebasile.sampleapp.dto.ChatProtoMessage;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;

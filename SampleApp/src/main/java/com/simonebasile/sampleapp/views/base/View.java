@@ -16,8 +16,6 @@ public class View extends Html5View {
         );
         addCss("/static/userview.css");
         addCss("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0");
-        addCss("/static/common.css");
-        addJs("/static/common.js");
         //Page header
         if(withHeader) {
             addContent(

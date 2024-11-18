@@ -21,6 +21,7 @@ public class AdminToolsSection extends ElementGroup {
                 .hxPost("/admin-tools")
                 .hxTarget("#main")
                 .content(
+                        h(1).text("Create new user"),
                         div().attr("class", "stack-vertical").content(
                                 new TextInputElement("username", "username"),
                                 new TextInputElement("password", "password").typePassword(),

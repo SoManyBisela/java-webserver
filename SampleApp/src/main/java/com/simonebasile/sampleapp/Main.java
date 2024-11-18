@@ -3,8 +3,8 @@ package com.simonebasile.sampleapp;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
-import com.simonebasile.sampleapp.controllers.*;
-import com.simonebasile.sampleapp.controllers.HomeController;
+import com.simonebasile.sampleapp.controller.*;
+import com.simonebasile.sampleapp.controller.HomeController;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
@@ -70,7 +70,6 @@ public class Main {
         var registerController = new RegisterController(authenticationService);
         var homeController = new HomeController();
         var ticketsController = new TicketsController(ticketService);
-        var createTicketController = new CreateTicketController(ticketService);
         var ticketController = new TicketController(ticketService);
         var adminToolsController = new AdminToolsController(authenticationService);
         var accountController = new AccountController(authenticationService);
@@ -116,7 +115,6 @@ public class Main {
 
         webServer.registerHttpHandler("/", homeController);
         webServer.registerHttpHandler("/tickets", ticketsController);
-        webServer.registerHttpHandler("/ticket/create", createTicketController);
         webServer.registerHttpHandler("/ticket", ticketController);
         webServer.registerHttpHandler("/admin-tools", adminToolsController);
         webServer.registerHttpHandler("/account", accountController);

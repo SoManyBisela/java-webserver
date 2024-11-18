@@ -1,5 +1,6 @@
 package com.simonebasile.sampleapp.service;
 
+import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ChangePasswordRequest;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.repository.UserRepository;
@@ -32,6 +33,15 @@ public class AuthenticationService {
     }
 
     public void registerUser(RegisterRequest req) {
+        if(Utils.isEmpty(req.getUsername())) {
+            throw new UserAuthException("Invalid username");
+        }
+        if(Utils.isEmpty(req.getPassword())) {
+            throw new UserAuthException("Invalid password");
+        }
+        if(!req.getPassword().equals(req.getCpassword())) {
+            throw new UserAuthException("Passwords do not match");
+        }
         register(new User(req.getUsername(), req.getPassword(), Role.user));
     }
 
@@ -45,6 +55,12 @@ public class AuthenticationService {
     }
 
     public void changePassword(ChangePasswordRequest req) {
+        if(Utils.isEmpty(req.getNewPassword())) {
+            throw new UserAuthException("Invalid password");
+        }
+        if(!req.getNewPassword().equals(req.getConPassword())) {
+            throw new UserAuthException("Passwords do not match");
+        }
         User user = userRepository.getUser(req.getUsername());
         if(ArgonUtils.verify(req.getOldPassword(), user.getPassword())) {
             user.setPassword(ArgonUtils.hash(req.getNewPassword()));

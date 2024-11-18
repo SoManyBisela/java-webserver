@@ -1,8 +1,7 @@
-package com.simonebasile.sampleapp.controllers;
+package com.simonebasile.sampleapp.controller;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpRequestHandler;
-import com.simonebasile.http.HttpRequestHandlerNC;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;

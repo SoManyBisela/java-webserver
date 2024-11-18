@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.controllers;
+package com.simonebasile.sampleapp.controller;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
@@ -8,12 +8,14 @@ import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
 import com.simonebasile.sampleapp.dto.IdRequest;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
+import com.simonebasile.sampleapp.dto.CreateTicket;
 import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.TicketService;
+import com.simonebasile.sampleapp.service.errors.CreateTicketException;
 import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
 import com.simonebasile.sampleapp.views.TicketNotFoundSection;
 import com.simonebasile.sampleapp.views.UserTicketDetailSection;
@@ -39,16 +41,36 @@ public class TicketController extends MethodHandler<InputStream, ApplicationRequ
             log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             return ResponseUtils.redirect(r, "/");
         }
-        Ticket ticket = ticketService.getById(id.getId(), user);
-        if(ticket == null) {
-            return new HttpResponse<>(r.getVersion(), 404, new TicketNotFoundSection(id.getId()));
-        }
         if(user.getRole() == Role.user) {
+            Ticket ticket = ticketService.getById(id.getId(), user);
             return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket));
         } else if(user.getRole() == Role.employee) {
+            Ticket ticket = ticketService.getById(id.getId(), user);
+            if(ticket == null) {
+                return new HttpResponse<>(r.getVersion(), 404, new TicketNotFoundSection(id.getId()));
+            }
             return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetailSection(ticket, user));
         }
         throw new UnreachableBranchException();
+    }
+
+    @Override
+    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+        User user = context.getLoggedUser();
+        if(user.getRole() != Role.user) {
+            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
+            ResponseUtils.redirect(r, "/");
+        }
+        CreateTicket body = FormHttpMapper.map(r.getBody(), CreateTicket.class);
+        String id;
+        try {
+            id = ticketService.createTicket(new Ticket(body), user).getId();
+        } catch (CreateTicketException e) {
+            return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(null));
+        }
+        Ticket t = ticketService.getById(id, user);
+        return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(t));
+
     }
 
     @Override

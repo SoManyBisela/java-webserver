@@ -9,7 +9,7 @@ import java.util.List;
 public class ElementGroup extends IHtmlElement {
     protected final List<IHtmlElement> content;
 
-    protected ElementGroup() {
+    public ElementGroup() {
         this.content = new ArrayList<>();
     }
     public ElementGroup(List<? extends IHtmlElement> content) {

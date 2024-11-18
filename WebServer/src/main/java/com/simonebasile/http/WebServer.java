@@ -1,5 +1,6 @@
 package com.simonebasile.http;
 
+import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.unpub.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -403,7 +404,12 @@ public class WebServer<Context extends RequestContext> implements HttpHandlerCon
                     log.error("Error in websocket", e);
                 }
             } else {
-                new HttpResponse<>(req.getVersion(), 400, new HttpHeaders(), null).write(outputStream);
+                new HttpResponse<>(
+                        req.getVersion(),
+                        400,
+                        new HttpHeaders(),
+                        new ByteResponseBody(handshakeResult.refuseMessage)
+                ).write(outputStream);
             }
         }
 

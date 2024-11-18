@@ -53,7 +53,7 @@ public class UserTicketsSection extends ElementGroup {
     private HtmlElement createTicketButton() {
         return button()
                 .attr("class", "default-button")
-                .hxGet("/ticket/create")
+                .hxGet("/ticket")
                 .hxSwap("inner-html")
                 .hxTarget("#main")
                 .content(
