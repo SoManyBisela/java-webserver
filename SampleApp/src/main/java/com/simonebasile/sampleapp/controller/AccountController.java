@@ -23,7 +23,7 @@ public class AccountController extends MethodHandler<InputStream, ApplicationReq
 
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
-        return new HttpResponse<>(r.getVersion(), new AccountSection(user));
+        return new HttpResponse<>(new AccountSection(user));
     }
 
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
@@ -32,9 +32,9 @@ public class AccountController extends MethodHandler<InputStream, ApplicationReq
         changePasswordReq.setUsername(user.getUsername());
         try {
             authService.changePassword(changePasswordReq);
-            return new HttpResponse<>(r.getVersion(), new AccountSection(user).successMessage("Password changed successfully"));
+            return new HttpResponse<>(new AccountSection(user).successMessage("Password changed successfully"));
         } catch (UserAuthException e ) {
-            return new HttpResponse<>(r.getVersion(), new AccountSection(user).changePasswordError(e.getMessage()));
+            return new HttpResponse<>(new AccountSection(user).changePasswordError(e.getMessage()));
         }
     }
 }

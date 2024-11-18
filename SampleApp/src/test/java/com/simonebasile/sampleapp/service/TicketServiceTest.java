@@ -1,5 +1,6 @@
 package com.simonebasile.sampleapp.service;
 
+import com.simonebasile.sampleapp.dto.CreateTicket;
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
 import com.simonebasile.sampleapp.dto.IdRequest;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
@@ -49,7 +50,7 @@ class TicketServiceTest {
     @Test
     void testCreateTicket() {
         User user = new User("user123", "password", Role.user);
-        Ticket ticket = new Ticket();
+        Ticket ticket = new Ticket(new CreateTicket("object", "message"));
 
         Ticket createdTicket = ticketService.createTicket(ticket, user);
 

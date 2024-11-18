@@ -22,7 +22,7 @@ public class RegisterController extends MethodHandler<InputStream, ApplicationRe
 
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
-        return new HttpResponse<>(r.getVersion(), new RegisterView());
+        return new HttpResponse<>(new RegisterView());
     }
 
     @Override
@@ -32,7 +32,7 @@ public class RegisterController extends MethodHandler<InputStream, ApplicationRe
             authService.registerUser(body);
             return ResponseUtils.redirect(r, "/login");
         } catch (UserAuthException e) {
-            return new HttpResponse<>(r.getVersion(), 400, new RegisterView(e.getMessage()));
+            return new HttpResponse<>(400, new RegisterView(e.getMessage()));
         }
     }
 }

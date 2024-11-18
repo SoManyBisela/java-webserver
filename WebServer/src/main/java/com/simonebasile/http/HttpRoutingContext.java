@@ -62,7 +62,7 @@ public class HttpRoutingContext<Body, Context extends RequestContext> implements
             }
             return httpHandler.handle(req, requestContext);
         } else {
-            return new HttpResponse<>(req.version,
+            return new HttpResponse<>(
                     404,
                     new HttpHeaders(),
                     new ByteResponseBody("Resource not found")

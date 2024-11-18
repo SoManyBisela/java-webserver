@@ -254,8 +254,8 @@ public class WebServer<Context extends RequestContext> implements HttpHandlerCon
         }
 
         private Socket client;
-        private HttpInputStream inputStream;
-        private HttpOutputStream outputStream;
+        private final HttpInputStream inputStream;
+        private final HttpOutputStream outputStream;
 
         public HttpProtocolHandler(Socket client) throws IOException {
             this.client = Objects.requireNonNull(client);
@@ -298,7 +298,7 @@ public class WebServer<Context extends RequestContext> implements HttpHandlerCon
                     //consuming remaining body
                     req.body.close();
 
-                    res.write(outputStream);
+                    res.write(req.getVersion(), outputStream);
                     //TODO handle connection and keep-alive header, handle timeouts, handle max amt of requests
                 }
             } catch (ConnectionClosedBeforeRequestStartException ignored) {
@@ -337,7 +337,7 @@ public class WebServer<Context extends RequestContext> implements HttpHandlerCon
                 httpHeaders.add("Upgrade",  "websocket");
                 httpHeaders.add("Connection", "Upgrade");
                 httpHeaders.add("Sec-WebSocket-Accept", wsAccept);
-                new HttpResponse<>(req.getVersion(), 101, httpHeaders, null).write(outputStream);
+                new HttpResponse<>(101, httpHeaders, null).write(req.getVersion(), outputStream);
                 boolean hsComplete = false;
                 try {
                     final WebSocket webSocket = new WebSocket(client, inputStream, outputStream);
@@ -405,11 +405,10 @@ public class WebServer<Context extends RequestContext> implements HttpHandlerCon
                 }
             } else {
                 new HttpResponse<>(
-                        req.getVersion(),
                         400,
                         new HttpHeaders(),
                         new ByteResponseBody(handshakeResult.refuseMessage)
-                ).write(outputStream);
+                ).write(req.getVersion(), outputStream);
             }
         }
 

@@ -24,18 +24,18 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream, Reques
         String method = r.getMethod();
         try {
             if ("GET".equalsIgnoreCase(method)) {
-                return handleGet(r, ctx);
+                return handleGet(ctx);
             } else if ("HEAD".equalsIgnoreCase(method)) {
                 return handleHead(r, ctx);
             } else {
                 throw new StatusErr(405);
             }
         } catch (StatusErr e) {
-            return new HttpResponse<>(r.getVersion(), e.statusCode, new HttpHeaders(), new ByteResponseBody(HttpStatusCode.getStatusString(e.statusCode)));
+            return new HttpResponse<>(e.statusCode, new HttpHeaders(), new ByteResponseBody(HttpStatusCode.getStatusString(e.statusCode)));
         }
     }
 
-    private HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, RequestContext ctx) {
+    private HttpResponse<? extends HttpResponse.ResponseBody> handleGet(RequestContext ctx) {
         String path = getFilePath(ctx.getContextMatch().remainingPath());
         File targetFile = new File(rootDirectory + path);
         if(!targetFile.exists()) {
@@ -47,7 +47,7 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream, Reques
                 throw new StatusErr(404);
             }
         }
-        return new HttpResponse<>(r.getVersion(), 200, new HttpHeaders(), new FileResponseBody(targetFile));
+        return new HttpResponse<>(200, new HttpHeaders(), new FileResponseBody(targetFile));
     }
 
     private String getFilePath(String resource) {
@@ -61,7 +61,7 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream, Reques
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> handleHead(HttpRequest<? extends InputStream> r, RequestContext ctx) {
-        return new HttpResponse<>(handleGet(r, ctx), null);
+        return new HttpResponse<>(handleGet(ctx), null);
     }
 
     private static class StatusErr extends RuntimeException {

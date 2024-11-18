@@ -13,9 +13,9 @@ public class HttpResponseTests {
 
     @Test
     public void testResponse() throws IOException {
-        HttpResponse<ByteResponseBody> response = new HttpResponse<>(HttpVersion.V1_1, new ByteResponseBody("Response"));
+        HttpResponse<ByteResponseBody> response = new HttpResponse<>(new ByteResponseBody("Response"));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        response.write(new HttpOutputStream(out));
+        response.write(HttpVersion.V1_1, new HttpOutputStream(out));
         Assertions.assertEquals("""
                 HTTP/1.1 200 OK\r
                 CONTENT-TYPE: text/plain; charset=UTF-8\r
@@ -29,9 +29,9 @@ public class HttpResponseTests {
     public void testResponseNoBody() throws IOException {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Prova", "header");
-        HttpResponse<ByteResponseBody> response = new HttpResponse<>(HttpVersion.V1_1, 200, httpHeaders, null);
+        HttpResponse<ByteResponseBody> response = new HttpResponse<>(200, httpHeaders, null);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        response.write(new HttpOutputStream(out));
+        response.write(HttpVersion.V1_1, new HttpOutputStream(out));
         Assertions.assertEquals("""
                 HTTP/1.1 200 OK\r
                 CONTENT-LENGTH: 0\r
@@ -43,7 +43,7 @@ public class HttpResponseTests {
 
     @Test
     public void testResponseStreamBody() throws IOException {
-        HttpResponse<HttpResponse.ResponseBody> response = new HttpResponse<>(HttpVersion.V1_1, new HttpResponse.ResponseBody() {
+        HttpResponse<HttpResponse.ResponseBody> response = new HttpResponse<>(new HttpResponse.ResponseBody() {
 
             @Override
             public void write(OutputStream out) throws IOException {
@@ -62,7 +62,7 @@ public class HttpResponseTests {
             }
         });
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        response.write(new HttpOutputStream(out));
+        response.write(HttpVersion.V1_1, new HttpOutputStream(out));
         Assertions.assertEquals("""
                     HTTP/1.1 200 OK\r
                     TRANSFER-ENCODING: chunked\r

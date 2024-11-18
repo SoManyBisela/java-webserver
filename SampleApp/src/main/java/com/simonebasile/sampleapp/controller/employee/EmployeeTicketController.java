@@ -3,19 +3,14 @@ package com.simonebasile.sampleapp.controller.employee;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.http.handlers.MethodHandler;
-import com.simonebasile.sampleapp.ResponseUtils;
-import com.simonebasile.sampleapp.assertions.UnreachableBranchException;
 import com.simonebasile.sampleapp.dto.*;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
-import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.TicketService;
-import com.simonebasile.sampleapp.service.errors.CreateTicketException;
 import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
 import com.simonebasile.sampleapp.views.EmployeeTicketDetailSection;
 import com.simonebasile.sampleapp.views.TicketNotFoundSection;
-import com.simonebasile.sampleapp.views.UserTicketDetailSection;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
@@ -35,9 +30,9 @@ public class EmployeeTicketController extends MethodHandler<InputStream, Applica
         IdRequest id = FormHttpMapper.mapHttpResource(r.getResource(), IdRequest.class);
         Ticket ticket = ticketService.getById(id.getId(), user);
         if(ticket == null) {
-            return new HttpResponse<>(r.getVersion(), 404, new TicketNotFoundSection(id.getId()));
+            return new HttpResponse<>(404, new TicketNotFoundSection(id.getId()));
         }
-        return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetailSection(ticket, user));
+        return new HttpResponse<>(new EmployeeTicketDetailSection(ticket, user));
     }
 
     @Override
@@ -49,9 +44,9 @@ public class EmployeeTicketController extends MethodHandler<InputStream, Applica
             ticket = ticketService.update(body, user);
         } catch (UpdateTicketException e) {
             ticket = ticketService.getById(body.getId(), user);
-            return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetailSection(ticket, user, e.getMessage()));
+            return new HttpResponse<>(new EmployeeTicketDetailSection(ticket, user, e.getMessage()));
         }
-        return new HttpResponse<>(r.getVersion(), new EmployeeTicketDetailSection(ticket, user).successMessage("Ticket saved"));
+        return new HttpResponse<>(new EmployeeTicketDetailSection(ticket, user).successMessage("Ticket saved"));
 
     }
 }

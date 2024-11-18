@@ -9,8 +9,6 @@ import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Slf4j
 public class AuthenticationInterceptor<T> implements HttpInterceptor<T, ApplicationRequestContext> {
@@ -28,14 +26,14 @@ public class AuthenticationInterceptor<T> implements HttpInterceptor<T, Applicat
         SessionData sessionData = sessionService.getOrCreateSession(sessionCookie);
         if(sessionData == null) {
             log.error("Failed to create session data");
-            return new HttpResponse<>(request.getVersion(), 500, new HttpHeaders(), new ByteResponseBody("Internal server Error"));
+            return new HttpResponse<>(500, new HttpHeaders(), new ByteResponseBody("Internal server Error"));
         }
         context.setSessionId(sessionData.getId());
         if(sessionData.getUsername() != null) {
             User logged = userService.getUser(sessionData.getUsername());
             if(logged == null) {
                 log.error("Logged user in session does not exist");
-                return new HttpResponse<>(request.getVersion(), 500, new HttpHeaders(), new ByteResponseBody("Internal server Error"));
+                return new HttpResponse<>(500, new HttpHeaders(), new ByteResponseBody("Internal server Error"));
             }
             context.setLoggedUser(logged);
         } else if (!request.getResource().equals("/login")){

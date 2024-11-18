@@ -30,7 +30,7 @@ public class AdminToolsController extends MethodHandler<InputStream, Application
             log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
             return ResponseUtils.redirect(r, "/");
         }
-        return new HttpResponse<>(r.getVersion(), new AdminToolsSection());
+        return new HttpResponse<>(new AdminToolsSection());
     }
 
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
@@ -42,9 +42,9 @@ public class AdminToolsController extends MethodHandler<InputStream, Application
         User u = FormHttpMapper.map(r.getBody(), User.class);
         try {
             authService.register(u);
-            return new HttpResponse<>(r.getVersion(), new AdminToolsSection().successMessage("User created successfully"));
+            return new HttpResponse<>(new AdminToolsSection().successMessage("User created successfully"));
         } catch (UserAuthException e ) {
-            return new HttpResponse<>(r.getVersion(), new AdminToolsSection().createUserError(e.getMessage()));
+            return new HttpResponse<>(new AdminToolsSection().createUserError(e.getMessage()));
         }
     }
 }

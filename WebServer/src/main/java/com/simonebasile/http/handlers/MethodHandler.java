@@ -12,24 +12,24 @@ public class MethodHandler<Body, Context> implements HttpRequestHandler<Body, Co
             case "POST" -> handlePost(r, context);
             case "PUT" -> handlePut(r, context);
             case "DELETE" -> handleDelete(r, context);
-            default -> methodNotAllowed(r);
+            default -> methodNotAllowed();
         };
     }
 
-    private HttpResponse<? extends HttpResponse.ResponseBody> methodNotAllowed(HttpRequest<? extends Body> r) {
-        return new HttpResponse<>(r.getVersion(), 405, new HttpHeaders(), new ByteResponseBody("method not allowed"));
+    private HttpResponse<? extends HttpResponse.ResponseBody> methodNotAllowed() {
+        return new HttpResponse<>(405, new HttpHeaders(), new ByteResponseBody("method not allowed"));
     }
 
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends Body> r, Context context) {
-        return methodNotAllowed(r);
+        return methodNotAllowed();
     }
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends Body> r, Context context) {
-        return methodNotAllowed(r);
+        return methodNotAllowed();
     }
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePut(HttpRequest<? extends Body> r, Context context) {
-        return methodNotAllowed(r);
+        return methodNotAllowed();
     }
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleDelete(HttpRequest<? extends Body> r, Context context) {
-        return methodNotAllowed(r);
+        return methodNotAllowed();
     }
 }

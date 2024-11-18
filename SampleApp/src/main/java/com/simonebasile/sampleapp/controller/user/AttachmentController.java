@@ -4,7 +4,6 @@ import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.http.response.FileResponseBody;
-import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.DownloadAttachmentRequest;
 import com.simonebasile.sampleapp.dto.UploadAttachmentRequest;
@@ -41,11 +40,11 @@ public class AttachmentController extends MethodHandler<InputStream, Application
         Ticket ticket = ticketService.getById(ticketId, user);
         if(ticket == null) {
             log.warn("User {} Tried to upload attachment for ticket with id {}",user.getUsername(), ticketId);
-            return new HttpResponse<>(r.getVersion(), new TicketNotFoundSection(ticketId));
+            return new HttpResponse<>(new TicketNotFoundSection(ticketId));
         }
         if(!uploadAttachmentRequest.valid()) {
             log.warn("Invalid upload request {}", uploadAttachmentRequest);
-            return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket)
+            return new HttpResponse<>(new UserTicketDetailSection(ticket)
                     .errorMessage("An unexpected error occurred while uploading the attachment"));
         }
 
@@ -55,7 +54,7 @@ public class AttachmentController extends MethodHandler<InputStream, Application
         } catch (IOException e) {
             log.error("Si è verificato un errore durante la creazione della cartella {} per gli allegati: {}",
                     containerFolder, e.getMessage(), e);
-            return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket)
+            return new HttpResponse<>(new UserTicketDetailSection(ticket)
                     .errorMessage("An unexpected error occurred while uploading the attachment"));
         }
         Path file = containerFolder.resolve(UUID.randomUUID().toString());
@@ -65,17 +64,17 @@ public class AttachmentController extends MethodHandler<InputStream, Application
         } catch (Exception e) {
             log.error("Si è verificato un errore durante l'upload del file: {}",
                     e.getMessage(), e);
-            return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket)
+            return new HttpResponse<>(new UserTicketDetailSection(ticket)
                     .errorMessage("An unexpected error occurred while uploading the attachment"));
         }
         if(transferred == 0) {
             log.warn("Il file caricato è vuoto");
-            return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket)
+            return new HttpResponse<>(new UserTicketDetailSection(ticket)
                     .errorMessage("You cannot upload an empty file"));
         }
 
         ticket = ticketService.addAttachment(ticket, file.toString(), uploadAttachmentRequest.getFilename());
-        return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket));
+        return new HttpResponse<>(new UserTicketDetailSection(ticket));
     }
 
     @Override
@@ -85,12 +84,12 @@ public class AttachmentController extends MethodHandler<InputStream, Application
         Ticket t = ticketService.getById(downloadReq.getTicketId(), user);
         if(t == null) {
             final HttpHeaders headers = new HttpHeaders();
-            return new HttpResponse<>(r.getVersion(), 404, headers, null);
+            return new HttpResponse<>(404, headers, null);
         }
         Attachment attachment = t.getAttachments().get(downloadReq.getAti());
         final File file = new File(attachment.getPath());
         final HttpHeaders headers = new HttpHeaders();
         headers.add("content-disposition", "attachment; filename=" + attachment.getName());
-        return new HttpResponse<>(r.getVersion(), 200, headers, new FileResponseBody(file));
+        return new HttpResponse<>(200, headers, new FileResponseBody(file));
     }
 }

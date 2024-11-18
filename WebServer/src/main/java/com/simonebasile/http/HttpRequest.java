@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class HttpRequest<T> extends HttpMessage<T> {
+    protected final HttpVersion version;
     protected final String method;
     protected final String resource;
 
@@ -16,7 +17,8 @@ public class HttpRequest<T> extends HttpMessage<T> {
         this(source.method, source.resource, source.version, source.headers, body);
     }
     public HttpRequest(String method, String resource, HttpVersion version, HttpHeaders headers, T body) {
-        super(version, headers, body);
+        super(headers, body);
+        this.version = version;
         this.method = method;
         this.resource = resource;
     }
@@ -74,5 +76,9 @@ public class HttpRequest<T> extends HttpMessage<T> {
 
     public String getMethod() {
         return method;
+    }
+
+    public HttpVersion getVersion() {
+        return version;
     }
 }

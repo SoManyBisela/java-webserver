@@ -32,12 +32,12 @@ public class WebserverTests {
         webServer.registerHttpHandler("/", (r, c) -> {
             handlerCalled[0] = true;
             Assertions.assertEquals("true", r.getHeaders().getFirst("Intercepted"));
-            return new HttpResponse<>(r.getVersion(), 200, new ByteResponseBody("resp"));
+            return new HttpResponse<>(200, new ByteResponseBody("resp"));
         });
         webServer.registerHttpContext("/", (r, c) -> {
             ctxCalled[0] = true;
             Assertions.assertEquals("true", r.getHeaders().getFirst("Intercepted"));
-            return new HttpResponse<>(r.getVersion(), 200, new HttpHeaders(), new ByteResponseBody("<html><body><h1>Ciao</h1></body></html>", "text/html"));
+            return new HttpResponse<>(200, new HttpHeaders(), new ByteResponseBody("<html><body><h1>Ciao</h1></body></html>", "text/html"));
         });
         Semaphore semaphore = new Semaphore(0);
         Thread thread = new Thread(() -> webServer.start(semaphore::release));
@@ -89,17 +89,17 @@ public class WebserverTests {
     public void testWebserverHandlerErrors() {
         var webServer = WebServer.builder().build();
         webServer.registerInterceptor((a, c, n) -> n.handle(a, c));
-        webServer.registerHttpHandler("/handler", (r, c) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("resp")));
-        webServer.registerHttpContext("/handler", (r, c) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("<html><body><h1>Ciao</h1></body></html>", "text/html")));
+        webServer.registerHttpHandler("/handler", (r, c) -> new HttpResponse<>(new ByteResponseBody("resp")));
+        webServer.registerHttpContext("/handler", (r, c) -> new HttpResponse<>(new ByteResponseBody("<html><body><h1>Ciao</h1></body></html>", "text/html")));
         RefuseWsHandler handler = new RefuseWsHandler();
         webServer.registerWebSocketHandler("/handler", handler);
         webServer.registerWebSocketContext("/handler", handler);
 
         Assertions.assertThrows(CustomException.class, () ->
-                webServer.registerHttpHandler("/handler", (r, c) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("<html><body><h1>AltroBody</h1></body></html>", "text/html")))
+                webServer.registerHttpHandler("/handler", (r, c) -> new HttpResponse<>(new ByteResponseBody("<html><body><h1>AltroBody</h1></body></html>", "text/html")))
         );
         Assertions.assertThrows(CustomException.class, () ->
-                webServer.registerHttpContext("/handler", (r, c) -> new HttpResponse<>(r.getVersion(), new ByteResponseBody("<html><body><h1>AltroBody</h1></body></html>", "text/html")))
+                webServer.registerHttpContext("/handler", (r, c) -> new HttpResponse<>(new ByteResponseBody("<html><body><h1>AltroBody</h1></body></html>", "text/html")))
         );
         Assertions.assertThrows(CustomException.class, () ->
             webServer.registerWebSocketContext("/handler", handler)

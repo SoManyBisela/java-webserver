@@ -40,16 +40,17 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
         String contentType();
     }
 
-    public HttpResponse(HttpVersion version, T body) {
-        this(version, 200, new HttpHeaders(), body);
+    public HttpResponse(T body) {
+        this(200, new HttpHeaders(), body);
     }
 
-    public HttpResponse(HttpVersion version, int statusCode, T body) {
-        this(version, statusCode, new HttpHeaders(), body);
+    public HttpResponse(int statusCode, T body) {
+        this(statusCode, new HttpHeaders(), body);
     }
 
-    public HttpResponse(HttpVersion version, int statusCode, HttpHeaders headers, T body) {
-        super(version, headers, body);
+
+    public HttpResponse(int statusCode, HttpHeaders headers, T body) {
+        super(headers, body);
         this.statusCode = statusCode;
     }
 
@@ -62,12 +63,13 @@ public class HttpResponse<T extends HttpResponse.ResponseBody> extends HttpMessa
         this.statusCode = statusCode;
     }
 
-    public void write(HttpOutputStream outputStream) throws IOException {
+
+    public void write(HttpVersion version, HttpOutputStream outputStream) throws IOException {
         var writingHeaders = new HttpHeaders(headers);
         ResponseBody writingBody = null;
         OutputStream out = outputStream;
         if(body != null) {
-            //TOD Check if content type is already present
+            //TODO Check if content type is already present
             Long cl = body.contentLength();
             if(body.contentType() != null) {
                 writingHeaders.add("Content-Type", body.contentType());

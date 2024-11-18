@@ -11,6 +11,6 @@ import java.io.InputStream;
 public class HomeController extends MethodHandler<InputStream, ApplicationRequestContext> {
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
-        return new HttpResponse<>(r.getVersion(), new MainView(context.getLoggedUser()));
+        return new HttpResponse<>(new MainView(context.getLoggedUser()));
     }
 }

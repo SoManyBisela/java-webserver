@@ -25,7 +25,7 @@ public class LoginController extends MethodHandler<InputStream, ApplicationReque
         if(context.getLoggedUser() != null) {
             return ResponseUtils.redirect(r, "/");
         }
-        return new HttpResponse<>(r.getVersion(), new LoginView());
+        return new HttpResponse<>(new LoginView());
     }
 
     @Override
@@ -35,7 +35,7 @@ public class LoginController extends MethodHandler<InputStream, ApplicationReque
             authService.login(context.getSessionId(), body);
             return ResponseUtils.redirect(r, "/");
         } catch (UserAuthException e) {
-            return new HttpResponse<>(r.getVersion(), 401, new LoginView(e.getMessage()));
+            return new HttpResponse<>(401, new LoginView(e.getMessage()));
         }
     }
 }

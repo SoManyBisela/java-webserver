@@ -84,7 +84,7 @@ class AuthenticationServiceTest {
         String username = "newUser";
         String password = "password123";
 
-        RegisterRequest request = new RegisterRequest(username, password);
+        RegisterRequest request = new RegisterRequest(username, password, password);
 
         when(mockUserRepository.getUser(username)).thenReturn(null);
 
@@ -98,7 +98,7 @@ class AuthenticationServiceTest {
         String username = "existingUser";
         String password = "password123";
 
-        RegisterRequest request = new RegisterRequest(username, password);
+        RegisterRequest request = new RegisterRequest(username, password, password);
         User existingUser = new User(username, "hashedPassword", Role.user);
 
         when(mockUserRepository.getUser(username)).thenReturn(existingUser);
@@ -113,7 +113,7 @@ class AuthenticationServiceTest {
         String newPassword = "newPassword";
         String hashedOldPassword = ArgonUtils.hash(oldPassword);
 
-        ChangePasswordRequest request = new ChangePasswordRequest(username, oldPassword, newPassword);
+        ChangePasswordRequest request = new ChangePasswordRequest(username, oldPassword, newPassword, newPassword);
         User mockUser = new User(username, hashedOldPassword, Role.user);
 
         when(mockUserRepository.getUser(username)).thenReturn(mockUser);
@@ -131,7 +131,7 @@ class AuthenticationServiceTest {
         String newPassword = "newPassword";
         String hashedOldPassword = ArgonUtils.hash("CorrectOldPassword");
 
-        ChangePasswordRequest request = new ChangePasswordRequest(username, oldPassword, newPassword);
+        ChangePasswordRequest request = new ChangePasswordRequest(username, oldPassword, newPassword, newPassword);
         User mockUser = new User(username, hashedOldPassword, Role.user);
 
         when(mockUserRepository.getUser(username)).thenReturn(mockUser);
