@@ -1,6 +1,5 @@
 package com.simonebasile.sampleapp.views;
 
-import com.mongodb.internal.connection.tlschannel.NeedsReadException;
 import com.simonebasile.sampleapp.model.Attachment;
 import com.simonebasile.sampleapp.model.Comment;
 import com.simonebasile.sampleapp.model.Ticket;
@@ -16,8 +15,13 @@ import java.util.List;
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class UserTicketDetailSection extends ElementGroup {
+    private HtmlElement container;
+
+    private static boolean ticketExists(Ticket t) {
+        return t != null && t.getId() != null;
+    }
     public UserTicketDetailSection(Ticket ticket) {
-        content.add( ticket == null || ticket.getState() == TicketState.DRAFT ?
+        content.add( !ticketExists(ticket) || ticket.getState() == TicketState.DRAFT ?
                 draftTicket(ticket) :
                 ticket(ticket)
         );
@@ -27,14 +31,15 @@ public class UserTicketDetailSection extends ElementGroup {
         String object = "";
         String message = "";
         if(t != null) {
-            object = t.getObject();
             message = t.getMessage();
+            object = t.getObject();
         }
         String formId = IdGenerator.get();
-        var editForm = t == null ? form().hxPost("/ticket") : form().hxPut("/ticket").hxVals("id", t.getId());
-        return div().attr("class", "stack-vertical")
+        final boolean createTicket = ticketExists(t);
+        var editForm = createTicket ? form().hxPut("/ticket").hxVals("id", t.getId()) : form().hxPost("/ticket");
+        return container = div().attr("class", "stack-vertical")
                 .content(
-                        h(1).text(t == null ? "Crea ticket" : "Modifica ticket"),
+                        h(1).text(createTicket ? "Modifica ticket" : "Crea ticket"),
                         editForm
                                 .attr("id", formId)
                                 .hxTarget("#main")
@@ -45,15 +50,13 @@ public class UserTicketDetailSection extends ElementGroup {
                                                         new TextAreaElement("message", "Message").value(message)
                                                 )
                                 ),
-                        t == null ?
-                                NoElement.instance :
-                                new ElementGroup(
-                                        attachmentList(t.getAttachments(), t.getId()),
-                                        uploadAttachment(t.getId())
-                                ),
+                        createTicket ? new ElementGroup(
+                                attachmentList(t.getAttachments(), t.getId()),
+                                uploadAttachment(t.getId())
+                        ) : NoElement.instance,
                         div().attr("class", "stack-horizontal fl-grow").content(
-                                t == null ? NoElement.instance : button().attr("class", "default-button")
-                                        .text("Submit").attr("type", "submit", "name", "submit", "form", formId),
+                                createTicket ? button().attr("class", "default-button")
+                                        .text("Submit").attr("type", "submit", "name", "submit", "form", formId) : NoElement.instance,
                                 button().attr("class", "default-button")
                                         .text("Save as draft").attr("type", "submit", "form", formId)
                         )
@@ -149,7 +152,7 @@ public class UserTicketDetailSection extends ElementGroup {
     }
 
     public UserTicketDetailSection errorMessage(String msg) {
-        this.content.add(new ErrorMessage(msg));
+        container.content(new ErrorMessage(msg));
         return this;
     }
 

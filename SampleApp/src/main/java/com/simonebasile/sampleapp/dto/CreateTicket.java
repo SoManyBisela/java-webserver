@@ -12,5 +12,4 @@ import lombok.Setter;
 public class CreateTicket {
     private String object;
     private String message;
-
 }

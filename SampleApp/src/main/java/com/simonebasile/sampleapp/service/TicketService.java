@@ -1,10 +1,12 @@
 package com.simonebasile.sampleapp.service;
 
+import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
-import com.simonebasile.sampleapp.dto.IdRequest;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
 import com.simonebasile.sampleapp.model.*;
 import com.simonebasile.sampleapp.repository.TicketRepository;
+import com.simonebasile.sampleapp.service.errors.CreateTicketException;
+import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,12 @@ public class TicketService {
     }
 
     public Ticket createTicket(Ticket body, User user) {
+        if(Utils.isEmpty(body.getObject())) {
+            throw new CreateTicketException("Object cannot be empty");
+        }
+        if(Utils.isEmpty(body.getMessage())) {
+            throw new CreateTicketException("Message cannot be empty");
+        }
         body.setId(UUID.randomUUID().toString());
         body.setOwner(user.getUsername());
         body.setState(TicketState.DRAFT);
@@ -44,9 +52,15 @@ public class TicketService {
         Ticket ticket = getById(body.getId(), user);
         if(ticket.getState() == TicketState.DRAFT) {
             if(body.getObject() != null) {
+                if(Utils.isEmpty(body.getObject())) {
+                    throw new UpdateTicketException("Object cannot be empty");
+                }
                 ticket.setObject(body.getObject());
             }
             if(body.getMessage() != null) {
+                if(Utils.isEmpty(body.getMessage())) {
+                    throw new UpdateTicketException("Message cannot be empty");
+                }
                 ticket.setMessage(body.getMessage());
             }
             if(body.isSubmit()) {

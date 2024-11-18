@@ -62,11 +62,12 @@ public class TicketController extends MethodHandler<InputStream, ApplicationRequ
             ResponseUtils.redirect(r, "/");
         }
         CreateTicket body = FormHttpMapper.map(r.getBody(), CreateTicket.class);
+        Ticket ticket = new Ticket(body);
         String id;
         try {
-            id = ticketService.createTicket(new Ticket(body), user).getId();
+            id = ticketService.createTicket(ticket, user).getId();
         } catch (CreateTicketException e) {
-            return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(null));
+            return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(ticket).errorMessage(e.getMessage()));
         }
         Ticket t = ticketService.getById(id, user);
         return new HttpResponse<>(r.getVersion(), new UserTicketDetailSection(t));
