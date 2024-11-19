@@ -2,7 +2,6 @@
 
 ## Webserver
 
-- Remove version from response, it's obviously not supposed to be there
 - Move request and response serializing and parsing to webserver to make responses of non ResponseBody type possible
 - Add method to registration
 - (needs matching info ^) Add wildcard paths support

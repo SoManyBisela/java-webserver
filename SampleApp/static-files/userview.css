@@ -301,6 +301,7 @@ table {
         }
     }
     textarea[type="text"]{
+        transition: all 0.15s;
         overflow-y: hidden;
         padding: 12px 16px;
         resize: none;
@@ -325,4 +326,8 @@ table {
     * {
         flex-grow: 1;
     }
+}
+
+.viewreg-container {
+    padding: 16px;
 }

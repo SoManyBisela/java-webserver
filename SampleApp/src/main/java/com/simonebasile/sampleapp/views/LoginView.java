@@ -10,7 +10,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class LoginView extends View {
     public LoginView(String errorMessage) {
-        super(false);
+        super();
         HtmlElement loginForm = form()
                 .attr("action", "/login",
                         "method", "POST"
@@ -27,10 +27,12 @@ public class LoginView extends View {
             loginForm.content(new ErrorMessage(errorMessage));
         }
         addContent(
-                h(1).text("Simple ticketing system"),
-                h(2).text("Login"),
-                loginForm,
-                a().attr("href", "/register").text("Not a user yet? register")
+                div().attr("class", "viewreg-container stack-vertical").content(
+                        h(1).text("Simple ticketing system"),
+                        h(2).text("Login"),
+                        loginForm,
+                        a().attr("href", "/register").text("Not a user yet? register")
+                )
         );
     }
     public LoginView() {

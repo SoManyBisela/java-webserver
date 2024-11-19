@@ -46,7 +46,7 @@ public class EmployeeTicketController extends MethodHandler<InputStream, Applica
             ticket = ticketService.getById(body.getId(), user);
             return new HttpResponse<>(new EmployeeTicketDetailSection(ticket, user, e.getMessage()));
         }
-        return new HttpResponse<>(new EmployeeTicketDetailSection(ticket, user).successMessage("Ticket saved"));
+        return new HttpResponse<>(new EmployeeTicketDetailSection(ticket, user));
 
     }
 }

@@ -9,7 +9,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class RegisterView extends View {
     public RegisterView(String errorMessage) {
-        super(false);
+        super();
         HtmlElement loginForm = form()
                 .attr("action", "/register",
                         "method", "POST"
@@ -27,10 +27,12 @@ public class RegisterView extends View {
             loginForm.content(new ErrorMessage(errorMessage));
         }
         addContent(
-                h(1).text("Simple ticketing system"),
-                h(2).text("Register"),
-                loginForm,
-                a().attr("href", "/login").text("Already registered? login")
+                div().attr("class", "viewreg-container stack-vertical").content(
+                        h(1).text("Simple ticketing system"),
+                        h(2).text("Register"),
+                        loginForm,
+                        a().attr("href", "/login").text("Already registered? login")
+                )
         );
     }
 

@@ -6,9 +6,6 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
 public class View extends Html5View {
     public View() {
-        this(true);
-    }
-    public View(boolean withHeader) {
         addHead(
                 new HtmlElement("meta").attr("charset", "UTF-8"),
                 new HtmlElement("title").text("Ticketing"),
@@ -16,15 +13,6 @@ public class View extends Html5View {
         );
         addCss("/static/userview.css");
         addCss("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0");
-        //Page header
-        if(withHeader) {
-            addContent(
-                    div().attr("class", "header")
-                            .content(
-                                    a().attr("href", "/").text("Go to homepage")
-                            )
-            );
-        }
     }
 
     public void url(String path) {

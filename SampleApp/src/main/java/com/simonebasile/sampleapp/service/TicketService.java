@@ -8,6 +8,7 @@ import com.simonebasile.sampleapp.repository.TicketRepository;
 import com.simonebasile.sampleapp.service.errors.CreateTicketException;
 import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +35,7 @@ public class TicketService {
         body.setOwner(user.getUsername());
         body.setState(TicketState.DRAFT);
         body.setAttachments(new ArrayList<>());
+        body.setCreationDate(LocalDateTime.now());
         ticketRepository.create(body);
         return body;
     }
@@ -65,9 +67,13 @@ public class TicketService {
             }
             if(body.isSubmit()) {
                 ticket.setState(TicketState.OPEN);
+                ticket.setSubmissionDate(LocalDateTime.now());
             }
         } else {
             if(body.getComment() != null) {
+                if(Utils.isEmpty(body.getComment())) {
+                    throw new UpdateTicketException("Comment cannot be empty");
+                }
                 addComment(ticket, user, body.getComment());
             }
         }
@@ -94,7 +100,7 @@ public class TicketService {
             comments = new ArrayList<>();
             ticket.setComments(comments);
         }
-        comments.add(new Comment(user.getUsername(), content));
+        comments.add(new Comment(user.getUsername(), content, LocalDateTime.now()));
     }
 
 

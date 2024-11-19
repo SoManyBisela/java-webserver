@@ -10,21 +10,24 @@ import com.simonebasile.sampleapp.views.html.IHtmlElement;
 import com.simonebasile.sampleapp.views.html.NoElement;
 import com.simonebasile.sampleapp.views.html.custom.*;
 
-import java.util.List;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
-public class UserTicketDetailSection extends ElementGroup {
-    private HtmlElement container;
+public class UserTicketDetailSection extends IHtmlElement {
+    private final HtmlElement container;
+    private HtmlElement messageTarget;
 
     private static boolean ticketExists(Ticket t) {
         return t != null && t.getId() != null;
     }
     public UserTicketDetailSection(Ticket ticket) {
-        content.add( !ticketExists(ticket) || ticket.getState() == TicketState.DRAFT ?
-                draftTicket(ticket) :
-                ticket(ticket)
-        );
+        if(!ticketExists(ticket) || ticket.getState() == TicketState.DRAFT) {
+            container = draftTicket(ticket);
+        } else {
+            container = ticket(ticket);
+        }
     }
 
     HtmlElement draftTicket(Ticket t) {
@@ -35,9 +38,9 @@ public class UserTicketDetailSection extends ElementGroup {
             object = t.getObject();
         }
         String formId = IdGenerator.get();
-        final boolean createTicket = ticketExists(t);
+        final boolean createTicket = t != null && t.getId() != null;
         var editForm = createTicket ? form().hxPut("/ticket").hxVals("id", t.getId()) : form().hxPost("/ticket");
-        return container = div().attr("class", "stack-vertical")
+        return messageTarget = div().attr("class", "stack-vertical")
                 .content(
                         h(1).text(createTicket ? "Modifica ticket" : "Crea ticket"),
                         editForm
@@ -51,7 +54,7 @@ public class UserTicketDetailSection extends ElementGroup {
                                                 )
                                 ),
                         createTicket ? new ElementGroup(
-                                attachmentList(t.getAttachments(), t.getId()),
+                                new AttachmentList(t.getAttachments(), t.getId()),
                                 uploadAttachment(t.getId())
                         ) : NoElement.instance,
                         div().attr("class", "stack-horizontal child-grow").content(
@@ -80,88 +83,31 @@ public class UserTicketDetailSection extends ElementGroup {
                 );
     }
 
-
     HtmlElement ticket(Ticket t) {
-        HtmlElement ticketData = container = div().content(
-                div().attr("class", "ticket-object")
+        return messageTarget = div().attr("class", "stack-vertical").content(
+                h(1).text("Ticket detail"),
+                h(2).attr("class", "ticket-object")
                         .text(t.getObject()),
-                div().attr("class", "ticket-message")
-                        .text(t.getMessage())
+                h(3).attr("class", "ticket-message")
+                        .text(t.getMessage()),
+                new AttachmentList(t.getAttachments(), t.getId()),
+                new AddCommentForm(t.getId()),
+                new CommentSection(t.getComments(), t.getOwner())
         );
-
-        ticketData.content(
-                commentSection(ticketData, t.getComments(), t.getOwner(), t.getId()),
-                attachmentList(t.getAttachments(), t.getId())
-        );
-
-        return ticketData;
-    }
-
-    private IHtmlElement attachmentList(List<Attachment> attachments, String id) {
-        if(attachments == null || attachments.isEmpty()) return NoElement.instance;
-        HtmlElement container = table().attr("class", "attachments", "id", "attachmentlist");
-        for (int i = 0; i < attachments.size(); i++) {
-            Attachment attachment = attachments.get(i);
-            container.content(tr().content(
-                    td().text(attachment.getName()),
-                    td().content(a().attr(
-                            "href", "/attachment?ticketId=" + id + "&ati=" + i,
-                            "target", "_blank"
-                    ).text("Download"))
-            ));
-        }
-        return container;
-
-    }
-
-    private HtmlElement commentSection(HtmlElement ticketData, List<Comment> comments, String owner, String ticketId) {
-        HtmlElement commentSection = div().attr("class", "comments");
-        if(comments != null && !comments.isEmpty()) {
-            for(Comment comment : comments) {
-                HtmlElement commentElement = div();
-                commentSection.content(commentElement);
-                if(comment.getAuthor().equals(owner)) {
-                    commentElement.attr("class", "ticket-comment-owner")
-                            .content(
-                                    p().text(comment.getContent())
-                            );
-                } else {
-                    commentElement.attr("class", "ticket-comment-other")
-                            .content(
-                                    p().content(span().text(comment.getAuthor() + ": "))
-                                            .text(comment.getContent())
-                            );
-                }
-            }
-        }
-
-        ticketData.content(
-                form()
-                        .attr( "id", "add-comment-form")
-                        .hxPut("/ticket")
-                        .hxTarget("#main")
-                        .hxVals("id", ticketId)
-                        .content(
-                                div().attr("class", "stack-horizontal")
-                                        .content(
-                                                new TextInputElement("comment", "Comment").style("flex-grow: 1"),
-                                                button().attr("style", "margin-top: 0.4rem",
-                                                        "class", "default-button",
-                                                        "type", "submit").text("Send")
-                                        )
-                        )
-        );
-        return commentSection;
     }
 
     public UserTicketDetailSection successMessage(String msg) {
-        container.content(new SuccessMessage(msg));
+        messageTarget.content(new SuccessMessage(msg));
         return this;
     }
 
     public UserTicketDetailSection errorMessage(String msg) {
-        container.content(new ErrorMessage(msg));
+        messageTarget.content(new ErrorMessage(msg));
         return this;
     }
 
+    @Override
+    public void write(OutputStream os) throws IOException {
+        container.write(os);
+    }
 }
