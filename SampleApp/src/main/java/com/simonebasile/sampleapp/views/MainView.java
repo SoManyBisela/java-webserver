@@ -42,7 +42,6 @@ public class MainView extends HtmxView {
     }
 
     private HtmlElement chatboxToggle() {
-        //TODO add icon instead of M
         return button().attr("class", "chatbox-toggle", "onclick", "htmx.closest(this, '.chatbox').classList.toggle('closed')");
     }
 }

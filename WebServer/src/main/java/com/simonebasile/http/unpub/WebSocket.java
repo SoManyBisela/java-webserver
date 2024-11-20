@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -147,6 +148,7 @@ public class WebSocket implements Closeable{
     * */
     public void maskAndSendDataframe(int flags, int opcode, byte[] body) throws IOException {
         byte[] mask = new byte[4];
+        body = Arrays.copyOf(body, body.length);
         RNG.nextBytes(mask);
         for(int i = 0; i < body.length; i++) {
             body[i] ^= mask[i & 3];
