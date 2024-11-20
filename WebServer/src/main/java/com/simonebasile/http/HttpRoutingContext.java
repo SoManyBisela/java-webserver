@@ -51,23 +51,22 @@ public class HttpRoutingContext<Body, Context extends RequestContext> implements
             resource = contextMatch.remainingPath();
         }
         var match = handlers.getHandler(resource);
-        requestContext.setContextMatch(new ResourceMatch(
-                prevMatched + match.match().matchedPath(),
-                match.match().remainingPath()
-        ));
-        var httpHandler = match.handler();
-        if(httpHandler != null) {
-            if(!interceptors.isEmpty()){
-                httpHandler = new InterceptorChainImpl<>(interceptors, httpHandler);
-            }
-            return httpHandler.handle(req, requestContext);
-        } else {
+        if(match == null) {
             return new HttpResponse<>(
                     404,
                     new HttpHeaders(),
                     new ByteResponseBody("Resource not found")
             );
         }
+        requestContext.setContextMatch(new ResourceMatch(
+                prevMatched + match.match().matchedPath(),
+                match.match().remainingPath()
+        ));
+        var httpHandler = match.handler();
+        if(!interceptors.isEmpty()){
+            httpHandler = new InterceptorChainImpl<>(interceptors, httpHandler);
+        }
+        return httpHandler.handle(req, requestContext);
     }
 
 }
