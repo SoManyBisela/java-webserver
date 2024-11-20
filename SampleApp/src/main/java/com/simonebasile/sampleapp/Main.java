@@ -124,7 +124,7 @@ public class Main {
         });
         webServer.registerInterceptor(new ErrorHandlingInterceptor());
         webServer.registerInterceptor(ConditionalInterceptor.fromPredicate(authInterceptor, skipAuth));
-        webServer.registerHttpContext("/static", new StaticFileHandler("static-files"));
+        webServer.registerHttpContext("/static", new StaticFileHandler<>("static-files"));
         webServer.registerHttpHandler("/login", loginController);
         webServer.registerHttpHandler("/logout", logoutController);
         webServer.registerHttpHandler("/register", registerController);

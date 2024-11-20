@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -102,16 +103,20 @@ public class WebserverTests {
                 webServer.registerHttpContext("/handler", (r, c) -> new HttpResponse<>(new ByteResponseBody("<html><body><h1>AltroBody</h1></body></html>", "text/html")))
         );
         Assertions.assertThrows(CustomException.class, () ->
-            webServer.registerWebSocketContext("/handler", handler)
+                webServer.registerWebSocketContext("/handler", handler)
         );
         Assertions.assertThrows(CustomException.class, () ->
-            webServer.registerWebSocketHandler("/handler", handler)
+                webServer.registerWebSocketHandler("/handler", handler)
         );
     }
 
     @Test
     public void testWebsocketText() throws IOException, InterruptedException {
-        var webServer = WebServer.builder().build();
+        var webServer = WebServer.builder()
+                .address("localhost")
+                .backlog(10)
+                .requestContextFactory(RequestContext::new)
+                .build();
         boolean[] error = new boolean[1];
         boolean[] written = new boolean[1];
         boolean[] closed = new boolean[1];
@@ -353,7 +358,8 @@ public class WebserverTests {
 
     @Test
     public void doubleStartAndStopTest() throws InterruptedException, IOException {
-        var webServer = WebServer.builder().build();
+        var webServer = WebServer.builder().serverSocketFactory(() -> new ServerSocket(10010)).build();
+        Assertions.assertThrows(CustomException.class, webServer::getPort);
         Semaphore startedSemaphore = new Semaphore(0);
         Assertions.assertThrows(CustomException.class, webServer::stop);
         Thread thread = new Thread(() -> webServer.start(startedSemaphore::release));

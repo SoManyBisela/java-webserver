@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
-public class StaticFileHandler implements HttpRequestHandler<InputStream, RequestContext> {
+public class StaticFileHandler<T> implements HttpRequestHandler<T, RequestContext> {
     private static final Logger log = LoggerFactory.getLogger(StaticFileHandler.class);
     private final String rootDirectory;
 
@@ -19,35 +19,35 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream, Reques
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends InputStream> r, RequestContext ctx) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends T> r, RequestContext ctx) {
         log.debug("Into static file handler");
         String method = r.getMethod();
-        try {
-            if ("GET".equalsIgnoreCase(method)) {
-                return handleGet(ctx);
-            } else if ("HEAD".equalsIgnoreCase(method)) {
-                return handleHead(r, ctx);
-            } else {
-                throw new StatusErr(405);
-            }
-        } catch (StatusErr e) {
-            return new HttpResponse<>(e.statusCode, new HttpHeaders(), new ByteResponseBody(HttpStatusCode.getStatusString(e.statusCode)));
+        if ("GET".equalsIgnoreCase(method)) {
+            return handleGet(ctx);
+        } else if ("HEAD".equalsIgnoreCase(method)) {
+            return handleHead(r, ctx);
+        } else {
+            throw new StatusErr(405);
         }
     }
 
     private HttpResponse<? extends HttpResponse.ResponseBody> handleGet(RequestContext ctx) {
-        String path = getFilePath(ctx.getContextMatch().remainingPath());
-        File targetFile = new File(rootDirectory + path);
-        if(!targetFile.exists()) {
-            throw new StatusErr(404);
-        }
-        if(targetFile.isDirectory()) {
-            targetFile = new File(targetFile.getPath() + "/index.html");
+        try {
+            String path = getFilePath(ctx.getContextMatch().remainingPath());
+            File targetFile = new File(rootDirectory + path);
             if(!targetFile.exists()) {
                 throw new StatusErr(404);
             }
+            if(targetFile.isDirectory()) {
+                targetFile = new File(targetFile.getPath() + "/index.html");
+                if(!targetFile.exists()) {
+                    throw new StatusErr(404);
+                }
+            }
+            return new HttpResponse<>(200, new HttpHeaders(), new FileResponseBody(targetFile));
+        } catch (StatusErr e) {
+            return new HttpResponse<>(e.statusCode, new HttpHeaders(), new ByteResponseBody(HttpStatusCode.getStatusString(e.statusCode)));
         }
-        return new HttpResponse<>(200, new HttpHeaders(), new FileResponseBody(targetFile));
     }
 
     private String getFilePath(String resource) {
@@ -60,7 +60,7 @@ public class StaticFileHandler implements HttpRequestHandler<InputStream, Reques
         return resource;
     }
 
-    private HttpResponse<? extends HttpResponse.ResponseBody> handleHead(HttpRequest<? extends InputStream> r, RequestContext ctx) {
+    private HttpResponse<? extends HttpResponse.ResponseBody> handleHead(HttpRequest<? extends T> r, RequestContext ctx) {
         return new HttpResponse<>(handleGet(ctx), null);
     }
 
