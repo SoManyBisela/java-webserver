@@ -15,7 +15,7 @@ public class AddCommentForm extends HtmlElement {
                                         new TextInputElement("comment", "Comment").style("flex-grow: 1"),
                                         button().attr("style", "margin-top: 0.4rem",
                                                 "class", "default-button",
-                                                "type", "submit").text("Send")
+                                                "type", "submit").content(new MaterialIcon("send"))
                                 )
                 );
     }

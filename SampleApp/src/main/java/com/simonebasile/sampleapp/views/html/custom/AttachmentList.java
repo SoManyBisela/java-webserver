@@ -14,7 +14,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 public class AttachmentList extends IHtmlElement {
     private final IHtmlElement content;
 
-    public AttachmentList(List<Attachment> attachments, String id) {
+    public AttachmentList(List<Attachment> attachments, String ticketId) {
         if(attachments == null || attachments.isEmpty()) {
             content = NoElement.instance;
             return;
@@ -25,7 +25,7 @@ public class AttachmentList extends IHtmlElement {
             container.content(tr().content(
                     td().text(attachment.getName()),
                     td().content(a().attr(
-                            "href", "/attachment?ticketId=" + id + "&ati=" + i,
+                            "href", "/attachment?ticketId=" + ticketId + "&ati=" + i,
                             "target", "_blank"
                     ).text("Download"))
             ));
