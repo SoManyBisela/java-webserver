@@ -2,14 +2,18 @@ package com.simonebasile.sampleapp.controller;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
+import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.ChangePasswordRequest;
 import com.simonebasile.http.handlers.MethodHandler;
+import com.simonebasile.sampleapp.exceptions.ShowableException;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.AccountSection;
+import com.simonebasile.sampleapp.views.html.ElementGroup;
+import com.simonebasile.sampleapp.views.html.custom.Toast;
 
 import java.io.InputStream;
 
@@ -32,9 +36,12 @@ public class AccountController extends MethodHandler<InputStream, ApplicationReq
         changePasswordReq.setUsername(user.getUsername());
         try {
             authService.changePassword(changePasswordReq);
-            return new HttpResponse<>(new AccountSection(user).successMessage("Password changed successfully"));
+            return new HttpResponse<>(new ElementGroup(
+                    new AccountSection(user),
+                    Utils.oobAdd("main", new Toast("Password changed successfully", "success"))
+            ));
         } catch (UserAuthException e ) {
-            return new HttpResponse<>(new AccountSection(user).changePasswordError(e.getMessage()));
+            throw new ShowableException(e);
         }
     }
 }

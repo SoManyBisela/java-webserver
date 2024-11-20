@@ -11,29 +11,30 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 public class LoginView extends View {
     public LoginView(String errorMessage) {
         super();
-        HtmlElement loginForm = form()
-                .attr("action", "/login",
-                        "method", "POST"
-                )
-                .content(
-                        div().attr("class", "stack-vertical").content(
-                                new TextInputElement("username", "username"),
-                                new TextInputElement("password", "password").typePassword(),
-                                button().attr("type", "submit", "class", "default-button")
-                                        .text("Login")
-                        )
-                );
-        if(errorMessage != null && !errorMessage.isEmpty()) {
-            loginForm.content(new ErrorMessage(errorMessage));
-        }
+        HtmlElement msgTarget;
         addContent(
-                div().attr("class", "viewreg-container stack-vertical").content(
-                        h(1).text("Simple ticketing system"),
-                        h(2).text("Login"),
-                        loginForm,
-                        a().attr("href", "/register").text("Not a user yet? register")
+                div().attr("class", "container").content(
+                        div().attr("class", "main stack-vertical").content(
+                                h(1).text("Simple ticketing system"),
+                                h(2).text("Login"),
+                                form()
+                                        .attr("action", "/login",
+                                                "method", "POST")
+                                        .content(
+                                                msgTarget = div().attr("class", "stack-vertical").content(
+                                                        new TextInputElement("username", "username"),
+                                                        new TextInputElement("password", "password").typePassword(),
+                                                        button().attr("type", "submit", "class", "default-button")
+                                                                .text("Login")
+                                                )
+                                        ),
+                                a().attr("href", "/register").text("Not a user yet? register")
+                        )
                 )
         );
+        if(errorMessage != null && !errorMessage.isEmpty()) {
+            msgTarget.content(new ErrorMessage(errorMessage));
+        }
     }
     public LoginView() {
         this(null);

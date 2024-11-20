@@ -1,18 +1,30 @@
 package com.simonebasile.sampleapp.service;
 
+import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
+import com.simonebasile.sampleapp.dto.UploadAttachmentRequest;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
 import com.simonebasile.sampleapp.model.*;
 import com.simonebasile.sampleapp.repository.TicketRepository;
 import com.simonebasile.sampleapp.service.errors.CreateTicketException;
 import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
+import com.simonebasile.sampleapp.service.errors.UploadAttachmentException;
+import com.simonebasile.sampleapp.views.TicketNotFoundSection;
+import com.simonebasile.sampleapp.views.UserTicketDetailSection;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 public class TicketService {
     private final TicketRepository ticketRepository;
 
@@ -83,6 +95,9 @@ public class TicketService {
     public Ticket update(EmployeeUpdateTicket body, User user) {
         Ticket ticket = getById(body.getId(), user);
         if(body.getComment() != null) {
+            if(Utils.isEmpty(body.getComment())) {
+                throw new UpdateTicketException("Comment cannot be empty");
+            }
             addComment(ticket, user, body.getComment());
         }
         if(body.isAssign()) {
@@ -118,8 +133,42 @@ public class TicketService {
         }
     }
 
-    public Ticket addAttachment(Ticket ticket, String path, String filename) {
-        ticket.getAttachments().add(new Attachment(path, filename));
-        return ticketRepository.update(ticket);
+    public Ticket uploadAttachment(Ticket ticket, String filename, InputStream body) {
+        Path containerFolder = Path.of("uploads", ticket.getId());
+        try {
+            Files.createDirectories(containerFolder);
+        } catch (IOException e) {
+            log.error("An error occurred while uploading the attachment: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+        Path file = containerFolder.resolve(UUID.randomUUID().toString());
+        long transferred;
+        try (final FileOutputStream fileOutputStream = new FileOutputStream(file.toFile())){
+            transferred = body.transferTo(fileOutputStream);
+        } catch (Exception e) {
+            log.error("An error occurred while uploading the attachment: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+        if(transferred == 0) {
+            log.warn("Il file caricato è vuoto");
+            deleteFile(file);
+            throw new UploadAttachmentException("Cannot upload an empty attachment");
+        }
+        ticket.getAttachments().add(new Attachment(file.toString(), filename));
+        try {
+            return ticketRepository.update(ticket);
+        } catch (Exception e) {
+            deleteFile(file);
+            log.error("An error occurred while uploading the attachment: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private void deleteFile(Path file) {
+        try {
+            Files.delete(file);
+        } catch (IOException e) {
+            log.error("An error occurred while deleting a an attachment: {}", e.getMessage(), e);
+        }
     }
 }

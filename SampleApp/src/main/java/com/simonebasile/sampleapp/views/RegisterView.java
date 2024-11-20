@@ -10,30 +10,32 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 public class RegisterView extends View {
     public RegisterView(String errorMessage) {
         super();
-        HtmlElement loginForm = form()
-                .attr("action", "/register",
-                        "method", "POST"
-                )
-                .content(
-                        div().attr("class", "stack-vertical").content(
-                                new TextInputElement("username", "username"),
-                                new TextInputElement("password", "password").typePassword(),
-                                new TextInputElement("cpassword", "confirm password").typePassword(),
-                                button().attr("type", "submit", "class", "default-button")
-                                        .text("Register")
-                        )
-                );
-        if (errorMessage != null && !errorMessage.isEmpty()) {
-            loginForm.content(new ErrorMessage(errorMessage));
-        }
+        HtmlElement msgTarget;
         addContent(
-                div().attr("class", "viewreg-container stack-vertical").content(
-                        h(1).text("Simple ticketing system"),
-                        h(2).text("Register"),
-                        loginForm,
-                        a().attr("href", "/login").text("Already registered? login")
+                div().attr("class", "container").content(
+                        div().attr("class", "main stack-vertical").content(
+                                h(1).text("Simple ticketing system"),
+                                h(2).text("Register"),
+                                form()
+                                        .attr("action", "/register",
+                                                "method", "POST"
+                                        )
+                                        .content(
+                                                msgTarget = div().attr("class", "stack-vertical").content(
+                                                        new TextInputElement("username", "username"),
+                                                        new TextInputElement("password", "password").typePassword(),
+                                                        new TextInputElement("cpassword", "confirm password").typePassword(),
+                                                        button().attr("type", "submit", "class", "default-button")
+                                                                .text("Register")
+                                                )
+                                        ),
+                                a().attr("href", "/login").text("Already registered? login")
+                        )
                 )
         );
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            msgTarget.content(new ErrorMessage(errorMessage));
+        }
     }
 
     public RegisterView() {

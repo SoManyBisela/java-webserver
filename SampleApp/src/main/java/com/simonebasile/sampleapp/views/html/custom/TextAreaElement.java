@@ -24,9 +24,10 @@ public class TextAreaElement extends IHtmlElement {
                                 .attr("type", "text",
                                         "name", name,
                                         "id", id,
-                                        "hx-sle-onload", autosize,
-                                        "oninput", autosize
-                        ),
+                                        "hx-sle-onload", autosize + ";setTimeout(() => this.classList.remove('animate'), 150)",
+                                        "oninput", autosize,
+                                        "class", "animate"
+                                ),
                         label().text(labelText).attr("for", id)
                 );
     }

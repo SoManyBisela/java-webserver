@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.views;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class UserTicketsSection extends ElementGroup {
                 .hxSwap("inner-html")
                 .hxTarget("#main")
                 .content(
-                        span().attr("class", "material-symbols-outlined").text("add"),
+                        new MaterialIcon("add"),
                         span().text("Create ticket")
                 );
 
@@ -71,13 +72,13 @@ public class UserTicketsSection extends ElementGroup {
                         td().text(ticket.getAssignee() != null ? "Yes" : "No"),
                         td().attr("class", "buttons-cell").content(
                                 div().content(
-                                        button().content(span().attr("class", "material-symbols-outlined").text("visibility"))
+                                        button().content(new MaterialIcon("visibility"))
                                                 .attr("class", "open-detail-button")
                                                 .hxGet("/ticket")
                                                 .hxVals("id", ticket.getId())
                                                 .hxSwap("inner-html")
                                                 .hxTarget("#main"),
-                                        button().content(span().attr("class", "material-symbols-outlined").text("delete"))
+                                        button().content(new MaterialIcon("delete"))
                                                 .attr("class", "delete-button")
                                                 .hxDelete("/ticket")
                                                 .hxVals("id", ticket.getId())

@@ -53,16 +53,6 @@ public class EmployeeTicketDetailSection extends IHtmlElement {
         }
     }
 
-    public EmployeeTicketDetailSection successMessage(String msg) {
-        container.content(new SuccessMessage(msg));
-        return this;
-    }
-
-    public EmployeeTicketDetailSection errorMessage(String msg) {
-        container.content(new ErrorMessage(msg));
-        return this;
-    }
-
     @Override
     public void write(OutputStream os) throws IOException {
         container.write(os);

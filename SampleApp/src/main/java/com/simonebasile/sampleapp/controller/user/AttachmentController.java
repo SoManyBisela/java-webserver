@@ -8,20 +8,17 @@ import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.DownloadAttachmentRequest;
 import com.simonebasile.sampleapp.dto.UploadAttachmentRequest;
 import com.simonebasile.http.handlers.MethodHandler;
+import com.simonebasile.sampleapp.exceptions.ShowableException;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.*;
 import com.simonebasile.sampleapp.service.TicketService;
-import com.simonebasile.sampleapp.views.TicketNotFoundSection;
+import com.simonebasile.sampleapp.service.errors.UploadAttachmentException;
 import com.simonebasile.sampleapp.views.UserTicketDetailSection;
+import com.simonebasile.sampleapp.views.html.custom.AttachmentList;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.UUID;
 
 @Slf4j
 public class AttachmentController extends MethodHandler<InputStream, ApplicationRequestContext> {
@@ -36,45 +33,23 @@ public class AttachmentController extends MethodHandler<InputStream, Application
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         UploadAttachmentRequest uploadAttachmentRequest = FormHttpMapper.mapHttpResource(r.getResource(), UploadAttachmentRequest.class);
-        String ticketId = uploadAttachmentRequest.getTicketId();
-        Ticket ticket = ticketService.getById(ticketId, user);
+        if(uploadAttachmentRequest.getTicketId() == null) {
+            throw new UploadAttachmentException("Missing ticket id");
+        }
+        Ticket ticket = ticketService.getById(uploadAttachmentRequest.getTicketId(), user);
         if(ticket == null) {
-            log.warn("User {} Tried to upload attachment for ticket with id {}",user.getUsername(), ticketId);
-            return new HttpResponse<>(new TicketNotFoundSection(ticketId));
+            throw new UploadAttachmentException("Ticket not found");
         }
         if(!uploadAttachmentRequest.valid()) {
-            log.warn("Invalid upload request {}", uploadAttachmentRequest);
-            return new HttpResponse<>(new UserTicketDetailSection(ticket)
-                    .errorMessage("An unexpected error occurred while uploading the attachment"));
+            log.error("Invalid attachment request received");
+            throw new UploadAttachmentException("An unexpected error occurred while uploading the attachment");
         }
-
-        Path containerFolder = Path.of("uploads", ticketId);
         try {
-            Files.createDirectories(containerFolder);
-        } catch (IOException e) {
-            log.error("Si è verificato un errore durante la creazione della cartella {} per gli allegati: {}",
-                    containerFolder, e.getMessage(), e);
-            return new HttpResponse<>(new UserTicketDetailSection(ticket)
-                    .errorMessage("An unexpected error occurred while uploading the attachment"));
+            ticket = ticketService.uploadAttachment(ticket, uploadAttachmentRequest.getFilename(), r.getBody());
+        } catch (UploadAttachmentException e) {
+            throw new ShowableException(e);
         }
-        Path file = containerFolder.resolve(UUID.randomUUID().toString());
-        long transferred;
-        try (final FileOutputStream fileOutputStream = new FileOutputStream(file.toFile())){
-            transferred = r.getBody().transferTo(fileOutputStream);
-        } catch (Exception e) {
-            log.error("Si è verificato un errore durante l'upload del file: {}",
-                    e.getMessage(), e);
-            return new HttpResponse<>(new UserTicketDetailSection(ticket)
-                    .errorMessage("An unexpected error occurred while uploading the attachment"));
-        }
-        if(transferred == 0) {
-            log.warn("Il file caricato è vuoto");
-            return new HttpResponse<>(new UserTicketDetailSection(ticket)
-                    .errorMessage("You cannot upload an empty file"));
-        }
-
-        ticket = ticketService.addAttachment(ticket, file.toString(), uploadAttachmentRequest.getFilename());
-        return new HttpResponse<>(new UserTicketDetailSection(ticket));
+        return new HttpResponse<>(new AttachmentList(ticket.getAttachments(), ticket.getId()));
     }
 
     @Override

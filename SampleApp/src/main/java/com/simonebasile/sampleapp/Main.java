@@ -13,6 +13,7 @@ import com.simonebasile.sampleapp.controller.user.UserTicketsController;
 import com.simonebasile.sampleapp.controller.user.UserTicketController;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
+import com.simonebasile.sampleapp.interceptors.ErrorHandlingInterceptor;
 import com.simonebasile.sampleapp.interceptors.InterceptorSkip;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.Ticket;
@@ -121,6 +122,7 @@ public class Main {
             log.info("Processing time: {}ms", System.currentTimeMillis() - start);
             return res;
         });
+        webServer.registerInterceptor(new ErrorHandlingInterceptor());
         webServer.registerInterceptor(InterceptorSkip.fromPredicate(authInterceptor, skipAuth));
         webServer.registerHttpContext("/static", new StaticFileHandler("static-files"));
         webServer.registerHttpHandler("/login", loginController);

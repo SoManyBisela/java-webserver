@@ -28,10 +28,13 @@ body {
 .container {
     display: flex;
     flex-grow: 1;
+    flex-direction: row;
+    justify-content: center;
 }
 
 .main {
     flex-grow: 1;
+    max-width: 1000px;
     padding: 16px;
 }
 
@@ -159,6 +162,9 @@ table {
     border-spacing: 0;
 
     tr {
+        &:hover {
+            background: #f5f5f5;
+        }
 
         &:first-child {
             th, td {
@@ -301,7 +307,6 @@ table {
         }
     }
     textarea[type="text"]{
-        transition: all 0.15s;
         overflow-y: hidden;
         padding: 12px 16px;
         resize: none;
@@ -314,6 +319,10 @@ table {
     }
 }
 
+textarea.animate {
+    transition: all 0.15s;
+}
+
 .error-msg {
     color: #f5222d;
 }
@@ -323,11 +332,41 @@ table {
 }
 
 .child-grow {
-    * {
+    > * {
         flex-grow: 1;
     }
 }
 
 .viewreg-container {
     padding: 16px;
+}
+
+.toast {
+    opacity: .95;
+    padding: 8px;
+    border-radius: 4px;
+    position: fixed;
+    top: 20px;
+    left: 30px;
+    right: 30px;
+    align-content: center;
+    &.error {
+        background: #f5222d;
+        &:hover {
+            background: #ff4d4f;
+        }
+        &:active {
+            background: #cf1322;
+        }
+    }
+    &.success {
+        background: #52c41a;
+        &:hover {
+            background: #73d13d;
+            color: black;
+        }
+        &:active {
+            background: #389e0d;
+        }
+    }
 }

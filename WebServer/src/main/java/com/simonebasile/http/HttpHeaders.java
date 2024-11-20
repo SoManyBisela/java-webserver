@@ -67,8 +67,9 @@ public class HttpHeaders {
         return headers.entrySet();
     }
 
-    public void add(String key, String value) {
+    public HttpHeaders add(String key, String value) {
         headers.computeIfAbsent(norm(key), k -> new ArrayList<>()).add(value);
+        return this;
     }
 
     public List<String> get(String key) {

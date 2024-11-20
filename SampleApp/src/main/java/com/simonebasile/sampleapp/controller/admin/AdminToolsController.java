@@ -3,14 +3,18 @@ package com.simonebasile.sampleapp.controller.admin;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.http.handlers.MethodHandler;
+import com.simonebasile.sampleapp.exceptions.ShowableException;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.AdminToolsSection;
+import com.simonebasile.sampleapp.views.html.ElementGroup;
+import com.simonebasile.sampleapp.views.html.custom.Toast;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
@@ -42,9 +46,12 @@ public class AdminToolsController extends MethodHandler<InputStream, Application
         User u = FormHttpMapper.map(r.getBody(), User.class);
         try {
             authService.register(u);
-            return new HttpResponse<>(new AdminToolsSection().successMessage("User created successfully"));
+            return new HttpResponse<>(new ElementGroup(
+                    new AdminToolsSection(),
+                    Utils.oobAdd("main", new Toast("User created successfully", "success"))
+            ));
         } catch (UserAuthException e ) {
-            return new HttpResponse<>(new AdminToolsSection().createUserError(e.getMessage()));
+            throw new ShowableException(e);
         }
     }
 }

@@ -4,6 +4,7 @@ import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
@@ -21,7 +22,7 @@ public class NavbarButtons extends ElementGroup {
 
     HtmlElement navButton(String text, String url, String target, String icon) {
         return div().content(
-                        span().attr("class", "material-symbols-outlined").text(icon),
+                        new MaterialIcon(icon),
                         span().attr("class", "nav-btn-text").text(text)
                 ).attr("class", "nav-btn btn")
                 .attr("hx-get", url)

@@ -59,9 +59,11 @@ public class UserTicketDetailSection extends IHtmlElement {
                         ) : NoElement.instance,
                         div().attr("class", "stack-horizontal child-grow").content(
                                 createTicket ? button().attr("class", "default-button")
-                                        .text("Submit").attr("type", "submit", "name", "submit", "form", formId) : NoElement.instance,
+                                        .content(new MaterialIcon("ios_share"), span().text("Submit"))
+                                        .attr("type", "submit", "name", "submit", "form", formId) : NoElement.instance,
                                 button().attr("class", "default-button")
-                                        .text("Save as draft").attr("type", "submit", "form", formId)
+                                        .content(new MaterialIcon("save"), span().text("Save as draft"))
+                                        .attr("type", "submit", "form", formId)
                         )
                 );
     }
@@ -73,11 +75,21 @@ public class UserTicketDetailSection extends IHtmlElement {
                 .hxExt("body-file")
                 .hxPost("/attachment")
                 .hxVals("ticketId", id)
-                .hxTarget("#main")
+                .hxTarget("#attachmentlist")
                 .hxSwap("innerHTML")
                 .content(
                         div().attr("class", "stack-horizontal").content(
-                                input().attr("type", "file", "name", "filecontent"),
+                                input().attr("type", "file", "name", "filecontent",
+                                        "onchange", "this.setCustomValidity('')",
+                                        "hx-on::validation:validate", """
+                                            if(!this.files[0]) {
+                                                this.setCustomValidity('Please select a file');
+                                                htmx.closest(this, 'form').reportValidity();
+                                            } else {
+                                                this.setCustomValidity('');
+                                            }
+                                            """
+                                ),
                                 button().attr("class", "default-button").text("Upload").attr("class", "upload-button", "type", "submit")
                         )
                 );
@@ -94,16 +106,6 @@ public class UserTicketDetailSection extends IHtmlElement {
                 new AddCommentForm(t.getId()),
                 new CommentSection(t.getComments(), t.getOwner())
         );
-    }
-
-    public UserTicketDetailSection successMessage(String msg) {
-        messageTarget.content(new SuccessMessage(msg));
-        return this;
-    }
-
-    public UserTicketDetailSection errorMessage(String msg) {
-        messageTarget.content(new ErrorMessage(msg));
-        return this;
     }
 
     @Override

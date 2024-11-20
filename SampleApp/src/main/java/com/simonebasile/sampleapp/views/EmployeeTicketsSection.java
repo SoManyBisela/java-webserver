@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.views;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class EmployeeTicketsSection extends ElementGroup {
                         td().text(ticket.getOwner()),
                         td().attr("class", "buttons-cell").content(
                                 div().content(
-                                        button().content(span().attr("class", "material-symbols-outlined").text("visibility"))
+                                        button().content(new MaterialIcon("visibility"))
                                                 .attr("class", "open-detail-button")
                                                 .hxGet("/ticket")
                                                 .hxVals("id", ticket.getId())
