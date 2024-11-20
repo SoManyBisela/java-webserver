@@ -7,6 +7,7 @@ public class SendMessageElement extends HtmlElement {
     public SendMessageElement() {
         super("form");
         attr("class", "send-message", "id", "send-message", "ws-send", "true");
+        hxExt("simple-loaded-event,debug");
         hxVals("type", "SEND_MESSAGE");
         input = input().attr("type", "text", "name", "sval");
         content(
@@ -16,7 +17,7 @@ public class SendMessageElement extends HtmlElement {
     }
 
     public SendMessageElement focusOnLoad() {
-        input.attr("hx-on::load", "this.focus()");
+        input.attr("hx-sle-onload", "this.focus()");
         return this;
     }
 }

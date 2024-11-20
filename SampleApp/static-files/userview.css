@@ -370,3 +370,9 @@ textarea.animate {
         }
     }
 }
+
+.attachments{
+    &:empty {
+        display: none;
+    }
+}

@@ -15,10 +15,6 @@ public class AttachmentList extends IHtmlElement {
     private final IHtmlElement content;
 
     public AttachmentList(List<Attachment> attachments, String ticketId) {
-        if(attachments == null || attachments.isEmpty()) {
-            content = NoElement.instance;
-            return;
-        }
         HtmlElement container = table().attr("class", "attachments", "id", "attachmentlist");
         for (int i = 0; i < attachments.size(); i++) {
             Attachment attachment = attachments.get(i);
