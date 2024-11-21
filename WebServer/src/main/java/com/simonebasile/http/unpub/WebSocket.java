@@ -21,6 +21,8 @@ public class WebSocket implements Closeable{
     private final BufferedInputStream inputStream;
     private final BufferedOutputStream outputStream;
 
+    private boolean closeSent;
+
     private final static Random RNG = new Random();
 
     public WebSocket(Socket connection, BufferedInputStream inputStream, BufferedOutputStream outputStream) {
@@ -31,6 +33,8 @@ public class WebSocket implements Closeable{
         this.connection = connection;
         this.inputStream = inputStream;
         this.outputStream = outputStream;
+
+        this.closeSent = false;
     }
 
     public class WSDataFrame implements Closeable{
@@ -182,6 +186,9 @@ public class WebSocket implements Closeable{
             }
             outputStream.write(body);
             outputStream.flush();
+            if(opcode == WSDataFrame.OP_CLOSE) {
+                closeSent = true;
+            }
         } finally {
             sendDataframeLock.unlock();
         }
@@ -193,6 +200,10 @@ public class WebSocket implements Closeable{
             log.error("Closing a socket with open dataframes. Any further attempts at using the dataframe will fail");
         }
         connection.close();
+    }
+
+    public boolean isCloseSent() {
+        return closeSent;
     }
 
 

@@ -62,7 +62,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         }
 
         @Override
-        public void sendClose() {
+        public void sendClose() throws IOException{
             writer.sendClose();
         }
     }
@@ -112,10 +112,10 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         if(connectedUsers.putIfAbsent(username, ctx.writer) != null) {
             try {
                 ctx.writer.sendMsg(ChatProtoMessage.alreadyConnected());
+                ctx.writer.sendClose();
             } catch (IOException e) {
                 log.error("Error while sending message: {}", e.getMessage(), e);
             }
-            ctx.writer.sendClose();
         }
         newChat(ctx.writer);
     }
@@ -124,7 +124,11 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
     public void onMessage(WebsocketMessage msg, WsState ctx) {
         if(msg.type == WebsocketMessage.MsgType.BINARY || msg.data.length > 1) {
             log.warn("Received binary message. Quitting");
-            ctx.writer.sendClose();
+            try {
+                ctx.writer.sendClose();
+            } catch (IOException e) {
+                log.error("Error while sending close message: {}", e.getMessage(), e);
+            }
             return;
         }
         ChatProtoMessage message = JsonMapper.parse(msg.data[0], ChatProtoMessage.class);
@@ -133,7 +137,11 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         if(!message.getType().canBeSentBy(user)) {
             log.warn("User sent invalid message. User role: {}, Message type: {}",
                     user.getRole(), message.getType());
-            ctx.writer.sendClose();
+            try {
+                ctx.writer.sendClose();
+            } catch (IOException e) {
+                log.error("Error while sending close message: {}", e.getMessage(), e);
+            }
             return;
         }
         switch (message.getType()) {

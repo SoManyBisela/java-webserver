@@ -9,5 +9,5 @@ public interface WebsocketWriter {
 
     void sendBytes(byte[] bytes) throws IOException;
 
-    void sendClose();
+    void sendClose() throws IOException;
 }

@@ -344,7 +344,7 @@ public class WebServer<Context extends RequestContext> implements HttpHandlerCon
                     wsHandler.onHandshakeComplete(new WebsocketWriterImpl(webSocket), ctx);
                     hsComplete = true;
                     boolean close = false;
-                    while(!close) { //Message
+                    while(!(close || webSocket.isCloseSent())) { //Message
                         //TODO streaming
                         final ArrayList<byte[]> bytes = new ArrayList<>();
                         boolean last = false;

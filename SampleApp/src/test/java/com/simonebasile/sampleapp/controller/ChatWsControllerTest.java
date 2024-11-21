@@ -127,7 +127,7 @@ class ChatWsControllerTest {
     }
 
     @Test
-    void testOnMessage_errors() {
+    void testOnMessage_errors() throws IOException {
         controller.onHandshakeComplete(mockWriter, userWsState);
         byte[][] bytes = new byte[1][];
         bytes[0] = new byte[]{ 0x00, 0x01, 0x02, 0x03 };
@@ -160,7 +160,7 @@ class ChatWsControllerTest {
     }
 
     @Test
-    void testOnMessage_conversation() {
+    void testOnMessage_conversation() throws IOException {
         controller.onHandshakeComplete(mockWriter, userWsState);
         controller.onHandshakeComplete(mockWriter, employeeWsState);
         byte[][] bytes = new byte[1][];
@@ -201,7 +201,7 @@ class ChatWsControllerTest {
     }
 
     @Test
-    void testOnMessage_stop_waiting() {
+    void testOnMessage_stop_waiting() throws IOException {
         controller.onHandshakeComplete(mockWriter, userWsState);
         controller.onHandshakeComplete(mockWriter, employeeWsState);
         byte[][] bytes = new byte[1][];

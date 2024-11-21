@@ -19,18 +19,16 @@ public class WebsocketWriterImpl implements WebsocketWriter {
 
     @Override
     public void sendTextBytes(byte[] bytes) throws IOException {
-        //TODO bytes length test
         websocket.sendUnmaskedDataframe(WebSocket.WSDataFrame.FIN, WebSocket.WSDataFrame.OP_TEXT, bytes);
     }
 
     @Override
     public void sendBytes(byte[] bytes) throws IOException {
-        //TODO bytes length test
         websocket.sendUnmaskedDataframe(WebSocket.WSDataFrame.FIN, WebSocket.WSDataFrame.OP_BIN, bytes);
     }
 
     @Override
-    public void sendClose() {
-        //TODO
+    public void sendClose() throws IOException{
+        websocket.sendUnmaskedDataframe(WebSocket.WSDataFrame.FIN, WebSocket.WSDataFrame.OP_CLOSE, new byte[0]);
     }
 }
