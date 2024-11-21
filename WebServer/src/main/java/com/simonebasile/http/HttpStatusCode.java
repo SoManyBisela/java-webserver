@@ -3,6 +3,9 @@ package com.simonebasile.http;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class contains utility methods to get the status string of an HTTP status code.
+ */
 public class HttpStatusCode {
     private static final Logger log = LoggerFactory.getLogger(HttpStatusCode.class);
 

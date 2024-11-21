@@ -1,6 +1,5 @@
 package com.simonebasile.http.unpub;
 
-import com.simonebasile.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,8 +8,14 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * A class that represents a WebSocket connection.
+ * It provides methods to send and receive dataframes.
+ *
+ */
 public class WebSocket implements Closeable{
     private final static Logger log = LoggerFactory.getLogger(WebSocket.class);
     private final ReentrantLock getDataframeLock;
@@ -25,6 +30,12 @@ public class WebSocket implements Closeable{
 
     private final static Random RNG = new Random();
 
+    /**
+     * Creates a new WebSocket.
+     * @param connection the socket connection
+     * @param inputStream the input stream of the connection
+     * @param outputStream the output stream of the connection
+     */
     public WebSocket(Socket connection, BufferedInputStream inputStream, BufferedOutputStream outputStream) {
         this.getDataframeLock = new ReentrantLock();
         this.canGetDataframe = true;
@@ -37,6 +48,10 @@ public class WebSocket implements Closeable{
         this.closeSent = false;
     }
 
+    /**
+     * A class that represents a WebSocket dataframe.
+     * It holds a lock to prevent multiple threads from reading from the websocket while a dataframe is in use.
+     */
     public class WSDataFrame implements Closeable{
         public final static int FIN = 0b1000;
         public final static int OP_TEXT = 1;
@@ -50,9 +65,10 @@ public class WebSocket implements Closeable{
         public final boolean masked;
         public final long length;
         public final InputStream body;
-        public boolean closed;
+        private final AtomicBoolean closed;
 
-        public WSDataFrame(int flags, int opcode, boolean masked, long length, InputStream body ) {
+        private WSDataFrame(int flags, int opcode, boolean masked, long length, InputStream body ) {
+            this.closed = new AtomicBoolean(false);
             this.flags = flags;
             this.opcode = opcode;
             this.masked = masked;
@@ -60,21 +76,29 @@ public class WebSocket implements Closeable{
             this.body = body;
         }
 
+        /**
+         * Closes the dataframe and releases the lock.
+         * @throws IOException if an I/O error occurs.
+         */
         @Override
         public void close() throws IOException {
-            if(!closed) {
-                //TODO review
-                closed = true;
+            if(closed.compareAndSet(false, true)) {
                 canGetDataframe = true;
-                getDataframeLock.unlock();
                 body.close();
+                getDataframeLock.unlock();
             }
         }
     }
 
 
+    /**
+     * Reads a dataframe from the input stream.
+     * The returned dataframe holds a lock that must be closed before another dataframe can be read.
+     *
+     * @return the dataframe read
+     * @throws IOException if an I/O error occurs.
+     */
     public WSDataFrame getDataFrame() throws IOException {
-        //TODO handle exceptions
         getDataframeLock.lock();
         if(!canGetDataframe) {
             getDataframeLock.unlock();
@@ -142,14 +166,30 @@ public class WebSocket implements Closeable{
         );
     }
 
+    /**
+     * Sends a dataframe with the given flags, opcode and body.
+     * The body is sent not masked.
+     *
+     * @param flags the flags of the dataframe
+     * @param opcode the opcode of the dataframe
+     * @param body the body of the dataframe
+     * @throws IOException if an I/O error occurs.
+     */
     public void sendUnmaskedDataframe(int flags, int opcode, byte[] body) throws IOException {
         sendDataFrameRaw(flags, opcode, body, null);
     }
 
-    /*
-    * Changes body array.
-    * //TODO make it not change body array without copying
-    * */
+    /**
+     * Sends a dataframe with the given flags, opcode and body.
+     * The body masked before sending it.
+     * The mask is generated randomly.
+     * The body array is copied to prevent modification of the original array.
+     *
+     * @param flags the flags of the dataframe
+     * @param opcode the opcode of the dataframe
+     * @param body the body of the dataframe
+     * @throws IOException if an I/O error occurs.
+     */
     public void maskAndSendDataframe(int flags, int opcode, byte[] body) throws IOException {
         byte[] mask = new byte[4];
         body = Arrays.copyOf(body, body.length);
@@ -160,6 +200,14 @@ public class WebSocket implements Closeable{
         sendDataFrameRaw(flags, opcode, body, mask);
     }
 
+    /**
+     * Sends a dataframe with the given flags, opcode, body and optionally a mask.
+     * @param flags the flags of the dataframe
+     * @param opcode the opcode of the dataframe
+     * @param body the body of the dataframe
+     * @param mask the mask used to mask the body if the dataframe is masked
+     * @throws IOException
+     */
     private void sendDataFrameRaw(int flags, int opcode, byte[] body, byte[] mask) throws IOException {
         boolean masked = mask != null;
         if(masked && mask.length != 4) {
@@ -194,17 +242,34 @@ public class WebSocket implements Closeable{
         }
     }
 
+    /**
+     * Closes the underlying socket connection.
+     * Sends a close dataframe if it has not been sent yet.
+     * @throws IOException if an I/O error occurs.
+     */
     @Override
     public void close() throws IOException {
-        if(!canGetDataframe) {
-            log.error("Closing a socket with open dataframes. Any further attempts at using the dataframe will fail");
+        try {
+            sendDataframeLock.lock();
+            try {
+                getDataframeLock.lock();
+                if(!canGetDataframe) {
+                    log.error("Closing a socket with open dataframes. Any further attempts at using the dataframe will fail");
+                }
+                if(!closeSent) {
+                    sendUnmaskedDataframe(WSDataFrame.FIN, WSDataFrame.OP_CLOSE, new byte[0]);
+                }
+                connection.close();
+            } finally {
+                getDataframeLock.unlock();
+            }
+        } finally {
+            sendDataframeLock.unlock();
         }
-        connection.close();
     }
 
     public boolean isCloseSent() {
         return closeSent;
     }
-
 
 }

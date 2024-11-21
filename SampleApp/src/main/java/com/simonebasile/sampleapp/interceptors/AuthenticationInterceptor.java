@@ -21,7 +21,7 @@ public class AuthenticationInterceptor<T> implements HttpInterceptor<T, Applicat
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<? extends T> request, ApplicationRequestContext context, HttpRequestHandler<T, ApplicationRequestContext> next) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> intercept(HttpRequest<? extends T> request, ApplicationRequestContext context, HttpRequestHandler<T, ApplicationRequestContext> next) {
         String sessionCookie = request.getHeaders().getCookie("session");
         SessionData sessionData = sessionService.getOrCreateSession(sessionCookie);
         if(sessionData == null) {

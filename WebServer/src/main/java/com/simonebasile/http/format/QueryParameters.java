@@ -7,11 +7,33 @@ import java.util.Map;
 
 //https://url.spec.whatwg.org/#urlencoded-parsing
 //https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding
+
+/**
+ * Utility class for decoding URL query parameters.
+ *
+ * This class provides methods to decode URL-encoded query parameters
+ * from a string or an InputStream into a Map of key-value pairs.
+ */
 public class QueryParameters {
+
+    /**
+     * Decodes URL-encoded query parameters from a string.
+     *
+     * @param params the URL-encoded query parameters as a string
+     * @return a Map containing the decoded key-value pairs
+     * @throws IOException if an I/O error occurs
+     */
     public static Map<String, String> decode(String params) throws IOException {
         return decode(new ByteArrayInputStream(params.getBytes(StandardCharsets.UTF_8)));
     }
 
+    /**
+     * Decodes URL-encoded query parameters from an InputStream.
+     *
+     * @param reader the InputStream containing the URL-encoded query parameters
+     * @return a Map containing the decoded key-value pairs
+     * @throws IOException if an I/O error occurs
+     */
     public static Map<String, String> decode(InputStream reader) throws IOException {
         HashMap<String, String> paramsOut = new HashMap<>();
         ByteArrayOutputStream curr = new ByteArrayOutputStream();
@@ -60,6 +82,12 @@ public class QueryParameters {
         return paramsOut;
     }
 
+    /**
+     * Decodes a single hexadecimal character.
+     *
+     * @param read the character to decode
+     * @return the decoded value, or -1 if the character is not a valid hexadecimal character
+     */
     private static int hexRead(int read) {
         if(read >= '0' && read <= '9') {
             return read - '0';

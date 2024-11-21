@@ -1,6 +1,5 @@
 package com.simonebasile.http;
 
-import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
 import org.junit.jupiter.api.Test;
 
@@ -12,8 +11,8 @@ public class HttpRoutingContextTest {
 
     @Test
     public void testNestedRoutingContext() {
-        HttpRoutingContext<String, RequestContext> rootContext = new HttpRoutingContext<>();
-        HttpRoutingContext<String, RequestContext> nestedContext = new HttpRoutingContext<>();
+        HttpRoutingContextImpl<String, RequestContext> rootContext = new HttpRoutingContextImpl<>();
+        HttpRoutingContextImpl<String, RequestContext> nestedContext = new HttpRoutingContextImpl<>();
 
         nestedContext.registerHttpHandler("/nested", (req, ctx) -> 
             new HttpResponse<>(200, new HttpHeaders(), new ByteResponseBody("Nested handler response"))

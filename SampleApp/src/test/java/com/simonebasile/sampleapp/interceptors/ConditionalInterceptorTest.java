@@ -29,27 +29,27 @@ class ConditionalInterceptorTest {
     }
 
     @Test
-    void testPreprocess_ShouldIntercept() {
+    void testIntercept_ShouldIntercept() {
         HttpRequest<String> request = mock(HttpRequest.class);
         when(request.getResource()).thenReturn("/intercept/resource");
-        when(mockTargetInterceptor.preprocess(request, "context", mockNextHandler)).thenReturn(new HttpResponse<>(200, new HttpHeaders(), null));
+        when(mockTargetInterceptor.intercept(request, "context", mockNextHandler)).thenReturn(new HttpResponse<>(200, new HttpHeaders(), null));
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = conditionalInterceptor.preprocess(request, "context", mockNextHandler);
+        HttpResponse<? extends HttpResponse.ResponseBody> response = conditionalInterceptor.intercept(request, "context", mockNextHandler);
 
         assertEquals(200, response.getStatusCode());
-        verify(mockTargetInterceptor).preprocess(request, "context", mockNextHandler);
+        verify(mockTargetInterceptor).intercept(request, "context", mockNextHandler);
     }
 
     @Test
-    void testPreprocess_ShouldNotIntercept() {
+    void testIntercept_ShouldNotIntercept() {
         HttpRequest<String> request = mock(HttpRequest.class);
         when(request.getResource()).thenReturn("/noIntercept/resource");
         when(mockNextHandler.handle(request, "context")).thenReturn(new HttpResponse<>(200, new HttpHeaders(), null));
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = conditionalInterceptor.preprocess(request, "context", mockNextHandler);
+        HttpResponse<? extends HttpResponse.ResponseBody> response = conditionalInterceptor.intercept(request, "context", mockNextHandler);
 
         assertEquals(200, response.getStatusCode());
-        verify(mockTargetInterceptor, never()).preprocess(request, "context", mockNextHandler);
+        verify(mockTargetInterceptor, never()).intercept(request, "context", mockNextHandler);
         verify(mockNextHandler).handle(request, "context");
     }
 }

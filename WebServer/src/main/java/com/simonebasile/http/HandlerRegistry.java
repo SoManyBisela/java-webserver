@@ -1,18 +1,20 @@
 package com.simonebasile.http;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 /**
- * Handler registry holds the registered handlers.
+ * A registry for handlers that can be matched against a path.
+ *
+ * @param <T> the type of the handlers
  */
 class HandlerRegistry<T> {
 
-    private static final Logger log = LoggerFactory.getLogger(HandlerRegistry.class);
     private final PrefixTreeNode<T> tree = new PrefixTreeNode<>();
 
+    /**
+     * The node of the data structure that holds registered handlers.
+     */
     private static class PrefixTreeNode<T> {
         //context handlers handler
         T contextHandler;
@@ -38,6 +40,11 @@ class HandlerRegistry<T> {
 
     }
 
+    /**
+     * Gets or creates a node for the given path.
+     * @param path the path to get or create the node for
+     * @return the node for the given path
+     */
     private PrefixTreeNode<T> getOrCreateNode(String path) {
         Objects.requireNonNull(path);
         final String[] parts = path.split("/");
@@ -49,6 +56,12 @@ class HandlerRegistry<T> {
         return target;
     }
 
+    /**
+     * Inserts a context handler for the given path.
+     * @param path the path to insert the handler for
+     * @param handler the handler to insert
+     * @return true if the handler was inserted, false if a handler was already present
+     */
     public boolean insertCtx(String path, T handler) {
         var node = getOrCreateNode(path);
         if(node.contextHandler != null) {
@@ -58,6 +71,12 @@ class HandlerRegistry<T> {
         return true;
     }
 
+    /**
+     * Inserts an exact handler for the given path.
+     * @param path the path to insert the handler for
+     * @param handler the handler to insert
+     * @return true if the handler was inserted, false if a handler was already present
+     */
     public boolean insertExact(String path, T handler) {
         var node = getOrCreateNode(path);
         if(node.exactHandler != null) {
@@ -67,12 +86,28 @@ class HandlerRegistry<T> {
         return true;
     }
 
+    /**
+     * A match between a path and a handler.<br>
+     * returning the match is necessary to give information to the handler about the path that was matched
+     * and the remaining path that may be useful to context handlers
+     */
     public record Match<T>(T handler, ResourceMatch match) {
         private Match(T handler, String matched, StringBuilder all) {
             this(handler, new ResourceMatch(matched, all.substring(matched.length())));
         }
     }
 
+    /**
+     * Gets the handler for the given path.<br>
+     * Ignores query parameters.<br>
+     * Finds and returns the most specific valid handler for the path<br>
+     * Exact handlers are only valid if the path is an exact match<br>
+     * Context handlers are valid for all subpaths of the path they are registered for<br>
+     * If matching the same path, the exact handler is returned.
+     *
+     * @param path the path to get the handler for
+     * @return a match to the handler for or null if no handler was found
+     */
     public Match<T> getHandler(String path) {
         int qpStart = path.indexOf("?");
         if(qpStart != -1) {

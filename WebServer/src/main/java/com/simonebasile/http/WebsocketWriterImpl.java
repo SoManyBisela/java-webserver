@@ -5,6 +5,9 @@ import com.simonebasile.http.unpub.WebSocket;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Implementation of WebsocketWriter.
+ */
 public class WebsocketWriterImpl implements WebsocketWriter {
     private final WebSocket websocket;
 

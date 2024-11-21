@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * An output stream that add some utility methods to write HTTP messages.
+ */
 public class HttpOutputStream extends BufferedOutputStream {
     private final byte[] SPACE = " ".getBytes(StandardCharsets.UTF_8);
     private final byte[] NL = "\r\n".getBytes(StandardCharsets.UTF_8);
@@ -16,10 +19,24 @@ public class HttpOutputStream extends BufferedOutputStream {
         super(out);
     }
 
+    /**
+     * Writes a string to the output stream.
+     *
+     * @param s the string to write.
+     * @throws IOException if an I/O error occurs.
+     */
     public void write(String s) throws IOException {
         write(s.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * writes the status line to the output stream.
+     *
+     * @param version      the HTTP version.
+     * @param status       the status code.
+     * @param statusString the status string.
+     * @throws IOException if an I/O error occurs.
+     */
     public void writeStatus(HttpVersion version, int status, String statusString) throws IOException {
         write(version.value);
         space();
@@ -29,6 +46,13 @@ public class HttpOutputStream extends BufferedOutputStream {
         nl();
     }
 
+    /**
+     * Writes a header to the output stream.
+     *
+     * @param key   the header name.
+     * @param value the header value.
+     * @throws IOException if an I/O error occurs.
+     */
     public void writeHeader(String key, String value) throws IOException {
         write(key);
         colon();
@@ -37,6 +61,12 @@ public class HttpOutputStream extends BufferedOutputStream {
     }
 
 
+    /**
+     * Writes the content length and body to the output stream.
+     *
+     * @param body the body to write.
+     * @throws IOException if an I/O error occurs.
+     */
     public void writeBody(byte[] body) throws IOException {
         writeHeader("Content-Length", Integer.toString(body.length));
         nl();

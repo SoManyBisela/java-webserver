@@ -15,12 +15,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class StaticFileHandlerTest {
 
-    private HttpRoutingContext<InputStream, RequestContext> routingContext;
+    private HttpRoutingContextImpl<InputStream, RequestContext> routingContext;
     private final String rootDirectory = "src/test/resources/fileHandlerRoot";
 
     @BeforeEach
     public void setUp() {
-        routingContext = new HttpRoutingContext<>();
+        routingContext = new HttpRoutingContextImpl<>();
         routingContext.registerHttpContext("/static", new StaticFileHandler(rootDirectory));
     }
 

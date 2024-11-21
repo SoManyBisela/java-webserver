@@ -8,16 +8,36 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
+/**
+ * A handler that serves static files from a directory.
+ * The root directory is specified in the constructor.
+ * The handler will serve files from the root directory and its subdirectories.
+ * The handler will return a 404 Not Found response if the file does not exist.
+ * The handler will return a 405 Method Not Allowed response if the method is not GET or HEAD.
+ * @param <T> the type of the request body
+ */
 public class StaticFileHandler<T> implements HttpRequestHandler<T, RequestContext> {
     private static final Logger log = LoggerFactory.getLogger(StaticFileHandler.class);
     private final String rootDirectory;
 
 
+    /**
+     * Creates a new static file handler.
+     * @param rootDirectory the root directory
+     */
     public StaticFileHandler(String rootDirectory) {
         if(!rootDirectory.endsWith("/")) rootDirectory += "/";
         this.rootDirectory = rootDirectory;
     }
 
+    /**
+     * Handles the request.
+     * The handler will return a 405 Method Not Allowed response if the method is not GET or HEAD.
+     *
+     * @param r the request
+     * @param ctx the context
+     * @return the response
+     */
     @Override
     public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends T> r, RequestContext ctx) {
         log.debug("Into static file handler");
@@ -31,6 +51,15 @@ public class StaticFileHandler<T> implements HttpRequestHandler<T, RequestContex
         }
     }
 
+    /**
+     * Handles a GET request.
+     * The request path is used to find the file to serve.
+     * If the file is a directory, the handler will look for an index.html file in the directory.
+     * If the file does not exist, a 404 Not Found response is returned.
+     *
+     * @param ctx the context
+     * @return the response
+     */
     private HttpResponse<? extends HttpResponse.ResponseBody> handleGet(RequestContext ctx) {
         try {
             String path = getFilePath(ctx.getContextMatch().remainingPath());
@@ -50,6 +79,14 @@ public class StaticFileHandler<T> implements HttpRequestHandler<T, RequestContex
         }
     }
 
+    /**
+     * Gets the file path from the resource.
+     * removes leading slashes and checks for invalid paths.
+     *
+     * @param resource the resource path
+     * @return the file path
+     * @throws StatusErr if the resource contains invalid path
+     */
     private String getFilePath(String resource) {
         if(resource.contains("..")) {
             throw new StatusErr(404);
@@ -60,10 +97,19 @@ public class StaticFileHandler<T> implements HttpRequestHandler<T, RequestContex
         return resource;
     }
 
+    /**
+     * Handles a HEAD request. TODO details
+     * @param r the request
+     * @param ctx the context
+     * @return the response
+     */
     private HttpResponse<? extends HttpResponse.ResponseBody> handleHead(HttpRequest<? extends T> r, RequestContext ctx) {
         return new HttpResponse<>(handleGet(ctx), null);
     }
 
+    /**
+     * A runtime exception that represents an HTTP status code.
+     */
     private static class StatusErr extends RuntimeException {
         private final int statusCode;
 

@@ -2,6 +2,10 @@ package com.simonebasile.http;
 
 import java.util.Objects;
 
+/**
+ * This class represents a message sent through a websocket.
+ * data is an array of byte arrays, each containing a fragment of the message.
+ */
 public class WebsocketMessage {
     public enum MsgType {
         TEXT,

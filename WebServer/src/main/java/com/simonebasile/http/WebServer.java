@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static com.simonebasile.http.unpub.WebSocket.WSDataFrame.*;
 
-public class WebServer<Context extends RequestContext> implements HttpHandlerContext<InputStream, Context>{
+public class WebServer<Context extends RequestContext> implements HttpRoutingContext<InputStream, Context> {
     private static final Logger log = LoggerFactory.getLogger(WebServer.class);
 
     private final ServerSocketFactory socketFactory;
@@ -36,7 +36,7 @@ public class WebServer<Context extends RequestContext> implements HttpHandlerCon
     private ServerSocket serverSocket;
     private final Lock socketLock;
 
-    private final HttpRoutingContext<InputStream, Context> routingContext;
+    private final HttpRoutingContextImpl<InputStream, Context> routingContext;
 
     private final HandlerRegistry<WebsocketHandler<?, ? super Context>> websocketHandlers;
 
@@ -46,7 +46,7 @@ public class WebServer<Context extends RequestContext> implements HttpHandlerCon
         this.socketFactory = socketFactory;
         this.requestContextFactory = requestContextFactory;
         this.websocketHandlers = new HandlerRegistry<>();
-        this.routingContext = new HttpRoutingContext<>();
+        this.routingContext = new HttpRoutingContextImpl<>();
         this.interceptors = new ArrayList<>();
         this.socketLock = new ReentrantLock();
     }
@@ -135,8 +135,8 @@ public class WebServer<Context extends RequestContext> implements HttpHandlerCon
     }
 
     @Override
-    public void registerInterceptor(HttpInterceptor<InputStream, Context> preprocessor) {
-        this.interceptors.add(preprocessor);
+    public void registerInterceptor(HttpInterceptor<InputStream, Context> interceptor) {
+        this.interceptors.add(interceptor);
     }
 
     public void registerWebSocketContext(String path, WebsocketHandler<?, ? super Context> handler){

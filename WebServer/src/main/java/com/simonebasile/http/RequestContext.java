@@ -1,5 +1,9 @@
 package com.simonebasile.http;
 
+/**
+ * This class represents the context of an HTTP request.
+ * It can be overridden by application developers to store additional information about the request.
+ */
 public class RequestContext {
     private ResourceMatch contextMatch;
 

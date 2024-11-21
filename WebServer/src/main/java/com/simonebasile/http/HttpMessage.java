@@ -1,5 +1,10 @@
 package com.simonebasile.http;
 
+/**
+ * This class represents an HTTP message, which contains all common elements of an HTTP request or response.
+ *
+ * @param <T> the type of the body of the HTTP message
+ */
 public class HttpMessage<T> {
     protected final HttpHeaders headers;
     protected final T body;

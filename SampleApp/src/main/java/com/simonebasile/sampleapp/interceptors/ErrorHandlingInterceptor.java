@@ -14,7 +14,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
 public class ErrorHandlingInterceptor implements HttpInterceptor<InputStream, ApplicationRequestContext> {
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<? extends InputStream> request, ApplicationRequestContext requestContext, HttpRequestHandler<InputStream, ApplicationRequestContext> next) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> intercept(HttpRequest<? extends InputStream> request, ApplicationRequestContext requestContext, HttpRequestHandler<InputStream, ApplicationRequestContext> next) {
         try {
             return next.handle(request, requestContext);
         } catch (ShowableException e) {

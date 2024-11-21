@@ -12,9 +12,9 @@ public abstract class ConditionalInterceptor<T, C> implements HttpInterceptor<T,
     }
 
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> preprocess(HttpRequest<? extends T> request, C ctx, HttpRequestHandler<T, C> next) {
+    public HttpResponse<? extends HttpResponse.ResponseBody> intercept(HttpRequest<? extends T> request, C ctx, HttpRequestHandler<T, C> next) {
         if(shouldIntercept(request)) {
-            return target.preprocess(request, ctx, next);
+            return target.intercept(request, ctx, next);
         } else {
             return next.handle(request, ctx);
         }
