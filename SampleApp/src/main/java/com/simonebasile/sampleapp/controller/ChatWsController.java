@@ -5,11 +5,13 @@ import com.simonebasile.http.WebsocketMessage;
 import com.simonebasile.http.WebsocketWriter;
 import com.simonebasile.http.WebsocketWriterImpl;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
+import com.simonebasile.sampleapp.dto.ChatMessageEncoder;
 import com.simonebasile.sampleapp.dto.ChatProtoMessage;
 import com.simonebasile.sampleapp.json.JsonMapper;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.chat.HtmxChatMessageEncoder;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -23,7 +25,8 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
     private final ConcurrentHashMap<String, ConnectedUser> connectedUsers;
     private final ConcurrentLinkedQueue<String> waitingToChat;
 
-    private static class ConnectedUser implements WebsocketWriter {
+    @Getter
+    static class ConnectedUser implements WebsocketWriter {
         private User user;
         private String connectedTo;
         private AtomicBoolean requestChat;
@@ -68,6 +71,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         this.connectedUsers = new ConcurrentHashMap<>();
     }
 
+    @Getter
     public static class WsState{
         private final User user;
         private ConnectedUser writer;
@@ -127,7 +131,8 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         log.debug("Received message: {}", message);
         final User user = ctx.user;
         if(!message.getType().canBeSentBy(user)) {
-            log.warn("User sent invalid message. User role: {}, Message type: {}", user.getRole(), message.getType());
+            log.warn("User sent invalid message. User role: {}, Message type: {}",
+                    user.getRole(), message.getType());
             ctx.writer.sendClose();
             return;
         }
@@ -173,8 +178,10 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
 
     private void connectToAvailable(ConnectedUser acceptingUser) {
         final String queuedUsername = waitingToChat.poll();
-        final ConnectedUser connectedUser = connectedUsers.get(queuedUsername);
-        if(connectedUser == null || !connectedUser.requestChat.compareAndSet(true, false)) {
+        ConnectedUser connectedUser;
+        if(queuedUsername == null ||
+                (connectedUser = connectedUsers.get(queuedUsername)) == null ||
+                !connectedUser.requestChat.compareAndSet(true, false)) {
             try {
                 acceptingUser.sendMsg(ChatProtoMessage.noChatAvailable());
             }catch (IOException e) {
@@ -213,7 +220,8 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
     private void removeChatFromQueue(ConnectedUser usr) {
         if(usr.requestChat.compareAndSet(true, false)) {
             waitingToChat.remove(usr.user.getUsername());
-            ChatProtoMessage msg = waitingToChat.isEmpty() ? ChatProtoMessage.noChatAvailable() : ChatProtoMessage.chatAvailable();
+            ChatProtoMessage msg = waitingToChat.isEmpty() ?
+                    ChatProtoMessage.noChatAvailable() : ChatProtoMessage.chatAvailable();
             connectedUsers.values().forEach(v -> {
                 if(v.user.getRole() == Role.employee && v.connectedTo == null) {
                     try {

@@ -5,6 +5,7 @@ import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.http.response.FileResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
+import com.simonebasile.sampleapp.dto.AttachmentFile;
 import com.simonebasile.sampleapp.dto.DownloadAttachmentRequest;
 import com.simonebasile.sampleapp.dto.UploadAttachmentRequest;
 import com.simonebasile.http.handlers.MethodHandler;
@@ -13,11 +14,9 @@ import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.*;
 import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.errors.UploadAttachmentException;
-import com.simonebasile.sampleapp.views.UserTicketDetailSection;
 import com.simonebasile.sampleapp.views.html.custom.AttachmentList;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.io.InputStream;
 
 @Slf4j
@@ -56,15 +55,12 @@ public class AttachmentController extends MethodHandler<InputStream, Application
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         DownloadAttachmentRequest downloadReq = FormHttpMapper.mapHttpResource(r.getResource(), DownloadAttachmentRequest.class);
-        Ticket t = ticketService.getById(downloadReq.getTicketId(), user);
-        if(t == null) {
-            final HttpHeaders headers = new HttpHeaders();
-            return new HttpResponse<>(404, headers, null);
+        AttachmentFile file = ticketService.getAttachment(downloadReq.getTicketId(), downloadReq.getAti(), user);
+        if(file == null) {
+            return new HttpResponse<>(404, null);
         }
-        Attachment attachment = t.getAttachments().get(downloadReq.getAti());
-        final File file = new File(attachment.getPath());
         final HttpHeaders headers = new HttpHeaders();
-        headers.add("content-disposition", "attachment; filename=" + attachment.getName());
-        return new HttpResponse<>(200, headers, new FileResponseBody(file));
+        headers.add("content-disposition", "attachment; filename=" + file.getName());
+        return new HttpResponse<>(200, headers, new FileResponseBody(file.getContent()));
     }
 }

@@ -29,20 +29,10 @@ public class AdminToolsController extends MethodHandler<InputStream, Application
     }
 
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
-        User user = context.getLoggedUser();
-        if(user.getRole() != Role.admin) {
-            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
-            return ResponseUtils.redirect(r, "/");
-        }
         return new HttpResponse<>(new AdminToolsSection());
     }
 
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
-        User user = context.getLoggedUser();
-        if(user.getRole() != Role.admin) {
-            log.warn("Unauthorized access to {} {} from user {}", r.getMethod(), r.getResource(), user.getUsername());
-            return ResponseUtils.redirect(r, "/");
-        }
         User u = FormHttpMapper.map(r.getBody(), User.class);
         try {
             authService.register(u);

@@ -4,6 +4,7 @@ import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.dto.*;
+import com.simonebasile.sampleapp.exceptions.ShowableException;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.User;
@@ -43,8 +44,7 @@ public class EmployeeTicketController extends MethodHandler<InputStream, Applica
         try {
             ticket = ticketService.update(body, user);
         } catch (UpdateTicketException e) {
-            ticket = ticketService.getById(body.getId(), user);
-            return new HttpResponse<>(new EmployeeTicketDetailSection(ticket, user, e.getMessage()));
+            throw new ShowableException(e);
         }
         return new HttpResponse<>(new EmployeeTicketDetailSection(ticket, user));
 

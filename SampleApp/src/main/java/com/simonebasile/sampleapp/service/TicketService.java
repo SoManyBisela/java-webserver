@@ -1,7 +1,9 @@
 package com.simonebasile.sampleapp.service;
 
+import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.Utils;
+import com.simonebasile.sampleapp.dto.AttachmentFile;
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
 import com.simonebasile.sampleapp.dto.UploadAttachmentRequest;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
@@ -14,6 +16,7 @@ import com.simonebasile.sampleapp.views.TicketNotFoundSection;
 import com.simonebasile.sampleapp.views.UserTicketDetailSection;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -172,5 +175,18 @@ public class TicketService {
         } catch (IOException e) {
             log.error("An error occurred while deleting a an attachment: {}", e.getMessage(), e);
         }
+    }
+
+    public AttachmentFile getAttachment(String ticketId, int attachmentIndex, User user) {
+        Ticket t = getById(ticketId, user);
+        if(t == null) {
+            return null;
+        }
+        final List<Attachment> attachments = t.getAttachments();
+        if(attachmentIndex < 0 || attachmentIndex >= attachments.size()) {
+            return null;
+        }
+        Attachment attachment = attachments.get(attachmentIndex);
+        return new AttachmentFile(attachment.getName(), new File(attachment.getPath()));
     }
 }

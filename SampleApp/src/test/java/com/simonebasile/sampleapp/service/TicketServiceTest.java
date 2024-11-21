@@ -1,9 +1,8 @@
 package com.simonebasile.sampleapp.service;
 
-import com.simonebasile.sampleapp.dto.CreateTicket;
-import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
-import com.simonebasile.sampleapp.dto.IdRequest;
-import com.simonebasile.sampleapp.dto.UserUpdateTicket;
+import com.mongodb.assertions.Assertions;
+import com.simonebasile.sampleapp.TestUtils;
+import com.simonebasile.sampleapp.dto.*;
 import com.simonebasile.sampleapp.model.*;
 import com.simonebasile.sampleapp.repository.TicketRepository;
 import com.simonebasile.sampleapp.service.errors.CreateTicketException;
@@ -187,17 +186,21 @@ class TicketServiceTest {
     @Test
     void testAddAttachment() {
         Ticket ticket = newTicket("ticket123", "user123", TicketState.OPEN);
+        final User user = new User("user123", "password", Role.user);
         ticket.setAttachments(new ArrayList<>());
         String filename = "attachment.pdf";
 
         when(mockTicketRepository.update(ticket)).thenReturn(ticket);
+        when(mockTicketRepository.getByIdAndOwner(ticket.getId(), ticket.getOwner())).thenReturn(ticket);
 
         Ticket updatedTicket = ticketService.uploadAttachment(ticket, filename, new ByteArrayInputStream(new byte[]{0, 1, 2, 3, 4, 5}));
 
         assertEquals(1, updatedTicket.getAttachments().size());
         assertEquals(filename, updatedTicket.getAttachments().get(0).getName());
-        final String path = updatedTicket.getAttachments().get(0).getPath();
-        assertTrue(Files.exists(Path.of(path)));
+        AttachmentFile a = ticketService.getAttachment(updatedTicket.getId(), 0, user);
+        assertTrue(a.getContent().exists());
+        Assertions.assertNull(ticketService.getAttachment(updatedTicket.getId(), 1, user));
+
     }
 
     @Test

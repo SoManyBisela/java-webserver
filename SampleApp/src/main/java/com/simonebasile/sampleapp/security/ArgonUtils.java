@@ -1,6 +1,5 @@
 package com.simonebasile.sampleapp.security;
 
-import com.simonebasile.sampleapp.assertions.Assertions;
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
 import org.bouncycastle.crypto.params.Argon2Parameters;
 
@@ -36,7 +35,6 @@ public class ArgonUtils {
     public static boolean verify(String password, String passwordHash) {
         String encSalt = passwordHash.substring(44);
         byte[] salt = base64Decoding(encSalt);
-        Assertions.assertTrue(salt.length == 16);
         return hash(password, salt).equals(passwordHash);
     }
 

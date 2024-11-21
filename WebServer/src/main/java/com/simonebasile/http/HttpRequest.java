@@ -7,6 +7,7 @@ import com.simonebasile.http.unpub.HttpInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class HttpRequest<T> extends HttpMessage<T> {
     protected final HttpVersion version;
@@ -17,10 +18,10 @@ public class HttpRequest<T> extends HttpMessage<T> {
         this(source.method, source.resource, source.version, source.headers, body);
     }
     public HttpRequest(String method, String resource, HttpVersion version, HttpHeaders headers, T body) {
-        super(headers, body);
-        this.version = version;
-        this.method = method;
-        this.resource = resource;
+        super(Objects.requireNonNull(headers), body);
+        this.version = Objects.requireNonNull(version);
+        this.method = Objects.requireNonNull(method);
+        this.resource = Objects.requireNonNull(resource);
     }
 
     @Override

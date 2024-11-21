@@ -5,6 +5,7 @@ import com.simonebasile.http.HttpRequestHandler;
 import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
+import com.simonebasile.sampleapp.exceptions.ShowableException;
 import com.simonebasile.sampleapp.model.Role;
 
 import java.io.InputStream;
@@ -50,11 +51,11 @@ public class RoleBasedHandler implements HttpRequestHandler<InputStream, Applica
     @Override
     public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends InputStream> r, ApplicationRequestContext requestContext) {
         if(requestContext.getLoggedUser() == null || requestContext.getLoggedUser().getRole() == null) {
-            return ResponseUtils.redirect(r, "/");
+            throw new ShowableException("You cannot access this page");
         }
         var handler = byRole.get(requestContext.getLoggedUser().getRole());
         if(handler == null) {
-            return ResponseUtils.redirect(r, "/");
+            throw new ShowableException("You cannot access this page");
         }
         return handler.handle(r, requestContext);
     }
