@@ -138,4 +138,39 @@ class AuthenticationServiceTest {
 
         assertThrows(UserAuthException.class, () -> authenticationService.changePassword(request));
     }
+
+    @Test
+    void testChangePassword_EmptyNewPassword() {
+        String username = "testUser";
+        String oldPassword = "oldPassword";
+        String newPassword = "";
+        ChangePasswordRequest request = new ChangePasswordRequest(username, oldPassword, newPassword, newPassword);
+
+        assertThrows(UserAuthException.class, () -> authenticationService.changePassword(request));
+    }
+
+    @Test
+    void testChangePassword_PasswordsDoNotMatch() {
+        String username = "testUser";
+        String oldPassword = "oldPassword";
+        String newPassword = "newPassword";
+        String confirmPassword = "differentPassword";
+        ChangePasswordRequest request = new ChangePasswordRequest(username, oldPassword, newPassword, confirmPassword);
+
+        assertThrows(UserAuthException.class, () -> authenticationService.changePassword(request));
+    }
+
+    @Test
+    void testChangePassword_WrongOldPassword() {
+        String username = "testUser";
+        String oldPassword = "wrongOldPassword";
+        String newPassword = "newPassword";
+        String hashedOldPassword = ArgonUtils.hash("correctOldPassword");
+        ChangePasswordRequest request = new ChangePasswordRequest(username, oldPassword, newPassword, newPassword);
+        User mockUser = new User(username, hashedOldPassword, Role.user);
+
+        when(mockUserRepository.getUser(username)).thenReturn(mockUser);
+
+        assertThrows(UserAuthException.class, () -> authenticationService.changePassword(request));
+    }
 }

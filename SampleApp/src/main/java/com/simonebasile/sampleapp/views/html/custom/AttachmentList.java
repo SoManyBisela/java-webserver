@@ -16,15 +16,17 @@ public class AttachmentList extends IHtmlElement {
 
     public AttachmentList(List<Attachment> attachments, String ticketId) {
         HtmlElement container = table().attr("class", "attachments", "id", "attachmentlist");
-        for (int i = 0; i < attachments.size(); i++) {
-            Attachment attachment = attachments.get(i);
-            container.content(tr().content(
-                    td().text(attachment.getName()),
-                    td().content(a().attr(
-                            "href", "/attachment?ticketId=" + ticketId + "&ati=" + i,
-                            "target", "_blank"
-                    ).text("Download"))
-            ));
+        if(attachments != null) {
+            for (int i = 0; i < attachments.size(); i++) {
+                Attachment attachment = attachments.get(i);
+                container.content(tr().content(
+                        td().text(attachment.getName()),
+                        td().content(a().attr(
+                                "href", "/attachment?ticketId=" + ticketId + "&ati=" + i,
+                                "target", "_blank"
+                        ).text("Download"))
+                ));
+            }
         }
         content = container;
     }

@@ -70,7 +70,7 @@ public class Main {
         var sessionService = new SessionService(sessionRepository);
         var authenticationService = new AuthenticationService(userRepository, sessionService);
         var userService = new UserService(userRepository);
-        var ticketService = new TicketService(ticketRepository);
+        var ticketService = new TicketService(ticketRepository, "uploads");
 
         //Controllers config
         var loginController = new LoginController(authenticationService);

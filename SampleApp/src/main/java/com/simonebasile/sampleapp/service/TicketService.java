@@ -27,9 +27,11 @@ import java.util.UUID;
 @Slf4j
 public class TicketService {
     private final TicketRepository ticketRepository;
+    private final String uploadsFolder;
 
-    public TicketService(TicketRepository ticketRepository) {
+    public TicketService(TicketRepository ticketRepository, String uploadsFolder) {
         this.ticketRepository = ticketRepository;
+        this.uploadsFolder = uploadsFolder;
     }
 
     public List<Ticket> getByOwner(String username) {
@@ -134,7 +136,7 @@ public class TicketService {
     }
 
     public Ticket uploadAttachment(Ticket ticket, String filename, InputStream body) {
-        Path containerFolder = Path.of("uploads", ticket.getId());
+        Path containerFolder = Path.of(uploadsFolder, ticket.getId());
         try {
             Files.createDirectories(containerFolder);
         } catch (IOException e) {
