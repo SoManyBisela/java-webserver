@@ -3,6 +3,9 @@ package com.simonebasile.sampleapp.views.html;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents a script element in an HTML page.
+ */
 public class JsScriptElement extends HtmlElement{
     public JsScriptElement(String script) {
         super("script", mkattr(script));

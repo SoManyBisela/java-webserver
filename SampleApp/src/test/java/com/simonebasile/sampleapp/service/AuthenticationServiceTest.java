@@ -173,4 +173,35 @@ class AuthenticationServiceTest {
 
         assertThrows(UserAuthException.class, () -> authenticationService.changePassword(request));
     }
+
+    @Test
+    void testRegisterUser_InvalidUsername() {
+        String username = "";
+        String password = "password123";
+
+        RegisterRequest request = new RegisterRequest(username, password, password);
+
+        assertThrows(UserAuthException.class, () -> authenticationService.registerUser(request));
+    }
+
+    @Test
+    void testRegisterUser_InvalidPassword() {
+        String username = "newUser";
+        String password = "";
+
+        RegisterRequest request = new RegisterRequest(username, password, password);
+
+        assertThrows(UserAuthException.class, () -> authenticationService.registerUser(request));
+    }
+
+    @Test
+    void testRegisterUser_PasswordsDoNotMatch() {
+        String username = "newUser";
+        String password = "password123";
+        String confirmPassword = "differentPassword";
+
+        RegisterRequest request = new RegisterRequest(username, password, confirmPassword);
+
+        assertThrows(UserAuthException.class, () -> authenticationService.registerUser(request));
+    }
 }

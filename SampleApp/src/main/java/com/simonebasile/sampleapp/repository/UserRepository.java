@@ -9,6 +9,9 @@ import org.bson.BsonValue;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Repository for managing users.
+ */
 public final class UserRepository {
     private final MongoCollection<User> collection;
 
@@ -16,10 +19,19 @@ public final class UserRepository {
         this.collection = collection;
     }
 
+    /**
+     * Gets a user by username.
+     * @param username the username
+     * @return the user
+     */
     public User getUser(String username) {
         return collection.find(Filters.eq("username", username)).first();
     }
 
+    /**
+     * Creates s user.
+     * @param u the user
+     */
     public void insert(User u) {
         InsertOneResult insertOneResult = collection.insertOne(u);
         BsonValue insertedId = insertOneResult.getInsertedId();
@@ -28,6 +40,10 @@ public final class UserRepository {
         }
     }
 
+    /**
+     * Updates a user.
+     * @param u the user
+     */
     public void updateUser(User u) {
         collection.replaceOne(Filters.eq("username", u.getUsername()), u);
     }

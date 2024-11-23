@@ -5,6 +5,9 @@ import com.simonebasile.sampleapp.repository.UserRepository;
 
 import java.util.Optional;
 
+/**
+ * Service for accessing users.
+ */
 public class UserService {
     private final UserRepository userRepository;
 
@@ -12,6 +15,11 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Gets a user by username.
+     * @param username the username
+     * @return the user
+     */
     public User getUser(String username) {
         return userRepository.getUser(username);
     }

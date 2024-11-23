@@ -7,6 +7,9 @@ import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents the register view of the page.
+ */
 public class RegisterView extends View {
     public RegisterView(String errorMessage) {
         super();

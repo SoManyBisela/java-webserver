@@ -7,17 +7,15 @@ import com.simonebasile.http.HttpVersion;
 import com.simonebasile.sampleapp.controller.user.AttachmentController;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.AttachmentFile;
-import com.simonebasile.sampleapp.exceptions.ShowableException;
+import com.simonebasile.sampleapp.interceptors.ShowableException;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.errors.UploadAttachmentException;
-import com.simonebasile.sampleapp.views.html.custom.AttachmentList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

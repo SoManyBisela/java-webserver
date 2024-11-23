@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.InputStream;
 import java.util.List;
 
+/**
+ * Controller for the employee tickets section
+ */
 @Slf4j
 public class EmployeeTicketsController extends MethodHandler<InputStream, ApplicationRequestContext> {
     private final TicketService ticketService;
@@ -20,6 +23,13 @@ public class EmployeeTicketsController extends MethodHandler<InputStream, Applic
         this.ticketService = ticketService;
     }
 
+    /**
+     * Handles the GET request.
+     * Renders the tickets section with all the submitted tickets.
+     * @param r the request
+     * @param context the context
+     * @return the response
+     */
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         List<Ticket> tickets = ticketService.getSubmitted();

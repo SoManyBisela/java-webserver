@@ -9,6 +9,9 @@ import java.util.Arrays;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents a select input element in an HTML page.
+ */
 public class SelectInputElement extends IHtmlElement {
 
     private final HtmlElement container;

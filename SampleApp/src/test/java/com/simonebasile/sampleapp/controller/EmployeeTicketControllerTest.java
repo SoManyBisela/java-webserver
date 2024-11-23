@@ -7,22 +7,21 @@ import com.simonebasile.http.HttpVersion;
 import com.simonebasile.sampleapp.controller.employee.EmployeeTicketController;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
+import com.simonebasile.sampleapp.interceptors.ShowableException;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.TicketService;
-import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
-import com.simonebasile.sampleapp.views.EmployeeTicketDetailSection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import static com.simonebasile.sampleapp.TestUtils.mkTicket;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class EmployeeTicketControllerTest {
@@ -60,9 +59,7 @@ class EmployeeTicketControllerTest {
 
         when(mockTicketService.getById("ticket123", employee)).thenReturn(null);
 
-        HttpResponse<?> response = controller.handle(request, mockContext);
-        assertNotNull(response);
-        assertNotNull(response.getBody());
+        assertThrows(ShowableException.class, () -> controller.handle(request, mockContext)) ;
         verify(mockTicketService, times(1)).getById("ticket123", employee);
     }
 

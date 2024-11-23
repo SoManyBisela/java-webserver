@@ -2,6 +2,9 @@ package com.simonebasile.sampleapp.views.html.custom;
 
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
+/**
+ * Represents a toast message in an HTML page.
+ */
 public class Toast extends HtmlElement {
     public Toast(String message, String addClass) {
         super("div");

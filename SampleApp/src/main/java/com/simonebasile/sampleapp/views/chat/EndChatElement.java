@@ -2,6 +2,9 @@ package com.simonebasile.sampleapp.views.chat;
 
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
+/**
+ * A button to end the chat.
+ */
 public class EndChatElement extends HtmlElement {
     public EndChatElement() {
         super("button");

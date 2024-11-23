@@ -10,6 +10,10 @@ import java.util.Arrays;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents the admin tools section of the page.
+ * It allows the admin to create new users.
+ */
 public class AdminToolsSection extends ElementGroup {
 
     public AdminToolsSection() {

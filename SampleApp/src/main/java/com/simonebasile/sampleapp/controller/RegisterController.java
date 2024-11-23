@@ -13,6 +13,9 @@ import com.simonebasile.sampleapp.views.RegisterView;
 
 import java.io.InputStream;
 
+/**
+ * Controller for the registration page
+ */
 public class RegisterController extends MethodHandler<InputStream, ApplicationRequestContext> {
     AuthenticationService authService;
 
@@ -20,11 +23,25 @@ public class RegisterController extends MethodHandler<InputStream, ApplicationRe
         this.authService = authService;
     }
 
+    /**
+     * Handles the GET request.
+     * Renders the registration page.
+     * @param r the request
+     * @param context the context
+     * @return the response
+     */
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         return new HttpResponse<>(new RegisterView());
     }
 
+    /**
+     * Handles the POST request.
+     * Registers the user and redirects to the login page.
+     * @param r the request
+     * @param context the context
+     * @return the response
+     */
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         RegisterRequest body = FormHttpMapper.map(r.getBody(), RegisterRequest.class);

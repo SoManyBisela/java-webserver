@@ -1,19 +1,14 @@
 package com.simonebasile.sampleapp.service;
 
-import com.simonebasile.http.HttpHeaders;
-import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.AttachmentFile;
 import com.simonebasile.sampleapp.dto.EmployeeUpdateTicket;
-import com.simonebasile.sampleapp.dto.UploadAttachmentRequest;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
 import com.simonebasile.sampleapp.model.*;
 import com.simonebasile.sampleapp.repository.TicketRepository;
 import com.simonebasile.sampleapp.service.errors.CreateTicketException;
 import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
 import com.simonebasile.sampleapp.service.errors.UploadAttachmentException;
-import com.simonebasile.sampleapp.views.TicketNotFoundSection;
-import com.simonebasile.sampleapp.views.UserTicketDetailSection;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -27,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service that handles all tickets business logic.
+ */
 @Slf4j
 public class TicketService {
     private final TicketRepository ticketRepository;
@@ -37,10 +35,22 @@ public class TicketService {
         this.uploadsFolder = uploadsFolder;
     }
 
+    /**
+     * Get all tickets owned by a user.
+     * @param username the username of the user
+     * @return the list of tickets
+     */
     public List<Ticket> getByOwner(String username) {
         return ticketRepository.getByOwner(username);
     }
 
+    /**
+     * Creates a new ticket.
+     * checks if the object and the message are not empty.
+     * @param body the ticket to create
+     * @param user the user that creates the ticket
+     * @return the created ticket
+     */
     public Ticket createTicket(Ticket body, User user) {
         if(Utils.isEmpty(body.getObject())) {
             throw new CreateTicketException("Object cannot be empty");
@@ -57,6 +67,13 @@ public class TicketService {
         return body;
     }
 
+    /**
+     * Get a ticket by its id.
+     * checks if the user is allowed to see the ticket.
+     * @param id the id of the ticket
+     * @param user the user that requests the ticket
+     * @return the ticket or null if the user is not allowed to see it
+     */
     public Ticket getById(String id, User user) {
         if(user.getRole() == Role.employee) {
             return ticketRepository.getSubmittedById(id);
@@ -67,6 +84,14 @@ public class TicketService {
         }
     }
 
+    /**
+     * Updates a ticket.
+     * checks if the user is allowed to update the ticket.
+     * if the ticket is in draft state, a request can update the object and the message and submit the ticket.
+     * if the ticket is in open state, a request can add a comment.
+     * @param body the ticket to update
+     * @return the list of tickets
+     */
     public Ticket update(UserUpdateTicket body, User user) {
         Ticket ticket = getById(body.getId(), user);
         if(ticket.getState() == TicketState.DRAFT) {
@@ -97,6 +122,13 @@ public class TicketService {
         return ticketRepository.update(ticket);
     }
 
+    /**
+     * Updates a ticket.
+     * checks if the user is allowed to update the ticket.
+     * the employee can add a comment, assign the ticket to himself and close the ticket.
+     * @param body the ticket to update
+     * @return the list of tickets
+     */
     public Ticket update(EmployeeUpdateTicket body, User user) {
         Ticket ticket = getById(body.getId(), user);
         if(body.getComment() != null) {
@@ -114,6 +146,9 @@ public class TicketService {
         return ticketRepository.update(ticket);
     }
 
+    /**
+     * Utility method to add a comment to a ticket.
+     */
     private static void addComment(Ticket ticket, User user, String content) {
         List<Comment> comments = ticket.getComments();
         if (comments == null) {
@@ -123,11 +158,21 @@ public class TicketService {
         comments.add(new Comment(user.getUsername(), content, LocalDateTime.now()));
     }
 
-
+    /**
+     * Get all submitted tickets.
+     * @return the list of tickets
+     */
     public List<Ticket> getSubmitted() {
         return ticketRepository.getSubmitted();
     }
 
+    /**
+     * Deletes a ticket.
+     * checks if the user is allowed to delete the ticket.
+     * @param id the id of the ticket
+     * @param user the user that requests the deletion
+     * @return true if the ticket was deleted, false if the user is not allowed to delete the ticket
+     */
     public boolean delete(String id, User user) {
         Ticket ticket = getById(id, user);
         if(ticket != null) {
@@ -138,6 +183,16 @@ public class TicketService {
         }
     }
 
+    /**
+     * Uploads an attachment to a ticket.
+     * files are stored in a folder named after the ticket id.
+     * the name of the file is a random UUID.
+     * if the file is empty, it is not uploaded.
+     * @param ticket the ticket
+     * @param filename the name of the file
+     * @param body the content of the file
+     * @return the updated ticket
+     */
     public Ticket uploadAttachment(Ticket ticket, String filename, InputStream body) {
         Path containerFolder = Path.of(uploadsFolder, ticket.getId());
         try {
@@ -169,6 +224,9 @@ public class TicketService {
         }
     }
 
+    /**
+     * utility method to delete a file without throwing an exception.
+     */
     private void deleteFile(Path file) {
         try {
             Files.delete(file);
@@ -177,6 +235,13 @@ public class TicketService {
         }
     }
 
+    /**
+     * Get an attachment from a ticket.
+     * @param ticketId the id of the ticket
+     * @param attachmentIndex the index of the attachment
+     * @param user the user that requests the attachment
+     * @return the attachment or null if the user is not allowed to see it
+     */
     public AttachmentFile getAttachment(String ticketId, int attachmentIndex, User user) {
         Ticket t = getById(ticketId, user);
         if(t == null) {

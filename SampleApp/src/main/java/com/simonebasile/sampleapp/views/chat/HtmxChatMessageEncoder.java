@@ -11,15 +11,36 @@ import java.io.IOException;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
 
+/**
+ * Class that encodes a ChatProtoMessage into htmx elements to be rendered in the page
+ */
 public class HtmxChatMessageEncoder implements ChatMessageEncoder {
+    /**
+     * Utility method to add the attributes to an element and swap it in the page
+     * @param id the id of the element to swap
+     * @param el the element to swap with
+     * @return the element with the attributes set
+     */
     private static HtmlElement obswap(String id, HtmlElement el) {
         return obswap(id, "true", el);
     }
 
+    /**
+     * Utility method to add the attributes to an element and swap it in the page
+     * @param id the id of the element to swap
+     * @param swap the value of the swap attribute
+     * @param el the element to swap with
+     * @return the element with the attributes set
+     */
     private static HtmlElement obswap(String id, String swap, HtmlElement el) {
         return el.attr( "id", id).hxSwapOob(swap);
     }
 
+    /**
+     * Encodes a ChatProtoMessage into htmx elements
+     * @param msg the message to encode
+     * @return the htmx elements
+     */
     private IHtmlElement fromMessage(ChatProtoMessage msg) {
         return  switch (msg.getType()) {
             case CONNECTED -> obswap("chat-container", div().content(
@@ -66,6 +87,11 @@ public class HtmxChatMessageEncoder implements ChatMessageEncoder {
         };
     }
 
+    /**
+     * Encodes a ChatProtoMessage into a byte array
+     * @param message the message to encode
+     * @return the byte array
+     */
     @Override
     public byte[] encode(ChatProtoMessage message) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();

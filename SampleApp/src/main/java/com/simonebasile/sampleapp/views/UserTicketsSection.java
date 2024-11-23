@@ -8,7 +8,9 @@ import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 import java.util.List;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
-
+/**
+ * Represents the list of tickets accessible to a user.
+ */
 public class UserTicketsSection extends ElementGroup {
     public UserTicketsSection(List<Ticket> tickets) {
         this(tickets, null);

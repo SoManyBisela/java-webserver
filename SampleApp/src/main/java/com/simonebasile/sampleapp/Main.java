@@ -132,19 +132,19 @@ public class Main {
         webServer.registerHttpHandler("/", homeController);
         webServer.registerHttpHandler("/account", accountController);
 
-        webServer.registerHttpHandler("/attachment", RoleBasedHandler.of(Role.user, attachmentController));
-        webServer.registerHttpHandler("/tickets", RoleBasedHandler.builder()
+        webServer.registerHttpHandler("/attachment", RoleBasedRouter.of(Role.user, attachmentController));
+        webServer.registerHttpHandler("/tickets", RoleBasedRouter.builder()
                 .handle(Role.user, userTicketsController)
                 .handle(Role.employee, employeeTicketsController)
                 .build());
-        webServer.registerHttpHandler("/ticket", RoleBasedHandler.builder()
+        webServer.registerHttpHandler("/ticket", RoleBasedRouter.builder()
                 .handle(Role.user, userTicketController)
                 .handle(Role.employee, employeeTicketController)
                 .build());
 
         webServer.registerWebSocketHandler("/chat", chatWsController);
 
-        webServer.registerHttpHandler("/admin-tools", RoleBasedHandler.of(Role.admin, adminToolsController));
+        webServer.registerHttpHandler("/admin-tools", RoleBasedRouter.of(Role.admin, adminToolsController));
 
 
         try {

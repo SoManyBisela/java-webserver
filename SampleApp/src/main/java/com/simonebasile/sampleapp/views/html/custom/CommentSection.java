@@ -14,6 +14,9 @@ import java.util.List;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
 
+/**
+ * Represents the commment section of a ticket in an HTML page.
+ */
 public class CommentSection extends IHtmlElement{
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
 

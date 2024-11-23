@@ -5,6 +5,9 @@ import com.simonebasile.http.HttpResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * Represents a component of an HTML page. Can be returned as a response body.
+ */
 public abstract class IHtmlElement implements HttpResponse.ResponseBody{
 
     @Override

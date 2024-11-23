@@ -9,6 +9,9 @@ import java.io.OutputStream;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents a text input element in an HTML page.
+ */
 public class TextInputElement extends IHtmlElement {
 
     private final HtmlElement container;

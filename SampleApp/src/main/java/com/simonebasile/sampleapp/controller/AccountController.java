@@ -6,7 +6,7 @@ import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.ChangePasswordRequest;
 import com.simonebasile.http.handlers.MethodHandler;
-import com.simonebasile.sampleapp.exceptions.ShowableException;
+import com.simonebasile.sampleapp.interceptors.ShowableException;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
@@ -17,6 +17,9 @@ import com.simonebasile.sampleapp.views.html.custom.Toast;
 
 import java.io.InputStream;
 
+/**
+ * Controller for the account section
+ */
 public class AccountController extends MethodHandler<InputStream, ApplicationRequestContext> {
 
     private final AuthenticationService authService;
@@ -25,11 +28,25 @@ public class AccountController extends MethodHandler<InputStream, ApplicationReq
         this.authService = authenticationService;
     }
 
+    /**
+     * Handles the GET request.
+     * Renders the account section.
+     * @param r the request
+     * @param context the context
+     * @return the response
+     */
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         return new HttpResponse<>(new AccountSection(user));
     }
 
+    /**
+     * Handles the POST request.
+     * Changes the password.
+     * @param r the request
+     * @param context the context
+     * @return the response
+     */
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         ChangePasswordRequest changePasswordReq = FormHttpMapper.map(r.getBody(), ChangePasswordRequest.class);

@@ -2,6 +2,9 @@ package com.simonebasile.sampleapp.views.chat;
 
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
+/**
+ * A button to start a chat.
+ */
 public class WantToChatElement extends HtmlElement {
     public WantToChatElement() {
         super("button");

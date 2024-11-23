@@ -8,6 +8,9 @@ import org.w3c.dom.Text;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents the login view of the page.
+ */
 public class LoginView extends View {
     public LoginView(String errorMessage) {
         super();

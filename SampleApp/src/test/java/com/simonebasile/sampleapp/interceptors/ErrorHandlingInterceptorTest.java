@@ -2,7 +2,6 @@ package com.simonebasile.sampleapp.interceptors;
 
 import com.simonebasile.http.*;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
-import com.simonebasile.sampleapp.exceptions.ShowableException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;

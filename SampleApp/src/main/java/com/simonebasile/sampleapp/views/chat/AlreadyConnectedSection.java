@@ -2,6 +2,9 @@ package com.simonebasile.sampleapp.views.chat;
 
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
+/**
+ * A section to inform the user that they are already connected to the chat system.
+ */
 public class AlreadyConnectedSection extends HtmlElement {
     public AlreadyConnectedSection() {
         super("div");

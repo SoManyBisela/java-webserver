@@ -10,6 +10,9 @@ import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Interceptor to handle authentication.
+ */
 @Slf4j
 public class AuthenticationInterceptor<T> implements HttpInterceptor<T, ApplicationRequestContext> {
     private final SessionService sessionService;
@@ -20,6 +23,15 @@ public class AuthenticationInterceptor<T> implements HttpInterceptor<T, Applicat
         this.userService = userService;
     }
 
+    /**
+     * Intercepts the request, checks if the user is logged in and initialized the session for the request.
+     * If the user is not logged in, the request is redirected to the login page.
+     * Sets the session cookie in the response.
+     * @param request the request
+     * @param context the context
+     * @param next the next handler
+     * @return the response
+     */
     @Override
     public HttpResponse<? extends HttpResponse.ResponseBody> intercept(HttpRequest<? extends T> request, ApplicationRequestContext context, HttpRequestHandler<T, ApplicationRequestContext> next) {
         String sessionCookie = request.getHeaders().getCookie("session");

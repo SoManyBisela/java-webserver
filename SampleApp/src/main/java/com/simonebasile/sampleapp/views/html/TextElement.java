@@ -7,6 +7,10 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 @Getter
+/**
+ * Represents the text content of an HTML tag.
+ * it escapes the characters <, > and & to their respective HTML entities.
+ */
 public class TextElement extends IHtmlElement {
 
     private final static byte [] AMP = "&amp;".getBytes(StandardCharsets.UTF_8);
@@ -19,6 +23,11 @@ public class TextElement extends IHtmlElement {
         this.text = text;
     }
 
+    /**
+     * Writes the text to the given output stream.
+     *
+     * @param os the output stream to write to
+     */
     @Override
     public void write(OutputStream os) throws IOException {
         final byte[] bytes = text.getBytes(StandardCharsets.UTF_8);

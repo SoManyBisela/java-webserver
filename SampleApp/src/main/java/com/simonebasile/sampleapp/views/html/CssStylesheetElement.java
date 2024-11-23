@@ -3,6 +3,9 @@ package com.simonebasile.sampleapp.views.html;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents a stylesheet element in an HTML page.
+ */
 public class CssStylesheetElement extends HtmlElement{
     public CssStylesheetElement(String script) {
         super("link", mkattr(script));

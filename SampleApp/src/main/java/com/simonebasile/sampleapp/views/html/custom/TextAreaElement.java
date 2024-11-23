@@ -9,6 +9,9 @@ import java.io.OutputStream;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents a text area element in an HTML page.
+ */
 public class TextAreaElement extends IHtmlElement {
 
     private final HtmlElement container;

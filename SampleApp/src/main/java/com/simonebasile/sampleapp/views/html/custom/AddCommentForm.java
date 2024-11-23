@@ -2,6 +2,9 @@ package com.simonebasile.sampleapp.views.html.custom;
 
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
+/**
+ * Represents a form to add a comment to a ticket.
+ */
 public class AddCommentForm extends HtmlElement {
     public AddCommentForm(String id) {
         super("form");

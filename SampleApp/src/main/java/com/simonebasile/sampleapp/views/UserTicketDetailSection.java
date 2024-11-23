@@ -15,6 +15,10 @@ import java.io.OutputStream;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents the section of the page that shows the details of a ticket for a user.
+ * It allows the user to create a new ticket or edit an existing one that is in draft state.
+ */
 public class UserTicketDetailSection extends IHtmlElement {
     private final HtmlElement container;
     private HtmlElement messageTarget;

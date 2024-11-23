@@ -11,6 +11,9 @@ import java.util.List;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents a list of attachments in an HTML page.
+ */
 public class AttachmentList extends IHtmlElement {
     private final IHtmlElement content;
 

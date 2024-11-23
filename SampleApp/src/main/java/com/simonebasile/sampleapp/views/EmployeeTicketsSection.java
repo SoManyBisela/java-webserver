@@ -9,6 +9,9 @@ import java.util.List;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents the list of tickets accessible to an employee.
+ */
 public class EmployeeTicketsSection extends ElementGroup {
     public EmployeeTicketsSection(List<Ticket> tickets) {
         content.add(

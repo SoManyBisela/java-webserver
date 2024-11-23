@@ -8,6 +8,10 @@ import com.simonebasile.sampleapp.views.html.NoElement;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents the main view of the page.
+ * This view contains the header with the links to the other sections and the main content.
+ */
 public class MainView extends HtmxView {
     public MainView(User u) {
         addHead(

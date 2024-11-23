@@ -8,6 +8,10 @@ import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents the buttons in the header of the page.
+ * Buttons are different based on the user role.
+ */
 public class NavbarButtons extends ElementGroup {
 
     public NavbarButtons(User u) {

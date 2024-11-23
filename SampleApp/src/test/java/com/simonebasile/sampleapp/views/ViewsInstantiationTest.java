@@ -76,11 +76,6 @@ class ViewsInstantiationTest {
     }
 
     @Test
-    void testTicketNotFoundSectionInstantiation() {
-        result = new TicketNotFoundSection("1");
-    }
-
-    @Test
     void testUserTicketDetailSectionInstantiation_open() {
         Ticket ticket = mkTicket("1", "Test Object", "Test Message", TicketState.OPEN, "owner");
         result = new UserTicketDetailSection(ticket);

@@ -8,6 +8,10 @@ import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents the account section of the page.
+ * It allows the user to change the password.
+ */
 public class AccountSection extends ElementGroup {
 
     private final HtmlElement container;

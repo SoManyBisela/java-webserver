@@ -13,6 +13,9 @@ import com.simonebasile.sampleapp.views.LoginView;
 
 import java.io.InputStream;
 
+/**
+ * Controller for the login page
+ */
 public class LoginController extends MethodHandler<InputStream, ApplicationRequestContext> {
     AuthenticationService authService;
 
@@ -20,6 +23,14 @@ public class LoginController extends MethodHandler<InputStream, ApplicationReque
         this.authService = authService;
     }
 
+    /**
+     * Handles the GET request.
+     * Renders the login page.
+     * If the user is already logged in, redirects to the home page.
+     * @param r the request
+     * @param context the context
+     * @return the response
+     */
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         if(context.getLoggedUser() != null) {
@@ -28,6 +39,13 @@ public class LoginController extends MethodHandler<InputStream, ApplicationReque
         return new HttpResponse<>(new LoginView());
     }
 
+    /**
+     * Handles the POST request.
+     * Logs in the user updating the session and redirecting to the home page.
+     * @param r the request
+     * @param context the context
+     * @return the response
+     */
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         LoginRequest body = FormHttpMapper.map(r.getBody(), LoginRequest.class);

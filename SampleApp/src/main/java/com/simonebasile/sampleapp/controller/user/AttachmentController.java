@@ -9,7 +9,7 @@ import com.simonebasile.sampleapp.dto.AttachmentFile;
 import com.simonebasile.sampleapp.dto.DownloadAttachmentRequest;
 import com.simonebasile.sampleapp.dto.UploadAttachmentRequest;
 import com.simonebasile.http.handlers.MethodHandler;
-import com.simonebasile.sampleapp.exceptions.ShowableException;
+import com.simonebasile.sampleapp.interceptors.ShowableException;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.*;
 import com.simonebasile.sampleapp.service.TicketService;
@@ -19,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 
+/**
+ * Controller for the attachment section
+ */
 @Slf4j
 public class AttachmentController extends MethodHandler<InputStream, ApplicationRequestContext> {
 
@@ -28,6 +31,13 @@ public class AttachmentController extends MethodHandler<InputStream, Application
         this.ticketService = ticketService;
     }
 
+    /**
+     * Handles the POST request.
+     * Uploads an attachment to a ticket.
+     * @param r the request
+     * @param context the context
+     * @return the response
+     */
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
@@ -51,6 +61,13 @@ public class AttachmentController extends MethodHandler<InputStream, Application
         return new HttpResponse<>(new AttachmentList(ticket.getAttachments(), ticket.getId()));
     }
 
+    /**
+     * Handles the GET request.
+     * Downloads an attachment.
+     * @param r the request
+     * @param context the context
+     * @return the response
+     */
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();

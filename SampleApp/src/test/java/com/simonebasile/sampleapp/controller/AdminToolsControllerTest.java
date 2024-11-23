@@ -6,9 +6,12 @@ import com.simonebasile.http.HttpResponse;
 import com.simonebasile.http.HttpVersion;
 import com.simonebasile.sampleapp.controller.admin.AdminToolsController;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
+import com.simonebasile.sampleapp.dto.CreateUserRequest;
+import com.simonebasile.sampleapp.interceptors.ShowableException;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
+import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.AdminToolsSection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,13 +49,24 @@ class AdminToolsControllerTest {
 
     @Test
     void testHandlePost() {
-        String body = "username=newuser&password=newpassword&role=user";
+        String body = "username=newuser&password=newpassword&cpassword=newpassword&role=user";
         InputStream inputStream = new ByteArrayInputStream(body.getBytes());
         HttpRequest<InputStream> request = new HttpRequest<>("POST", "/admin/tools", HttpVersion.V1_1, new HttpHeaders(), inputStream);
 
         HttpResponse<?> response = controller.handle(request, mockContext);
         assertNotNull(response);
         assertNotNull(response.getBody());
-        verify(mockAuthService, times(1)).register(any(User.class));
+        verify(mockAuthService, times(1)).register(any(CreateUserRequest.class));
+    }
+
+    @Test
+    void testHandlePost_UserAuthException() {
+        String body = "username=newuser&password=newpassword&cpassword=notthesameaspassword&role=user";
+        InputStream inputStream = new ByteArrayInputStream(body.getBytes());
+        HttpRequest<InputStream> request = new HttpRequest<>("POST", "/admin/tools", HttpVersion.V1_1, new HttpHeaders(), inputStream);
+
+        doThrow(new UserAuthException("User authentication failed")).when(mockAuthService).register(any(CreateUserRequest.class));
+
+        assertThrows(ShowableException.class, () -> controller.handle(request, mockContext));
     }
 }

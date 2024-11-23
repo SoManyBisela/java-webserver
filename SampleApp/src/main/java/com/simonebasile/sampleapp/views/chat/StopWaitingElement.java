@@ -2,6 +2,9 @@ package com.simonebasile.sampleapp.views.chat;
 
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
+/**
+ * A button to stop waiting for a chat request.
+ */
 public class StopWaitingElement extends HtmlElement {
     public StopWaitingElement() {
         super("button");

@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Represents a generic HTML5 view.
+ */
 public class Html5View extends IHtmlElement {
     private List<IHtmlElement> headElements;
     private List<String> scripts;
@@ -57,6 +60,11 @@ public class Html5View extends IHtmlElement {
         return this;
     }
 
+    /**
+     * Writes the HTML5 view to the output stream.
+     * @param out the output stream to write to
+     * @throws IOException if an I/O error occurs
+     */
     @Override
     public void write(OutputStream out) throws IOException {
         List<IHtmlElement> elements = new ArrayList<>();

@@ -19,12 +19,39 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-//TODO increase logging
+/**
+ * Controller for the chat websocket
+ * Each user can be connected only once to the chat websocket.
+ * The controller manages the chat between users.
+ * Two type of users can connect to the chat:
+ * - Users: they can request a chat with an employee
+ * - Employees: they can accept a chat request from a user
+ *
+ * A typical chat flow is:
+ * 1. User sends a WANT_TO_CHAT message
+ * 2. Employee sends an ACCEPT_CHAT message
+ * 3. Users and Employees exchange messages by sending SEND_MESSAGE messages
+ * 4. Users and Employees can end the chat by sending END_CHAT messages
+ * Additionally, a user can send a STOP_WAITING message to cancel the chat request
+ *
+ * Connected users are stored in the connectedUsers ConcurrentHashMap.
+ * Users waiting to chat are stored in the waitingToChat ConcurrentLinkedQueue.
+ */
 @Slf4j
 public class ChatWsController implements WebsocketHandler<ChatWsController.WsState, ApplicationRequestContext> {
     private final ConcurrentHashMap<String, ConnectedUser> connectedUsers;
     private final ConcurrentLinkedQueue<String> waitingToChat;
 
+    /**
+     * Represents a connected user
+     *
+     * Holds the user connection state
+     * user: the user dto of the connected user
+     * connectedTo: the username of the user the current user is connected to
+     * requestChat: a flag to indicate if the user requested a chat, only ever true for users
+     * writer: the writer to send messages to the user
+     * encoder: the encoder to encode messages to send to the client
+     */
     @Getter
     static class ConnectedUser implements WebsocketWriter {
         private User user;
@@ -66,11 +93,17 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
             writer.sendClose();
         }
     }
+
     public ChatWsController() {
         this.waitingToChat = new ConcurrentLinkedQueue<>();
         this.connectedUsers = new ConcurrentHashMap<>();
     }
 
+    /**
+     * Represents the state of the websocket connection
+     * user: the user that is connected to the websocket
+     * writer: the state of the connected user. It is null until the handshake is complete. Also used to send messages to the user
+     */
     @Getter
     public static class WsState{
         private final User user;
@@ -81,11 +114,20 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         }
     }
 
+    /**
+     * Initializes the WsState context for the websocket connection
+     */
     @Override
     public WsState newContext(ApplicationRequestContext requestContext) {
         return new WsState(requestContext.getLoggedUser());
     }
 
+    /**
+     * Handles the handshake request
+     * The user must be logged in to connect to the chat
+     * The user can connect only once
+     * The user can connect only to the chat protocol
+     */
     @Override
     public HandshakeResult onServiceHandshake(String[] availableService, WsState ctx) {
         if(ctx.user == null) {
@@ -105,6 +147,11 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         return HandshakeResult.refuse("Invalid protocol");
     }
 
+
+    /**
+     * Handles the handshake completion
+     * The user is added to the connectedUsers map
+     */
     @Override
     public void onHandshakeComplete(WebsocketWriterImpl websocketWriter, WsState ctx) {
         final String username = ctx.user.getUsername();
@@ -113,6 +160,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
             try {
                 ctx.writer.sendMsg(ChatProtoMessage.alreadyConnected());
                 ctx.writer.sendClose();
+                return;
             } catch (IOException e) {
                 log.error("Error while sending message: {}", e.getMessage(), e);
             }
@@ -120,6 +168,12 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         newChat(ctx.writer);
     }
 
+    /**
+     * Handles the message received by the websocket
+     * The message is parsed and the appropriate action is taken
+     * The user role is checked to ensure that the user can send the message
+     * The message is then processed
+     */
     @Override
     public void onMessage(WebsocketMessage msg, WsState ctx) {
         if(msg.type == WebsocketMessage.MsgType.BINARY || msg.data.length > 1) {
@@ -154,6 +208,9 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         }
     }
 
+    /**
+     * Sends the user a message to initialize the chat
+     */
     private void newChat(ConnectedUser connectedUser) {
         try {
             if(connectedUser.user.getRole() == Role.user) {
@@ -170,6 +227,10 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         }
     }
 
+    /**
+     * Ends the chat between the two connected users
+     * The users are notified that the chat has ended
+     */
     private void endChat(ConnectedUser disconnectingUser) {
         final ConnectedUser connectedUser = connectedUsers.get(disconnectingUser.connectedTo);
         disconnectingUser.connectedTo = null;
@@ -184,6 +245,10 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         }
     }
 
+    /**
+     * Connects the user to the first user in the chat queue
+     * The user is removed from the chat queue
+     */
     private void connectToAvailable(ConnectedUser acceptingUser) {
         final String queuedUsername = waitingToChat.poll();
         ConnectedUser connectedUser;
@@ -207,6 +272,10 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         }
     }
 
+    /**
+     * Sends a message to the connected user
+     * The message is sent to the user the current user is connected to
+     */
     private void sendMessage(ConnectedUser source, String message) {
         ConnectedUser target;
         try {
@@ -225,6 +294,11 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         }
     }
 
+    /**
+     * Removes the user from the chat queue
+     * The user is removed from the waitingToChat queue
+     * Employees that are not connected to a user are notified with the current state of the chat queue
+     */
     private void removeChatFromQueue(ConnectedUser usr) {
         if(usr.requestChat.compareAndSet(true, false)) {
             waitingToChat.remove(usr.user.getUsername());
@@ -249,6 +323,11 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         }
     }
 
+    /**
+     * Adds the user to the chat queue
+     * The user is added to the waitingToChat queue
+     * Employees that are not connected to a user are notified that a user is waiting to chat
+     */
     private void addToChatQueue(ConnectedUser connected) {
         if(connected.requestChat.compareAndSet(false, true)) {
             waitingToChat.add(connected.user.getUsername());
@@ -271,7 +350,12 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         }
     }
 
-
+    /**
+     * Handles the connection close
+     * The user is removed from the connectedUsers map
+     * The user is removed from the waitingToChat queue
+     * The chat is ended if the user is connected
+     */
     @Override
     public void onClose(WsState ctx) {
         final ConnectedUser writer = ctx.writer;

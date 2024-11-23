@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.InputStream;
 import java.util.List;
 
+/**
+ * Controller for the user tickets section
+ */
 @Slf4j
 public class UserTicketsController extends MethodHandler<InputStream, ApplicationRequestContext> {
     private final TicketService ticketService;
@@ -21,6 +24,13 @@ public class UserTicketsController extends MethodHandler<InputStream, Applicatio
         this.ticketService = ticketService;
     }
 
+    /**
+     * Handles the GET request.
+     * Renders the tickets section with all the tickets owned by the logged user.
+     * @param r the request
+     * @param context the context
+     * @return the response
+     */
     @Override
     protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         List<Ticket> tickets = ticketService.getByOwner(context.getLoggedUser().getUsername());

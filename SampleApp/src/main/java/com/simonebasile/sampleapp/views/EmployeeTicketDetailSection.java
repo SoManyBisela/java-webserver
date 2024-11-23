@@ -13,6 +13,10 @@ import java.io.OutputStream;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
+/**
+ * Represents the section of the page that shows the details of a ticket for an employee.
+ * It includes the object, the message, the attachments, the actions that the user can perform on the ticket,
+ */
 public class EmployeeTicketDetailSection extends IHtmlElement {
 
     private final HtmlElement container;
