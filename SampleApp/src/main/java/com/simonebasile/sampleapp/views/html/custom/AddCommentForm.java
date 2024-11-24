@@ -13,7 +13,7 @@ public class AddCommentForm extends HtmlElement {
                 .hxTarget("#main")
                 .hxVals("id", id)
                 .content(
-                        div().attr("class", "stack-horizontal")
+                        div().attr("class", "add-comment")
                                 .content(
                                         new TextInputElement("comment", "Comment").style("flex-grow: 1"),
                                         button().attr("style", "margin-top: 0.4rem",

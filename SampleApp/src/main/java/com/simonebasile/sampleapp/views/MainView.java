@@ -16,8 +16,12 @@ public class MainView extends HtmxView {
     public MainView(User u) {
         addHead(
                 new HtmlElement("title").text("Ticketing"),
-                new HtmlElement("link").attr("rel", "icon", "href", "/static/favicon.png")
+                new HtmlElement("link").attr("rel", "icon", "href", "/static/favicon.png"),
+                new HtmlElement("link").attr("rel", "preconnect", "href", "https://fonts.googleapis.com"),
+                new HtmlElement("link").attr("rel", "preconnect", "href", "https://fonts.gstatic.com", "crossorigin", "true"),
+                new HtmlElement("link").attr("rel", "stylesheet", "href", "https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap")
         );
+        addCss("/static/main.css");
         addCss("/static/userview.css");
         addCss("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0");
         addJs("/static/extensions.js");
@@ -32,20 +36,10 @@ public class MainView extends HtmxView {
                         div().attr("class", "main", "id", "main")
                                 .text("Seleziona un elemento sulla sinistra"),
                         (u.getRole() == Role.employee || u.getRole() == Role.user) ?
-                                div().attr("class", "chatbox closed").content(
-                                        div().attr("class", "chatbox-content").content(
-                                                div().attr("class", "chat-header").content(
-                                                        chatboxToggle().text("X")
-                                                ),
-                                                new ChatSection()
-                                        ),
-                                        chatboxToggle().text("chat")
-                                ) : NoElement.instance
+                                new ChatSection() : NoElement.instance
                 )
         );
     }
 
-    private HtmlElement chatboxToggle() {
-        return button().attr("class", "chatbox-toggle", "onclick", "htmx.closest(this, '.chatbox').classList.toggle('closed')");
-    }
+
 }

@@ -10,4 +10,8 @@ public class MaterialIcon extends HtmlElement {
         super("span");
         text(iconName).attr("class", "material-symbols-outlined");
     }
+    public MaterialIcon(String iconName, String addClass) {
+        super("span");
+        text(iconName).attr("class", "material-symbols-outlined " + addClass);
+    }
 }

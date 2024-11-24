@@ -14,20 +14,28 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 /**
  * Represents a list of attachments in an HTML page.
  */
-public class AttachmentList extends IHtmlElement {
+public class AttachmentList implements IHtmlElement {
     private final IHtmlElement content;
 
     public AttachmentList(List<Attachment> attachments, String ticketId) {
-        HtmlElement container = table().attr("class", "attachments", "id", "attachmentlist");
-        if(attachments != null) {
+        HtmlElement container = table().attr("class", "attachments-table", "id", "attachmentlist");
+        if(attachments != null && !attachments.isEmpty()) {
+            container.content(
+                            colgroup().content(
+                                    col(),
+                                    col().attr("style", "width: 40px")
+                            )
+                    );
             for (int i = 0; i < attachments.size(); i++) {
                 Attachment attachment = attachments.get(i);
                 container.content(tr().content(
                         td().text(attachment.getName()),
-                        td().content(a().attr(
-                                "href", "/attachment?ticketId=" + ticketId + "&ati=" + i,
-                                "target", "_blank"
-                        ).text("Download"))
+                        td().attr("class", "buttons-cell").content(a().attr(
+                                        "href", "/attachment?ticketId=" + ticketId + "&ati=" + i,
+                                        "target", "_blank"
+                                ).content(button().attr("class", "button-icon")
+                                        .content(new MaterialIcon("download")))
+                        )
                 ));
             }
         }

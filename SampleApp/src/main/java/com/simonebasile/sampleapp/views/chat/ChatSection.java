@@ -1,9 +1,7 @@
 package com.simonebasile.sampleapp.views.chat;
 
-import com.simonebasile.sampleapp.dto.ChatProtoMessage;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
+import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 
 /**
  * The section of the chat interface.
@@ -12,14 +10,23 @@ import com.simonebasile.sampleapp.views.html.IHtmlElement;
 public class ChatSection extends HtmlElement {
     public ChatSection() {
         super("div");
-        attr(
-                "class", "chat-section",
-                "id", "chat-section",
-                "ws-connect", "/chat"
+        attr("class", "chatbox closed").content(
+                div().attr("class", "chatbox-content").content(
+                        div().attr("class", "chat-header").content(
+                                chatboxToggle().content(new MaterialIcon("minimize"))
+                        ),
+                        div().attr("class", "chat-section",
+                                        "id", "chat-section",
+                                        "ws-connect", "/chat")
+                                .hxExt("ws, debug")
+                                .content(div().attr("id", "chat-container")
+                                        .text("connecting..."))
+                ),
+                chatboxToggle().content(new MaterialIcon("contact_support"))
         );
-        hxExt("ws, debug");
-        content(
-                div().attr( "id", "chat-container" ).text("connecting...")
-        );
+    }
+
+    private HtmlElement chatboxToggle() {
+        return button().attr("class", "chatbox-toggle button-icon", "onclick", "htmx.closest(this, '.chatbox').classList.toggle('closed')");
     }
 }

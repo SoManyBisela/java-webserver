@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.views;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.html.custom.FormButton;
 import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 
 import java.util.List;
@@ -13,10 +14,6 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
  */
 public class UserTicketsSection extends ElementGroup {
     public UserTicketsSection(List<Ticket> tickets) {
-        this(tickets, null);
-    }
-
-    public UserTicketsSection(List<Ticket> tickets, String errorMessage) {
         super();
         HtmlElement stack;
         content.add(stack = div().attr("class", "stack-vertical", "style", "gap: 16px"));
@@ -34,7 +31,7 @@ public class UserTicketsSection extends ElementGroup {
             List<HtmlElement> rows = tickets.stream().map(UserTicketsSection::toRow).toList();
             stack.content(
                     div().attr("class", "ticket-container")
-                            .content(table().content(
+                            .content(table().attr("class", "tickets-table").content(
                                             colgroup().content(
                                                     col(),
                                                     col().attr("style", "width: 1rem"),
@@ -75,7 +72,7 @@ public class UserTicketsSection extends ElementGroup {
                         td().attr("class", "buttons-cell").content(
                                 div().content(
                                         button().content(new MaterialIcon("visibility"))
-                                                .attr("class", "open-detail-button")
+                                                .attr("class", "button-icon")
                                                 .hxGet("/ticket")
                                                 .hxVals("id", ticket.getId())
                                                 .hxSwap("inner-html")

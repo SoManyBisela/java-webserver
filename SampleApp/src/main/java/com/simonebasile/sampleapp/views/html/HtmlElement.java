@@ -352,7 +352,7 @@ public class HtmlElement extends ElementGroup{
     }
 
     public static HtmlElement form() {
-        return new HtmlElement("form");
+        return new HtmlElement("form").attr("autocomplete", "off");
     }
 
     public static HtmlElement select() {

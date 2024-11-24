@@ -8,15 +8,15 @@ import java.io.OutputStream;
 /**
  * Represents a component of an HTML page. Can be returned as a response body.
  */
-public abstract class IHtmlElement implements HttpResponse.ResponseBody{
+public interface IHtmlElement extends HttpResponse.ResponseBody{
 
     @Override
-    public Long contentLength() {
+    default Long contentLength() {
         return null;
     }
 
     @Override
-    public String contentType() {
+    default String contentType() {
         return "text/html";
     }
 

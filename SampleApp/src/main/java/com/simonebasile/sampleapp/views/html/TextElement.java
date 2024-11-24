@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
  * Represents the text content of an HTML tag.
  * it escapes the characters <, > and & to their respective HTML entities.
  */
-public class TextElement extends IHtmlElement {
+public class TextElement implements IHtmlElement {
 
     private final static byte [] AMP = "&amp;".getBytes(StandardCharsets.UTF_8);
     private final static byte [] GT = "&gt;".getBytes(StandardCharsets.UTF_8);

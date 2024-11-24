@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Represents a group of components of an HTML page.
  */
-public class ElementGroup extends IHtmlElement {
+public class ElementGroup implements IHtmlElement {
     protected final List<IHtmlElement> content;
 
     /**

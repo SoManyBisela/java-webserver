@@ -12,7 +12,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 /**
  * Represents a text area element in an HTML page.
  */
-public class TextAreaElement extends IHtmlElement {
+public class TextAreaElement implements IHtmlElement {
 
     private final HtmlElement container;
     private final HtmlElement input;
@@ -29,7 +29,8 @@ public class TextAreaElement extends IHtmlElement {
                                         "id", id,
                                         "hx-sle-onload", autosize + ";setTimeout(() => this.classList.remove('animate'), 150)",
                                         "oninput", autosize,
-                                        "class", "animate"
+                                        "class", "animate",
+                                        "autocomplete", "off"
                                 ),
                         label().text(labelText).attr("for", id)
                 );
@@ -43,6 +44,11 @@ public class TextAreaElement extends IHtmlElement {
     public TextAreaElement value(String value) {
         if(value == null) value = "";
         input.text(value);
+        return this;
+    }
+
+    public TextAreaElement readonly() {
+        input.attr("readonly", "true");
         return this;
     }
 

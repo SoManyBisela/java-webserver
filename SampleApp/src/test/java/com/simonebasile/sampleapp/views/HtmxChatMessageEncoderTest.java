@@ -35,7 +35,7 @@ class HtmxChatMessageEncoderTest {
         ChatProtoMessage message = ChatProtoMessage.waitingForChat();
         byte[] result = encoder.encode(message);
         String resultString = new String(result, StandardCharsets.UTF_8);
-        assertTrue(resultString.contains("Waiting for connection"));
+        assertTrue(resultString.contains("Waiting for available employee"));
     }
 
     @Test

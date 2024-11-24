@@ -17,7 +17,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
 /**
  * Represents the commment section of a ticket in an HTML page.
  */
-public class CommentSection extends IHtmlElement{
+public class CommentSection implements IHtmlElement{
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
 
     private final IHtmlElement content;
@@ -28,11 +28,12 @@ public class CommentSection extends IHtmlElement{
             return;
         }
         HtmlElement commentSection = div().attr("class", "comments stack-vertical");
-        for(Comment comment : comments) {
-            commentSection.content(div().attr("class", "content").content(
+        for (int i = comments.size() - 1; i >= 0; i--) {
+            Comment comment = comments.get(i);
+            commentSection.content(div().attr("class", "comment").content(
                     div().attr("class", "stack-horizontal").content(
                             div().attr("class", "comment-author")
-                                    .text(comment.getAuthor().equals(username) ? "You": comment.getAuthor()),
+                                    .text(comment.getAuthor().equals(username) ? "You" : comment.getAuthor()),
                             div().attr("class", "comment-time")
                                     .text(formatTime(comment.getCreationDate()))
                     ),

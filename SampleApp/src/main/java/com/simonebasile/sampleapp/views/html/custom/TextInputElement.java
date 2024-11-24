@@ -12,7 +12,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 /**
  * Represents a text input element in an HTML page.
  */
-public class TextInputElement extends IHtmlElement {
+public class TextInputElement implements IHtmlElement {
 
     private final HtmlElement container;
     private final HtmlElement input;
@@ -20,7 +20,7 @@ public class TextInputElement extends IHtmlElement {
     public TextInputElement(String name, String labelText) {
         String id = IdGenerator.get();
         container = div()
-                .attr("class", "input-container")
+                .attr("class", "input-container", "autocomplete", "off")
                 .content(
                         input = input().attr("type", "text", "name", name, "id", id),
                         label().text(labelText).attr("for", id)
@@ -45,6 +45,11 @@ public class TextInputElement extends IHtmlElement {
 
     public TextInputElement style(String style) {
         container.attr("style", style);
+        return this;
+    }
+
+    public TextInputElement readonly() {
+        input.attr("readonly", "true");
         return this;
     }
 

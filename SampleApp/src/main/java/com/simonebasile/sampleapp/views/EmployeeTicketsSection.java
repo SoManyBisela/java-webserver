@@ -28,7 +28,7 @@ public class EmployeeTicketsSection extends ElementGroup {
             List<HtmlElement> rows = tickets.stream().map(EmployeeTicketsSection::toRow).toList();
             content.add(
                     div().attr("class", "ticket-container")
-                            .content(table().content(
+                            .content(table().attr("class", "tickets-table").content(
                                             colgroup().content(
                                                     col(),
                                                     col().attr("style", "width: 1rem"),
@@ -57,7 +57,7 @@ public class EmployeeTicketsSection extends ElementGroup {
                         td().attr("class", "buttons-cell").content(
                                 div().content(
                                         button().content(new MaterialIcon("visibility"))
-                                                .attr("class", "open-detail-button")
+                                                .attr("class", "button-icon")
                                                 .hxGet("/ticket")
                                                 .hxVals("id", ticket.getId())
                                                 .hxSwap("inner-html")

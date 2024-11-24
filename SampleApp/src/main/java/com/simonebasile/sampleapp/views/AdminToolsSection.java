@@ -2,6 +2,7 @@ package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
+import com.simonebasile.sampleapp.views.html.custom.FormButton;
 import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 import com.simonebasile.sampleapp.views.html.custom.SelectInputElement;
 import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
@@ -31,8 +32,7 @@ public class AdminToolsSection extends ElementGroup {
                                                 .map(Enum::name)
                                                 .map(SelectInputElement.SelectOption::new)
                                                 .toArray(SelectInputElement.SelectOption[]::new)),
-                                        button().content(new MaterialIcon("person_add"), span().text("Create New User"))
-                                                .attr("type", "submit", "class", "default-button")
+                                        new FormButton().content(new MaterialIcon("person_add"), span().text("Create New User"))
                                 )
 
                         )

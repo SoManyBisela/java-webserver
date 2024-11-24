@@ -12,7 +12,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 /**
  * Represents a select input element in an HTML page.
  */
-public class SelectInputElement extends IHtmlElement {
+public class SelectInputElement implements IHtmlElement {
 
     private final HtmlElement container;
     private final HtmlElement select;
@@ -29,7 +29,7 @@ public class SelectInputElement extends IHtmlElement {
                 .attr("class", "input-container")
                 .content(
                         select = select()
-                                .attr("id", id, "name", name)
+                                .attr("id", id, "name", name, "autocomplete", "off")
                                 .content(Arrays.stream(options)
                                         .map(a -> option().text(a.text).attr("value", a.value))
                                         .toList()),

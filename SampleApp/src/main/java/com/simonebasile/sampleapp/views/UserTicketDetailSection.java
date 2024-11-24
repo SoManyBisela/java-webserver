@@ -19,7 +19,7 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
  * Represents the section of the page that shows the details of a ticket for a user.
  * It allows the user to create a new ticket or edit an existing one that is in draft state.
  */
-public class UserTicketDetailSection extends IHtmlElement {
+public class UserTicketDetailSection implements IHtmlElement {
     private final HtmlElement container;
     private HtmlElement messageTarget;
 
@@ -61,7 +61,7 @@ public class UserTicketDetailSection extends IHtmlElement {
                                 new AttachmentList(t.getAttachments(), t.getId()),
                                 uploadAttachment(t.getId())
                         ) : NoElement.instance,
-                        div().attr("class", "stack-horizontal child-grow").content(
+                        div().attr("class", "form-button").content(
                                 createTicket ? button().attr("class", "default-button")
                                         .content(new MaterialIcon("ios_share"), span().text("Submit"))
                                         .attr("type", "submit", "name", "submit", "form", formId) : NoElement.instance,
@@ -102,10 +102,8 @@ public class UserTicketDetailSection extends IHtmlElement {
     HtmlElement ticket(Ticket t) {
         return messageTarget = div().attr("class", "stack-vertical").content(
                 h(1).text("Ticket detail"),
-                h(2).attr("class", "ticket-object")
-                        .text(t.getObject()),
-                h(3).attr("class", "ticket-message")
-                        .text(t.getMessage()),
+                new TextInputElement("object", "Object").value(t.getObject()).readonly(),
+                new TextAreaElement("message", "Message").value(t.getMessage()).readonly(),
                 new AttachmentList(t.getAttachments(), t.getId()),
                 new AddCommentForm(t.getId()),
                 new CommentSection(t.getComments(), t.getOwner())

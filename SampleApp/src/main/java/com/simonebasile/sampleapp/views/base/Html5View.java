@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 /**
  * Represents a generic HTML5 view.
  */
-public class Html5View extends IHtmlElement {
+public class Html5View implements IHtmlElement {
     private List<IHtmlElement> headElements;
     private List<String> scripts;
     private List<String> stylesheets;

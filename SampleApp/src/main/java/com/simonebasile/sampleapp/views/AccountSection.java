@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.views;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.html.custom.FormButton;
 import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
 
@@ -27,8 +28,7 @@ public class AccountSection extends ElementGroup {
                                         new TextInputElement("oldPassword", "old password").typePassword(),
                                         new TextInputElement("newPassword", "new password").typePassword(),
                                         new TextInputElement("conPassword", "confirm password").typePassword(),
-                                        button().attr("class", "default-button", "type", "submit")
-                                                .content(new MaterialIcon("passkey"), span().text("Change password"))
+                                        new FormButton().content(new MaterialIcon("passkey"), span().text("Change password"))
                                 )
                         )
                 ));

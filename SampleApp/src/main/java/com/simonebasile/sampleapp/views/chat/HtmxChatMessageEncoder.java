@@ -47,7 +47,7 @@ public class HtmxChatMessageEncoder implements ChatMessageEncoder {
                     new WantToChatElement()
             ));
             case WAIT_FOR_CHAT -> obswap("chat-container", div().content(
-                    div().text("Waiting for connection"),
+                    div().text("Waiting for available employee"),
                     new StopWaitingElement()
             ));
             case ALREADY_CONNECTED -> obswap("chat-section", new AlreadyConnectedSection());
