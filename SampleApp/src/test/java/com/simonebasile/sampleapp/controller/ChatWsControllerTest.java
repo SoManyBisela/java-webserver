@@ -4,6 +4,7 @@ import com.simonebasile.http.WebsocketHandler;
 import com.simonebasile.http.WebsocketMessage;
 import com.simonebasile.http.WebsocketWriterImpl;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
+import com.simonebasile.sampleapp.dto.CPMType;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -265,6 +266,30 @@ class ChatWsControllerTest {
     void testOnClose() {
         controller.onHandshakeComplete(mockWriter, userWsState);
         controller.onClose(userWsState);
+        assertNull(userWsState.getWriter().getConnectedTo());
+    }
+
+    @Test
+    void testOnCloseWhileConnected() throws IOException {
+        controller.onHandshakeComplete(mockWriter, userWsState);
+        controller.onHandshakeComplete(mockWriter, employeeWsState);
+        byte[][] bytes = new byte[1][];
+
+        bytes[0] = """
+            { "type": "WANT_TO_CHAT" }
+            """.getBytes();
+        WebsocketMessage wsMessage = new WebsocketMessage(bytes, WebsocketMessage.MsgType.TEXT);
+        controller.onMessage(wsMessage, userWsState);
+
+        bytes[0] = """
+            { "type": "ACCEPT_CHAT" }
+            """.getBytes();
+        wsMessage = new WebsocketMessage(bytes, WebsocketMessage.MsgType.TEXT);
+        controller.onMessage(wsMessage, employeeWsState);
+
+        controller.onClose(userWsState);
+        verify(mockWriter, atLeast(1)).sendTextBytes(argThat(e ->
+                new String(e).contains("Chat disconnected")));
         assertNull(userWsState.getWriter().getConnectedTo());
     }
 }

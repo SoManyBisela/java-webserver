@@ -6,6 +6,9 @@ import com.simonebasile.sampleapp.views.html.IHtmlElement;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * A button used as a form submit button.
+ */
 public class FormButton extends HtmlElement {
     private final IHtmlElement container;
 

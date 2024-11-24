@@ -154,6 +154,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
      */
     @Override
     public void onHandshakeComplete(WebsocketWriterImpl websocketWriter, WsState ctx) {
+        log.debug("Handshake completed for user: {}", ctx.user.getUsername());
         final String username = ctx.user.getUsername();
         ctx.writer = new ConnectedUser(ctx.user, websocketWriter, new HtmxChatMessageEncoder());
         if(connectedUsers.putIfAbsent(username, ctx.writer) != null) {
@@ -186,7 +187,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
             return;
         }
         ChatProtoMessage message = JsonMapper.parse(msg.data[0], ChatProtoMessage.class);
-        log.debug("Received message: {}", message);
+        log.debug("Received message {} from user {}", message, ctx.user.getUsername());
         final User user = ctx.user;
         if(!message.getType().canBeSentBy(user)) {
             log.warn("User sent invalid message. User role: {}, Message type: {}",
@@ -214,11 +215,14 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
     private void newChat(ConnectedUser connectedUser) {
         try {
             if(connectedUser.user.getRole() == Role.user) {
+                log.info("User {} chat initialized", connectedUser.user.getUsername());
                 connectedUser.sendMsg(ChatProtoMessage.connected());
             } else {
                 if(waitingToChat.isEmpty()) {
+                    log.info("User {} notified with no available chat", connectedUser.user.getUsername());
                     connectedUser.sendMsg(ChatProtoMessage.noChatAvailable());
                 } else {
+                    log.info("User {} notified with chat available", connectedUser.user.getUsername());
                     connectedUser.sendMsg(ChatProtoMessage.chatAvailable());
                 }
             }
@@ -232,6 +236,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
      * The users are notified that the chat has ended
      */
     private void endChat(ConnectedUser disconnectingUser) {
+        log.debug("Ending chat between {} and {}", disconnectingUser.user.getUsername(), disconnectingUser.connectedTo);
         final ConnectedUser connectedUser = connectedUsers.get(disconnectingUser.connectedTo);
         disconnectingUser.connectedTo = null;
         if(connectedUser != null) {

@@ -27,6 +27,25 @@ import java.util. concurrent.locks.ReentrantLock;
 
 import static com.simonebasile.http.unpub.WebSocket.WSDataFrame.*;
 
+/**
+ * A web server that can handle both http and websocket requests.
+ * The server can be configured to listen on a specific port and address. Alternatively, a custom {@link ServerSocketFactory} can be used.
+ * It can be configured to use a custom {@link RequestContextFactory} to create a custom context to be passed to the handlers.
+ *
+ * Handler can be registered for both http and websocket requests.
+ * Http handlers can be registered for specific paths or for all paths that match a prefix.
+ * Interceptors can be registered to preprocess requests before the handler.
+ *
+ * Handler will be called according to the rules specified in the {@link HttpRoutingContextImpl} class.
+ *
+ * The server can be started and stopped using the {@link #start()} and {@link #stop()} methods.
+ *
+ * The server runs on a main thread that will accept incoming connections.
+ * For each incoming connection, a thread from a cached thread pool will be used to handle the connection.
+ * In case of a websocket upgrade request, the thread will handle the websocket connection until it is closed.
+ *
+ * @param <Context> The type of the context object that will be passed to the handlers
+ */
 public class WebServer<Context extends RequestContext> implements HttpRoutingContext<InputStream, Context> {
     private static final Logger log = LoggerFactory.getLogger(WebServer.class);
 
@@ -51,10 +70,17 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
         this.socketLock = new ReentrantLock();
     }
 
+    /**
+     * Creates a new builder for the server.
+     * @return A new builder
+     */
     public static WebServerBuilder<RequestContext> builder() {
         return new WebServerBuilder<>(RequestContext::new);
     }
 
+    /**
+     * The builder for the server. It allows to configure the server before instantiating it.
+     */
     public static class WebServerBuilder<Context extends RequestContext> {
         private Integer port;
         private InetAddress address;
@@ -62,40 +88,84 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
         private ServerSocketFactory serverSocketFactory;
         private RequestContextFactory<?> requestContextFactory;
 
+        /**
+         * Creates a new builder with the given request context factory.
+         * @param requestContextFactory The factory to create the context object
+         */
         private WebServerBuilder(RequestContextFactory<Context> requestContextFactory) {
             this.requestContextFactory = requestContextFactory;
         }
 
+        /**
+         * configures the port on which the server will listen.
+         * @param port The port number
+         * @return This builder
+         */
         public WebServerBuilder<Context> port(Integer port) {
             this.port = port;
             return this;
         }
 
+        /**
+         * Configures the address on which the server will listen.
+         * @param address The address
+         * @return This builder
+         */
         public WebServerBuilder<Context> address(InetAddress address) {
             this.address = address;
             return this;
         }
 
+        /**
+         * Configures the address on which the server will listen.
+         * @param address The address
+         * @return This builder
+         * @throws UnknownHostException If the address is not valid
+         */
         public WebServerBuilder<Context> address(String address) throws UnknownHostException {
             this.address = InetAddress.getByName(address);
             return this;
         }
 
+        /**
+         * Configures the backlog for the server socket.
+         * @param backlog The backlog
+         * @return This builder
+         */
         public WebServerBuilder<Context> backlog(Integer backlog) {
             this.backlog = backlog;
             return this;
         }
 
+        /**
+         * Configures a custom server socket factory.
+         * Configuring a custom server socket factory will override the port, address and backlog settings.
+         * @param serverSocketFactory The factory
+         * @return This builder
+         */
         public WebServerBuilder<Context> serverSocketFactory(ServerSocketFactory serverSocketFactory) {
             this.serverSocketFactory = serverSocketFactory;
             return this;
         }
 
+        /**
+         * Configures a custom request context factory.
+         * @param requestContextFactory The factory
+         * @return This builder
+         */
         public <NewContext extends RequestContext> WebServerBuilder<NewContext> requestContextFactory(RequestContextFactory<NewContext> requestContextFactory) {
             this.requestContextFactory = requestContextFactory;
-            return (WebServerBuilder<NewContext>) this;
+
+            //this cast is necessary to tell the compiler that the webserver that will be built will have the new context type
+            //allowing appropriate handlers to be registered
+            //The cast is safe since the context factory replaces the previous one
+            return  (WebServerBuilder<NewContext>) this;
         }
 
+        /**
+         * Builds the server with the configured settings.
+         * @return The server
+         */
         public WebServer<Context> build() {
             var serverSocketFactory = this.serverSocketFactory;
             if(serverSocketFactory == null) {
@@ -112,6 +182,11 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
         }
     }
 
+    /**
+     * Gets the port on which the server is listening.
+     * @return The port
+     * @throws CustomException If the server is not running
+     */
     public int getPort() {
         if(serverSocket == null) {
             throw new CustomException("Server not started");
@@ -119,26 +194,47 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
             try {
                 return serverSocket.getLocalPort();
             } catch (NullPointerException e) {
+                //may occur if the server is closed while calling this method
                 throw new CustomException("Server not started");
             }
         }
     }
 
+    /**
+     * Registers a new http context handler for the given path.
+     * @param path The path to register the context for
+     * @param handler The handler to register
+     */
     @Override
     public void registerHttpContext(String path, HttpRequestHandler<InputStream, ? super Context> handler){
         routingContext.registerHttpContext(path, handler);
     }
 
+    /**
+     * Registers a new http handler for the given path.
+     * @param path The path to register the handler for
+     * @param handler The handler to register
+     */
     @Override
     public void registerHttpHandler(String path, HttpRequestHandler<InputStream, ? super Context> handler){
         routingContext.registerHttpHandler(path, handler);
     }
 
+    /**
+     * Registers a new interceptor for the server.
+     * Interceptors will be called in order of registration before the handler is called.
+     * @param interceptor The interceptor to register
+     */
     @Override
     public void registerInterceptor(HttpInterceptor<InputStream, Context> interceptor) {
         this.interceptors.add(interceptor);
     }
 
+    /**
+     * Registers a new websocket context handler for the given path.
+     * @param path The path to register the context for
+     * @param handler The handler to register
+     */
     public void registerWebSocketContext(String path, WebsocketHandler<?, ? super Context> handler){
         log.debug("Registered new websocket handler for path [{}]", path);
         if(!websocketHandlers.insertCtx(path, handler)) {
@@ -146,6 +242,11 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
         }
     }
 
+    /**
+     * Registers a new websocket handler for the given path.
+     * @param path The path to register the handler for
+     * @param handler The handler to register
+     */
     public void registerWebSocketHandler(String path, WebsocketHandler<?, ? super Context> handler){
         log.debug("Registered new websocket handler for path [{}]", path);
         if(!websocketHandlers.insertExact(path, handler)) {
@@ -154,6 +255,12 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
     }
 
 
+    /**
+     * Stops the server.
+     * If the server is not running, an exception will be thrown.
+     * @throws IOException If an error occurs while closing the server socket
+     * @throws CustomException If the server is not running
+     */
     public void stop() throws IOException {
         socketLock.lock();
         try {
@@ -167,9 +274,21 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
 
     }
 
+    /**
+     * Starts the server.
+     */
     public void start() {
         start(null);
     }
+    /**
+     * Starts the server.
+     *
+     * The server will run on the thread calling this method.
+     * A socket will be created and the server will start listening for incoming connections.
+     * Each incoming connection will be handled by a thread from a cached thread pool.
+     * @param onstart A runnable that will be executed after the server is started
+     * @throws CustomException If the server is already running
+     */
     public void start(Runnable onstart) {
         final ExecutorService executor = Executors.newCachedThreadPool();
         socketLock.lock();
@@ -241,6 +360,11 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
         }
     }
 
+    /**
+     * A handler for the http protocol.
+     * The handler will read the requests perform the routing and call the appropriate handler.
+     * If the request is a websocket upgrade request, the handler will handle the websocket connection.
+     */
     class HttpProtocolHandler implements Runnable, AutoCloseable {
         private static final String MAGIC = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         private static final MessageDigest SHA1 = initSha1();
@@ -257,12 +381,20 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
         private final HttpInputStream inputStream;
         private final HttpOutputStream outputStream;
 
+        /**
+         * Creates a new handler for the given socket.
+         * @param client The socket to handle
+         * @throws IOException If an error occurs while creating the input and output streams
+         */
         public HttpProtocolHandler(Socket client) throws IOException {
             this.client = Objects.requireNonNull(client);
             this.inputStream = new HttpInputStream(client.getInputStream());
             this.outputStream = new HttpOutputStream(client.getOutputStream());
         }
 
+        /**
+         * Closes the client socket.
+         */
         private void closeClient() {
             if(client != null) {
                 try {
@@ -274,6 +406,9 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
             }
         }
 
+        /**
+         * Handles the http protocol.
+         */
         @Override
         public void run() {
             log.debug("Started http handler for socket {}", client);
@@ -312,11 +447,23 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
             }
         }
 
+        /**
+         * Discards and consumes the body of the request.
+         * @param req The request to discard the body of
+         * @return A new request with the body discarded
+         * @throws IOException If an error occurs while closing the body
+         */
         private HttpRequest<Void> discardBody(HttpRequest<? extends InputStream> req) throws IOException {
             req.body.close();
             return new HttpRequest<>(req.method, req.resource, req.version, req.headers, null);
         }
 
+        /**
+         * Handles a websocket upgrade request.
+         * @param req The request to handle
+         * @param context The context to pass to the handler
+         * @throws IOException If an error occurs while handling the websocket
+         */
         private void handleWebsocket(HttpRequest<Void> req, Context context) throws IOException {
             var match = websocketHandlers.getHandler(req.getResource());
             WebsocketHandler<?, ? super Context> wsHandler = match.handler();
@@ -324,6 +471,13 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
             _handleWebsocket(req, context, wsHandler);
         }
 
+        /**
+         * Utility method to handle the websocket upgrade request.
+         * This method is required to handle the generic type of the websocket handler.
+         *
+         * This method is responsible for the handshake and the message handling of the websocket.
+         *
+         */
         private <T> void _handleWebsocket(HttpRequest<Void> req, Context context, WebsocketHandler<T, ? super Context> wsHandler) throws IOException {
             final T ctx = wsHandler.newContext(context);
             final HttpHeaders headers = req.getHeaders();
@@ -357,6 +511,7 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
                                 switch(dataFrame.opcode) {
                                     case OP_CLOSE:
                                         log.debug("Received close");
+                                        wsHandler.onClose(ctx);
                                         webSocket.sendUnmaskedDataframe(FIN, OP_CLOSE, new byte[0]);
                                         close = true;
                                         last = true;
@@ -397,7 +552,9 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
                             wsHandler.onMessage(new WebsocketMessage(bytes.toArray(new byte[bytes.size()][]), type), ctx);
                         }
                     }
-                    wsHandler.onClose(ctx);
+                    if(!close) {
+                        wsHandler.onClose(ctx);
+                    }
                 } catch (Exception e) {
                     if(hsComplete) wsHandler.onClose(ctx);
                     //TODO review error handling
@@ -412,8 +569,9 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
             }
         }
 
-
-
+        /**
+         * Closes the client socket.
+         */
         @Override
         public void close() {
             closeClient();
