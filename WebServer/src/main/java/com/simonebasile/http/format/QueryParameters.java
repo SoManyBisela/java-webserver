@@ -53,7 +53,7 @@ public class QueryParameters {
                     curr.write('%');
                     reader.reset();
                 } else {
-                    curr.write(c0 * 16 + c1);
+                    curr.write((c0 << 4)  + c1);
                 }
             } else if(name == null && c == '=') {
                 name = curr.toString(StandardCharsets.UTF_8);
@@ -67,7 +67,7 @@ public class QueryParameters {
                 }
                 curr.reset();
                 paramsOut.put(name, value);
-                name = value = null;
+                name = null;
             } else {
                 curr.write(c);
             }

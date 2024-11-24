@@ -61,15 +61,13 @@ public class UserTicketController extends MethodHandler<InputStream, Application
         User user = context.getLoggedUser();
         CreateTicket body = FormHttpMapper.map(r.getBody(), CreateTicket.class);
         Ticket ticket = new Ticket(body);
-        String id;
         try {
-            id = ticketService.createTicket(ticket, user).getId();
+            ticketService.createTicket(ticket, user);
         } catch (CreateTicketException e) {
             throw new ShowableException(e);
         }
-        Ticket t = ticketService.getById(id, user);
         return new HttpResponse<>(new ElementGroup(
-                new UserTicketDetailSection(t),
+                new UserTicketDetailSection(ticket),
                 Utils.oobAdd("main", new Toast("Ticket saved", "success"))
         ));
     }

@@ -15,6 +15,7 @@ import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
 import com.simonebasile.sampleapp.interceptors.ErrorHandlingInterceptor;
 import com.simonebasile.sampleapp.interceptors.ConditionalInterceptor;
+import com.simonebasile.sampleapp.json.JsonMapper;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.repository.SessionRepository;
@@ -23,6 +24,7 @@ import com.simonebasile.sampleapp.repository.UserRepository;
 import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.http.handlers.StaticFileHandler;
 import com.simonebasile.sampleapp.model.User;
+import com.simonebasile.sampleapp.security.ArgonUtils;
 import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
@@ -44,6 +46,9 @@ public class Main {
     }
 
     private static void webapp() {
+        // warmup static initialization
+        JsonMapper.mapper.getSerializerProvider();
+        ArgonUtils.hash("ciao");
 
         //Mongo config
         var dbName = "AssistenzaDB";
