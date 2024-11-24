@@ -1,6 +1,7 @@
 package com.simonebasile.sampleapp.interceptors;
 
 import com.simonebasile.http.*;
+import com.simonebasile.http.response.ResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.SessionData;
@@ -48,7 +49,7 @@ class AuthenticationInterceptorTest {
         when(mockUserService.getUser("user123")).thenReturn(user);
         when(mockNextHandler.handle(request, context)).thenReturn(new HttpResponse<>(200, new HttpHeaders(), null));
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = authenticationInterceptor.intercept(request, context, mockNextHandler);
+        HttpResponse<? extends ResponseBody> response = authenticationInterceptor.intercept(request, context, mockNextHandler);
 
         assertEquals(200, response.getStatusCode());
         assertEquals("session123", context.getSessionId());
@@ -66,7 +67,7 @@ class AuthenticationInterceptorTest {
 
         when(mockSessionService.getOrCreateSession("session123")).thenReturn(null);
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = authenticationInterceptor.intercept(request, context, mockNextHandler);
+        HttpResponse<? extends ResponseBody> response = authenticationInterceptor.intercept(request, context, mockNextHandler);
 
         assertEquals(500, response.getStatusCode());
     }
@@ -85,7 +86,7 @@ class AuthenticationInterceptorTest {
         when(mockSessionService.getOrCreateSession("session123")).thenReturn(sessionData);
         when(mockUserService.getUser("user123")).thenReturn(null);
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = authenticationInterceptor.intercept(request, context, mockNextHandler);
+        HttpResponse<? extends ResponseBody> response = authenticationInterceptor.intercept(request, context, mockNextHandler);
 
         assertEquals(500, response.getStatusCode());
     }
@@ -102,7 +103,7 @@ class AuthenticationInterceptorTest {
 
         when(mockSessionService.getOrCreateSession("session123")).thenReturn(sessionData);
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = authenticationInterceptor.intercept(request, context, mockNextHandler);
+        HttpResponse<? extends ResponseBody> response = authenticationInterceptor.intercept(request, context, mockNextHandler);
 
         assertEquals(303, response.getStatusCode());
         assertEquals("/login", response.getHeaders().getFirst("Location"));

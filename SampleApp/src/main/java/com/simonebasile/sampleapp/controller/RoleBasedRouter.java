@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.controller;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpRequestHandler;
 import com.simonebasile.http.HttpResponse;
+import com.simonebasile.http.response.ResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.interceptors.ShowableException;
 import com.simonebasile.sampleapp.model.Role;
@@ -82,7 +83,7 @@ public class RoleBasedRouter implements HttpRequestHandler<InputStream, Applicat
      * @throws ShowableException if the user is not logged, if the user does not have a role or if there is no handler for the role of the user
      */
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends InputStream> r, ApplicationRequestContext requestContext) {
+    public HttpResponse<? extends ResponseBody> handle(HttpRequest<? extends InputStream> r, ApplicationRequestContext requestContext) {
         if(requestContext.getLoggedUser() == null || requestContext.getLoggedUser().getRole() == null) {
             throw new ShowableException("You cannot access this page");
         }

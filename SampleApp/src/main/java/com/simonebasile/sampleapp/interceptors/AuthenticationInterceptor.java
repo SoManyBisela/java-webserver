@@ -2,6 +2,7 @@ package com.simonebasile.sampleapp.interceptors;
 
 import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
+import com.simonebasile.http.response.ResponseBody;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.model.SessionData;
@@ -33,7 +34,7 @@ public class AuthenticationInterceptor<T> implements HttpInterceptor<T, Applicat
      * @return the response
      */
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> intercept(HttpRequest<? extends T> request, ApplicationRequestContext context, HttpRequestHandler<T, ApplicationRequestContext> next) {
+    public HttpResponse<? extends ResponseBody> intercept(HttpRequest<? extends T> request, ApplicationRequestContext context, HttpRequestHandler<T, ApplicationRequestContext> next) {
         String sessionCookie = request.getHeaders().getCookie("session");
         SessionData sessionData = sessionService.getOrCreateSession(sessionCookie);
         if(sessionData == null) {

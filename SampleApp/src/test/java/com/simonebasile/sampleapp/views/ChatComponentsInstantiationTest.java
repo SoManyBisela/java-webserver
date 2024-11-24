@@ -1,6 +1,6 @@
 package com.simonebasile.sampleapp.views;
 
-import com.simonebasile.http.HttpResponse;
+import com.simonebasile.http.response.ResponseBody;
 import com.simonebasile.sampleapp.views.chat.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ChatComponentsInstantiationTest {
 
-    private HttpResponse.ResponseBody result;
+    private ResponseBody result;
 
     @Test
     void testAcceptChatElementInstantiation() {

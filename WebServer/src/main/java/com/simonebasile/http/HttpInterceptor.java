@@ -1,5 +1,7 @@
 package com.simonebasile.http;
 
+import com.simonebasile.http.response.ResponseBody;
+
 /**
  * This interface is used to intercept HTTP requests before they are handled by the server.
  *
@@ -16,5 +18,5 @@ public interface HttpInterceptor<Body, Context> {
      * @param next the next handler in the chain
      * @return the response to send to the client
      */
-    HttpResponse<? extends HttpResponse.ResponseBody> intercept(HttpRequest<? extends Body> request, Context requestContext, HttpRequestHandler<Body, Context> next);
+    HttpResponse<? extends ResponseBody> intercept(HttpRequest<? extends Body> request, Context requestContext, HttpRequestHandler<Body, Context> next);
 }

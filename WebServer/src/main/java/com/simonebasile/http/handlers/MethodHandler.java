@@ -2,6 +2,7 @@ package com.simonebasile.http.handlers;
 
 import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
+import com.simonebasile.http.response.ResponseBody;
 
 /**
  * A handler that dispatches the request to the appropriate method handler based on the HTTP method.
@@ -18,7 +19,7 @@ public class MethodHandler<Body, Context> implements HttpRequestHandler<Body, Co
      * @return the response
      */
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends Body> r, Context context) {
+    public HttpResponse<? extends ResponseBody> handle(HttpRequest<? extends Body> r, Context context) {
         return switch (r.getMethod()) {
             case "GET" -> handleGet(r, context);
             case "POST" -> handlePost(r, context);
@@ -32,7 +33,7 @@ public class MethodHandler<Body, Context> implements HttpRequestHandler<Body, Co
      * Returns a 405 Method Not Allowed response.
      * @return the response
      */
-    private HttpResponse<? extends HttpResponse.ResponseBody> methodNotAllowed() {
+    private HttpResponse<? extends ResponseBody> methodNotAllowed() {
         return new HttpResponse<>(405, new HttpHeaders(), new ByteResponseBody("method not allowed"));
     }
 
@@ -42,7 +43,7 @@ public class MethodHandler<Body, Context> implements HttpRequestHandler<Body, Co
      * @param context the context
      * @return the response
      */
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends Body> r, Context context) {
+    protected HttpResponse<? extends ResponseBody> handleGet(HttpRequest<? extends Body> r, Context context) {
         return methodNotAllowed();
     }
 
@@ -52,7 +53,7 @@ public class MethodHandler<Body, Context> implements HttpRequestHandler<Body, Co
      * @param context the context
      * @return the response
      */
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends Body> r, Context context) {
+    protected HttpResponse<? extends ResponseBody> handlePost(HttpRequest<? extends Body> r, Context context) {
         return methodNotAllowed();
     }
 
@@ -62,7 +63,7 @@ public class MethodHandler<Body, Context> implements HttpRequestHandler<Body, Co
      * @param context the context
      * @return the response
      */
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePut(HttpRequest<? extends Body> r, Context context) {
+    protected HttpResponse<? extends ResponseBody> handlePut(HttpRequest<? extends Body> r, Context context) {
         return methodNotAllowed();
     }
 
@@ -72,7 +73,7 @@ public class MethodHandler<Body, Context> implements HttpRequestHandler<Body, Co
      * @param context the context
      * @return the response
      */
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleDelete(HttpRequest<? extends Body> r, Context context) {
+    protected HttpResponse<? extends ResponseBody> handleDelete(HttpRequest<? extends Body> r, Context context) {
         return methodNotAllowed();
     }
 }

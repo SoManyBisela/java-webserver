@@ -3,6 +3,7 @@ package com.simonebasile.http;
 import com.simonebasile.http.handlers.StaticFileHandler;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.FileResponseBody;
+import com.simonebasile.http.response.ResponseBody;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +30,7 @@ public class StaticFileHandlerTest {
         HttpRequest<InputStream> request = new HttpRequest<>("GET", "/static/testfile.txt", HttpVersion.V1_1, new HttpHeaders(), new ByteArrayInputStream(new byte[0]));
         RequestContext context = new RequestContext();
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = routingContext.handle(request, context);
+        HttpResponse<? extends ResponseBody> response = routingContext.handle(request, context);
 
         assertEquals(200, response.getStatusCode());
         assertInstanceOf(FileResponseBody.class, response.getBody());
@@ -40,7 +41,7 @@ public class StaticFileHandlerTest {
         HttpRequest<InputStream> request = new HttpRequest<>("GET", "/static/nonexistentfile.txt", HttpVersion.V1_1, new HttpHeaders(), new ByteArrayInputStream(new byte[0]));
         RequestContext context = new RequestContext();
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = routingContext.handle(request, context);
+        HttpResponse<? extends ResponseBody> response = routingContext.handle(request, context);
 
         assertEquals(404, response.getStatusCode());
         assertInstanceOf(ByteResponseBody.class, response.getBody());
@@ -51,7 +52,7 @@ public class StaticFileHandlerTest {
         HttpRequest<InputStream> request = new HttpRequest<>("HEAD", "/static/testfile.txt", HttpVersion.V1_1,  new HttpHeaders(), new ByteArrayInputStream(new byte[0]));
         RequestContext context = new RequestContext();
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = routingContext.handle(request, context);
+        HttpResponse<? extends ResponseBody> response = routingContext.handle(request, context);
 
         assertEquals(200, response.getStatusCode());
         assertNull(response.getBody());
@@ -61,7 +62,7 @@ public class StaticFileHandlerTest {
     public void testHandleHeadFileNotExists() {
         HttpRequest<InputStream> request = new HttpRequest<>("HEAD", "/static/nonexistentfile.txt", HttpVersion.V1_1,new HttpHeaders(), new ByteArrayInputStream(new byte[0]));
         RequestContext context = new RequestContext();
-        HttpResponse<? extends HttpResponse.ResponseBody> response = routingContext.handle(request, context);
+        HttpResponse<? extends ResponseBody> response = routingContext.handle(request, context);
 
         assertEquals(404, response.getStatusCode());
         assertNull(response.getBody());

@@ -2,6 +2,7 @@ package com.simonebasile.sampleapp.controller;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
+import com.simonebasile.http.response.ResponseBody;
 import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.ChangePasswordRequest;
@@ -35,7 +36,7 @@ public class AccountController extends MethodHandler<InputStream, ApplicationReq
      * @param context the context
      * @return the response
      */
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         return new HttpResponse<>(new AccountSection(user));
     }
@@ -47,7 +48,7 @@ public class AccountController extends MethodHandler<InputStream, ApplicationReq
      * @param context the context
      * @return the response
      */
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         ChangePasswordRequest changePasswordReq = FormHttpMapper.map(r.getBody(), ChangePasswordRequest.class);
         changePasswordReq.setUsername(user.getUsername());

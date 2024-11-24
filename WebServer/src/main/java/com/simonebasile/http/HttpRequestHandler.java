@@ -1,5 +1,7 @@
 package com.simonebasile.http;
 
+import com.simonebasile.http.response.ResponseBody;
+
 /**
  * This interface is used to handle HTTP requests.
  * It can be overridden by application developers to define custom request handlers.
@@ -15,5 +17,5 @@ public interface HttpRequestHandler<Body, Context> {
      * @param requestContext the context of the request
      * @return the response to send to the client
      */
-    HttpResponse<? extends HttpResponse.ResponseBody> handle(HttpRequest<? extends Body> r, Context requestContext);
+    HttpResponse<? extends ResponseBody> handle(HttpRequest<? extends Body> r, Context requestContext);
 }

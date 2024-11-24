@@ -2,6 +2,7 @@ package com.simonebasile.sampleapp.controller;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
+import com.simonebasile.http.response.ResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.views.MainView;
@@ -21,7 +22,7 @@ public class HomeController extends MethodHandler<InputStream, ApplicationReques
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         return new HttpResponse<>(new MainView(context.getLoggedUser()));
     }
 }

@@ -1,12 +1,12 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.response.ByteResponseBody;
+import com.simonebasile.http.response.ResponseBody;
 import com.simonebasile.http.unpub.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -413,15 +413,17 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
         public void run() {
             log.debug("Started http handler for socket {}", client);
             try {
+                boolean[] wsHandled = {false};
                 while (true) {
-                    HttpRequest<InputStream> req = HttpRequest.parse(inputStream, FixedLengthInputStream::new);
+                    HttpRequest<InputStream> req = HttpMessageUtils.parseRequest(inputStream);
                     Context context = requestContextFactory.createContext();
                     log.debug("Incoming http request [{}] on socket [{}]", req, client);
                     HttpResponse<?> res = new InterceptorChainImpl<>(interceptors, (r, c) -> {
                         if (r.isWebSocketConnection()) {
                             try {
                                 handleWebsocket(discardBody(r), c);
-                                throw new HandledByWebsocket();
+                                wsHandled[0] = true;
+                                return new HttpResponse<>(200, null);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -429,17 +431,17 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
                             return routingContext.handle(r, c);
                         }
                     }).handle(req, context);
-
+                    if(wsHandled[0]) {
+                        break;
+                    }
                     //consuming remaining body
                     req.body.close();
 
-                    res.write(req.getVersion(), outputStream);
+                    HttpMessageUtils.writeResponse(req.getVersion(), res, outputStream);
                     //TODO handle connection and keep-alive header, handle timeouts, handle max amt of requests
                 }
             } catch (ConnectionClosedBeforeRequestStartException ignored) {
                 log.debug("Client closed connection");
-            } catch (HandledByWebsocket e) {
-                log.debug("Closed websocket");
             } catch (Throwable t) {
                 log.error("An exception occurred while handling http protocol. Closing socket [{}]", client, t);
             } finally {
@@ -476,7 +478,6 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
          * This method is required to handle the generic type of the websocket handler.
          *
          * This method is responsible for the handshake and the message handling of the websocket.
-         *
          */
         private <T> void _handleWebsocket(HttpRequest<Void> req, Context context, WebsocketHandler<T, ? super Context> wsHandler) throws IOException {
             final T ctx = wsHandler.newContext(context);
@@ -491,7 +492,7 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
                 httpHeaders.add("Upgrade",  "websocket");
                 httpHeaders.add("Connection", "Upgrade");
                 httpHeaders.add("Sec-WebSocket-Accept", wsAccept);
-                new HttpResponse<>(101, httpHeaders, null).write(req.getVersion(), outputStream);
+                HttpMessageUtils.writeResponse(req.getVersion(), new HttpResponse<>(101, httpHeaders, null), outputStream);
                 boolean hsComplete = false;
                 try {
                     final WebSocket webSocket = new WebSocket(client, inputStream, outputStream);
@@ -561,11 +562,11 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
                     log.error("Error in websocket", e);
                 }
             } else {
-                new HttpResponse<>(
+                HttpMessageUtils.writeResponse(req.getVersion(), new HttpResponse<>(
                         400,
                         new HttpHeaders(),
                         new ByteResponseBody(handshakeResult.refuseMessage)
-                ).write(req.getVersion(), outputStream);
+                ), outputStream);
             }
         }
 

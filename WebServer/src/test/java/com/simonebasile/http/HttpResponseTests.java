@@ -1,6 +1,8 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.response.ByteResponseBody;
+import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.unpub.HttpMessageUtils;
 import com.simonebasile.http.unpub.HttpOutputStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,7 +17,7 @@ public class HttpResponseTests {
     public void testResponse() throws IOException {
         HttpResponse<ByteResponseBody> response = new HttpResponse<>(new ByteResponseBody("Response"));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        response.write(HttpVersion.V1_1, new HttpOutputStream(out));
+        HttpMessageUtils.writeResponse(HttpVersion.V1_1, response, new HttpOutputStream(out));
         Assertions.assertEquals("""
                 HTTP/1.1 200 OK\r
                 CONTENT-TYPE: text/plain; charset=UTF-8\r
@@ -31,7 +33,7 @@ public class HttpResponseTests {
         httpHeaders.add("Prova", "header");
         HttpResponse<ByteResponseBody> response = new HttpResponse<>(200, httpHeaders, null);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        response.write(HttpVersion.V1_1, new HttpOutputStream(out));
+        HttpMessageUtils.writeResponse(HttpVersion.V1_1, response, new HttpOutputStream(out));
         Assertions.assertEquals("""
                 HTTP/1.1 200 OK\r
                 CONTENT-LENGTH: 0\r
@@ -43,7 +45,7 @@ public class HttpResponseTests {
 
     @Test
     public void testResponseStreamBody() throws IOException {
-        HttpResponse<HttpResponse.ResponseBody> response = new HttpResponse<>(new HttpResponse.ResponseBody() {
+        HttpResponse<ResponseBody> response = new HttpResponse<>(new ResponseBody() {
 
             @Override
             public void write(OutputStream out) throws IOException {
@@ -62,7 +64,7 @@ public class HttpResponseTests {
             }
         });
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        response.write(HttpVersion.V1_1, new HttpOutputStream(out));
+        HttpMessageUtils.writeResponse(HttpVersion.V1_1, response, new HttpOutputStream(out));
         Assertions.assertEquals("""
                     HTTP/1.1 200 OK\r
                     TRANSFER-ENCODING: chunked\r

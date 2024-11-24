@@ -1,17 +1,20 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.unpub.CustomException;
+import com.simonebasile.http.unpub.HttpMessageUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class HttpHeadersTests {
     @Test
     public void testHeaders() {
         HttpHeaders original = new HttpHeaders();
-        original.parseLine("Content-type: application/json");
+        HttpMessageUtils.parseHeader(original, "Content-type: application/json");
         original.add("ACCEPT", "text/xml");
         original.add("content-length", "16");
         original.add("upgrade", "websocket");
@@ -43,41 +46,18 @@ public class HttpHeadersTests {
         Assertions.assertNull(httpHeaders.contentLength());
         httpHeaders.add("content-length", "miao");
 
-        try {
-            httpHeaders.getExact("Double-header");
-            Assertions.fail("Should throw");
-        } catch (Exception e) {
-            Assertions.assertInstanceOf(CustomException.class, e);
-        }
+        //Convert following using assertThrows
 
-        try {
-            httpHeaders.contentLength();
-            Assertions.fail("Should throw");
-        } catch (Exception e) {
-            Assertions.assertInstanceOf(CustomException.class, e);
-        }
+        assertThrows(CustomException.class, () -> httpHeaders.getExact("Double-header"));
+
+        assertThrows(CustomException.class, httpHeaders::contentLength);
 
         httpHeaders.add("content-length", "2");
-        try {
-            httpHeaders.contentLength();
-            Assertions.fail("Should throw");
-        } catch (Exception e) {
-            Assertions.assertInstanceOf(CustomException.class, e);
-        }
+        assertThrows(CustomException.class, httpHeaders::contentLength);
 
-        try {
-            httpHeaders.parseLine("Lama:");
-            Assertions.fail("Should throw");
-        } catch (Exception e) {
-            Assertions.assertInstanceOf(CustomException.class, e);
-        }
+        assertThrows(CustomException.class, () -> HttpMessageUtils.parseHeader(httpHeaders,"Lama:"));
 
-        try {
-            httpHeaders.parseLine("Lama");
-            Assertions.fail("Should throw");
-        } catch (Exception e) {
-            Assertions.assertInstanceOf(CustomException.class, e);
-        }
+        assertThrows(CustomException.class, () -> HttpMessageUtils.parseHeader(httpHeaders,"Lama"));
 
     }
 }

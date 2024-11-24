@@ -1,6 +1,7 @@
 package com.simonebasile.sampleapp.interceptors;
 
 import com.simonebasile.http.*;
+import com.simonebasile.http.response.ResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.views.html.custom.Toast;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class ErrorHandlingInterceptor implements HttpInterceptor<InputStream, Ap
      * @return the response
      */
     @Override
-    public HttpResponse<? extends HttpResponse.ResponseBody> intercept(HttpRequest<? extends InputStream> request, ApplicationRequestContext requestContext, HttpRequestHandler<InputStream, ApplicationRequestContext> next) {
+    public HttpResponse<? extends ResponseBody> intercept(HttpRequest<? extends InputStream> request, ApplicationRequestContext requestContext, HttpRequestHandler<InputStream, ApplicationRequestContext> next) {
         try {
             return next.handle(request, requestContext);
         } catch (ShowableException e) {

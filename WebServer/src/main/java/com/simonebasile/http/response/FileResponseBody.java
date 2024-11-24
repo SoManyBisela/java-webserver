@@ -1,13 +1,11 @@
 package com.simonebasile.http.response;
 
-import com.simonebasile.http.HttpResponse;
-
 import java.io.*;
 
 /**
  * A response body that writes a file to the output stream.
  */
-public class FileResponseBody implements HttpResponse.ResponseBody {
+public class FileResponseBody implements ResponseBody {
     private final File file;
 
     /**

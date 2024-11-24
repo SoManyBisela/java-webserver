@@ -3,6 +3,7 @@ package com.simonebasile.http;
 import com.simonebasile.http.unpub.CustomException;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Represents the headers of an HTTP message.
@@ -15,35 +16,12 @@ public class HttpHeaders {
         this.headers = new HashMap<>();
     }
 
-    HttpHeaders(HttpHeaders other) {
+    public HttpHeaders(HttpHeaders other) {
         this.headers = new HashMap<>(other.headers);
     }
 
     private static String norm(String s) {
         return s.toUpperCase(Locale.ROOT);
-    }
-
-    /**
-     * Parses a string containing the header of an HTTP message and adds it to this HttpHeaders.
-     * @param line the string header to parse
-     */
-    void parseLine(String line) {
-        int length = line.length();
-        int colon = line.indexOf(":");
-        String err = null;
-        if (colon == -1) {
-            err = "Invalid header: Missing colon";
-        } else if (length == colon + 1) {
-            err = "Invalid header: Ends with colon";
-        }
-        if (err != null) throw new CustomException(err);
-        String key = line.substring(0, colon);
-        while (++colon < length &&
-                Character.isWhitespace(line.charAt(colon))) {
-        }
-        if (colon == length) throw new CustomException("Invalid header: Missing value");
-        String value = line.substring(colon);
-        add(key, value);
     }
 
     /**
@@ -83,6 +61,22 @@ public class HttpHeaders {
         final String connection = getExact("Connection");
         if(connection == null) return null;
         return Arrays.stream(connection.split(",")).map(String::trim).map(String::toLowerCase).toList();
+    }
+
+    /**
+     * Returns the values of the Transfer-Encoding header.
+     * @return values of the Connection header or null if the header is not present.
+     * @throws CustomException if the header is present multiple times.
+     */
+    public List<String> transferEncoding() {
+        List<String> strings = new ArrayList<>();
+        final List<String> headers = get("Transfer-Encoding");
+        if(headers == null) return strings;
+        headers.stream().flatMap(a -> Stream.of(a.split(",")))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .forEach(strings::add);
+        return strings;
     }
 
     /**
@@ -180,5 +174,7 @@ public class HttpHeaders {
         }
         return res;
     }
+
+
 
 }

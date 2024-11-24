@@ -1,6 +1,7 @@
 package com.simonebasile.sampleapp.interceptors;
 
 import com.simonebasile.http.*;
+import com.simonebasile.http.response.ResponseBody;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -34,7 +35,7 @@ class ConditionalInterceptorTest {
         when(request.getResource()).thenReturn("/intercept/resource");
         when(mockTargetInterceptor.intercept(request, "context", mockNextHandler)).thenReturn(new HttpResponse<>(200, new HttpHeaders(), null));
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = conditionalInterceptor.intercept(request, "context", mockNextHandler);
+        HttpResponse<? extends ResponseBody> response = conditionalInterceptor.intercept(request, "context", mockNextHandler);
 
         assertEquals(200, response.getStatusCode());
         verify(mockTargetInterceptor).intercept(request, "context", mockNextHandler);
@@ -46,7 +47,7 @@ class ConditionalInterceptorTest {
         when(request.getResource()).thenReturn("/noIntercept/resource");
         when(mockNextHandler.handle(request, "context")).thenReturn(new HttpResponse<>(200, new HttpHeaders(), null));
 
-        HttpResponse<? extends HttpResponse.ResponseBody> response = conditionalInterceptor.intercept(request, "context", mockNextHandler);
+        HttpResponse<? extends ResponseBody> response = conditionalInterceptor.intercept(request, "context", mockNextHandler);
 
         assertEquals(200, response.getStatusCode());
         verify(mockTargetInterceptor, never()).intercept(request, "context", mockNextHandler);

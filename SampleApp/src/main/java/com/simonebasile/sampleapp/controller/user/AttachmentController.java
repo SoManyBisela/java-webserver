@@ -3,6 +3,7 @@ package com.simonebasile.sampleapp.controller.user;
 import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
+import com.simonebasile.http.response.ResponseBody;
 import com.simonebasile.http.response.FileResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.AttachmentFile;
@@ -39,7 +40,7 @@ public class AttachmentController extends MethodHandler<InputStream, Application
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         UploadAttachmentRequest uploadAttachmentRequest = FormHttpMapper.mapHttpResource(r.getResource(), UploadAttachmentRequest.class);
         if(uploadAttachmentRequest.getTicketId() == null) {
@@ -69,7 +70,7 @@ public class AttachmentController extends MethodHandler<InputStream, Application
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends HttpResponse.ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         DownloadAttachmentRequest downloadReq = FormHttpMapper.mapHttpResource(r.getResource(), DownloadAttachmentRequest.class);
         AttachmentFile file = ticketService.getAttachment(downloadReq.getTicketId(), downloadReq.getAti(), user);

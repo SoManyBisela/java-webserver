@@ -1,6 +1,7 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.response.ByteResponseBody;
+import com.simonebasile.http.response.ResponseBody;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -22,7 +23,7 @@ public class HttpRoutingContextTest {
 
         HttpRequest<String> request = new HttpRequest<>("GET", "/root/nested", HttpVersion.V1_1, new HttpHeaders(), "body");
         RequestContext requestContext = new RequestContext();
-        HttpResponse<? extends HttpResponse.ResponseBody> response = rootContext.handle(request, requestContext);
+        HttpResponse<? extends ResponseBody> response = rootContext.handle(request, requestContext);
 
         assertEquals(200, response.getStatusCode());
         assertEquals("Nested handler response", bodyToString((ByteResponseBody) response.getBody()));

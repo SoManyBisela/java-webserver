@@ -3,13 +3,17 @@ package com.simonebasile.http;
 import com.simonebasile.http.unpub.ConnectionClosedBeforeRequestStartException;
 import com.simonebasile.http.unpub.CustomException;
 import com.simonebasile.http.unpub.HttpInputStream;
+import com.simonebasile.http.unpub.HttpMessageUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HttpRequestTest {
 
@@ -22,12 +26,10 @@ public class HttpRequestTest {
                 \r
                 """;
         HttpInputStream in = fromString(reqStr);
-        HttpRequest<String> parse = HttpRequest.parse(in, (a, l) -> {
-            Assertions.assertEquals(0, l);
-            return null;
-        });
+        HttpRequest<InputStream> request = HttpMessageUtils.parseRequest(in);
+        assertEquals(0, request.body.readAllBytes().length);
 
-        Assertions.assertTrue(parse.isWebSocketConnection());
+        Assertions.assertTrue(request.isWebSocketConnection());
     }
 
     @Test
@@ -38,25 +40,20 @@ public class HttpRequestTest {
                         "Content-Length: 100\r\n" +
                         "\r\n" + body;
         HttpInputStream in = fromString(reqStr);
-        HttpRequest<String> parse = HttpRequest.parse(in, (a, l) -> {
-            Assertions.assertEquals(100, l);
-            try {
-                byte[] bytes = a.readAllBytes();
-                return  new String(bytes, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        System.out.println(parse);
+        HttpRequest<InputStream> parse = HttpMessageUtils.parseRequest(in);
+        byte[] parsedBody = parse.getBody().readAllBytes();
+        String stringBody = new String(parsedBody, StandardCharsets.UTF_8);
+        assertEquals(parsedBody.length, 100);
+        assertEquals(body, stringBody);
 
 
-        HttpRequest<String> copy = new HttpRequest<>(parse, parse.getBody());
-        Assertions.assertEquals("GET", copy.getMethod());
-        Assertions.assertEquals("/", copy.getResource());
-        Assertions.assertEquals(HttpVersion.V1_1, copy.getVersion());
-        Assertions.assertEquals("text/html", copy.getHeaders().getExact("content-type"));
-        Assertions.assertEquals(body, copy.getBody());
+
+        HttpRequest<String> copy = new HttpRequest<>(parse, stringBody);
+        assertEquals("GET", copy.getMethod());
+        assertEquals("/", copy.getResource());
+        assertEquals(HttpVersion.V1_1, copy.getVersion());
+        assertEquals("text/html", copy.getHeaders().getExact("content-type"));
+        assertEquals(body, copy.getBody());
         Assertions.assertFalse(copy.isWebSocketConnection());
     }
 
@@ -64,14 +61,14 @@ public class HttpRequestTest {
     public void testParseFailures() throws IOException {
         HttpInputStream truncatedIs = fromString("GET / HTTP");
         try {
-            HttpRequest.parse(truncatedIs, (a, b) ->null);
+            HttpMessageUtils.parseRequest(truncatedIs);
         } catch (Exception e) {
             Assertions.assertInstanceOf(ConnectionClosedBeforeRequestStartException.class, e);
         }
 
         HttpInputStream truncStat = fromString("GET / HTTP/1.1\r\nheader: va");
         try {
-            HttpRequest.parse(truncStat, (a, b) ->null);
+            HttpMessageUtils.parseRequest(truncStat);
         } catch (Exception e) {
             Assertions.assertInstanceOf(EOFException.class, e);
         }
@@ -79,14 +76,14 @@ public class HttpRequestTest {
 
         HttpInputStream versionless = fromString("GET /\r\n");
         try {
-            HttpRequest.parse(versionless, (a, b) ->null);
+            HttpMessageUtils.parseRequest(versionless);
         } catch (Exception e) {
             Assertions.assertInstanceOf(CustomException.class, e);
         }
 
         HttpInputStream invalidVersion = fromString("GET / HTP/1.1\r\n");
         try {
-            HttpRequest.parse(invalidVersion, (a, b) ->null);
+            HttpMessageUtils.parseRequest(invalidVersion);
         } catch (Exception e) {
             Assertions.assertInstanceOf(IllegalArgumentException.class, e);
         }

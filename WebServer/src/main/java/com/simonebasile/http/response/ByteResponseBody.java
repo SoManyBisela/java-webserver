@@ -1,7 +1,5 @@
 package com.simonebasile.http.response;
 
-import com.simonebasile.http.HttpResponse;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -11,7 +9,7 @@ import java.util.Objects;
 /**
  * A response body that writes a byte array to the output stream.
  */
-public class ByteResponseBody implements HttpResponse.ResponseBody {
+public class ByteResponseBody implements ResponseBody {
     private final byte[] content;
     private final String contentType;
 

@@ -55,43 +55,6 @@ public class HttpRequest<T> extends HttpMessage<T> {
     }
 
     /**
-     * Parses an HTTP request from an input stream.
-     *
-     * @param his the input stream to read from
-     * @param bodyReader the reader to use to read the body of the request
-     * @param <T> the type of the body of the request
-     * @return the parsed HTTP request
-     * @throws IOException if an I/O error occurs
-     */
-    //TODO pattern
-    public static <T> HttpRequest<T> parse(HttpInputStream his, BodyReader<T> bodyReader) throws IOException {
-
-        String line;
-        try {
-            line = his.readLine();
-        }catch (EOFException e){
-            throw new ConnectionClosedBeforeRequestStartException();
-        }
-        String[] statusLine = line.split(" ");
-        if (statusLine.length != 3) {
-            throw new CustomException("Invalid status line: " + line);
-        }
-
-        String method = statusLine[0]; //TODO parse
-        String resource = statusLine[1];
-        HttpVersion version = HttpVersion.parse(statusLine[2]);
-
-        HttpHeaders headers = new HttpHeaders();
-        while (!(line = his.readLine()).isEmpty()) {
-            headers.parseLine(line);
-        }
-        Integer length = headers.contentLength();
-        if(length == null) length = 0;
-        T body = bodyReader.readBody(his, length);
-        return new HttpRequest<>(method, resource, version, headers, body);
-    }
-
-    /**
      * Returns true if the request is a WebSocket connection request.
      *
      * @return true if the request is a WebSocket connection request
