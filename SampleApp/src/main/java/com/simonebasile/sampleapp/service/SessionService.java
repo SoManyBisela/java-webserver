@@ -4,6 +4,7 @@ import com.simonebasile.sampleapp.repository.SessionRepository;
 import com.simonebasile.sampleapp.model.SessionData;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -15,6 +16,7 @@ import java.util.function.Consumer;
 public class SessionService {
 
     private final SessionRepository sessionRepository;
+    private final HashMap<String, SessionData> sessionsCache = new HashMap<>();
 
     public SessionService(SessionRepository sessionRepository) {
         this.sessionRepository = sessionRepository;
@@ -27,9 +29,11 @@ public class SessionService {
      * @return the updated session
      */
     public SessionData updateSession(String sessionId, Consumer<SessionData> op) {
-        SessionData data= sessionRepository.getSession(sessionId);
-        op.accept(data);
-        return sessionRepository.update(data);
+        SessionData data = getSession(sessionId);
+        final SessionData t = new SessionData(data);
+        op.accept(t);
+        sessionsCache.put(sessionId, t);
+        return sessionRepository.update(t);
     }
 
     /**
@@ -40,7 +44,7 @@ public class SessionService {
      */
     public SessionData getOrCreateSession(String sessionId) {
         log.debug("Requested session: {}", sessionId);
-        SessionData data = sessionRepository.getSession(sessionId);
+        SessionData data = getSession(sessionId);
         if(data == null) {
             String string = UUID.randomUUID().toString();
             data = new SessionData(string);
@@ -49,6 +53,11 @@ public class SessionService {
         }
         log.trace("Returned session: {}", data);
         return data;
+    }
+
+    public SessionData getSession(String sessionId) {
+        return sessionsCache.computeIfAbsent(sessionId, sessionRepository::getSession);
+
     }
 
 }
