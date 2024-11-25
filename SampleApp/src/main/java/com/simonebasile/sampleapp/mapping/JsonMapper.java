@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.json;
+package com.simonebasile.sampleapp.mapping;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;

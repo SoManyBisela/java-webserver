@@ -5,13 +5,11 @@ import com.simonebasile.sampleapp.dto.ChatProtoMessage;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.html.IHtmlElement;
-import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
-import static com.simonebasile.sampleapp.views.html.HtmlElement.span;
 
 /**
  * Class that encodes a ChatProtoMessage into htmx elements to be rendered in the page

@@ -3,7 +3,7 @@ package com.simonebasile.sampleapp.controller;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.HttpResponseBody;
-import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.RegisterRequest;
 import com.simonebasile.http.handlers.MethodHandler;
@@ -48,7 +48,7 @@ public class RegisterController extends MethodHandler<InputStream, ApplicationRe
         RegisterRequest body = FormHttpMapper.map(r.getBody(), RegisterRequest.class);
         try {
             authService.registerUser(body);
-            return ResponseUtils.redirect(r, "/login");
+            return Utils.redirect(r, "/login");
         } catch (UserAuthException e) {
             return new HttpResponse<>(400, new RegisterView(e.getMessage()));
         }

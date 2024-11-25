@@ -1,7 +1,6 @@
 package com.simonebasile.sampleapp.mapping;
 
 import com.simonebasile.http.format.QueryParameters;
-import com.simonebasile.sampleapp.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;

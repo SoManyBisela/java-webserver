@@ -1,14 +1,12 @@
 package com.simonebasile.sampleapp.views;
 
-import com.simonebasile.sampleapp.model.Attachment;
-import com.simonebasile.sampleapp.model.Comment;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.TicketState;
+import com.simonebasile.sampleapp.views.custom.*;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.html.IHtmlElement;
 import com.simonebasile.sampleapp.views.html.NoElement;
-import com.simonebasile.sampleapp.views.html.custom.*;
 
 import java.io.IOException;
 import java.io.OutputStream;

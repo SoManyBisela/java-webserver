@@ -4,7 +4,7 @@ import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.handlers.HttpRequestHandler;
 import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.HttpResponseBody;
-import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.service.SessionService;
 
@@ -30,6 +30,6 @@ public class LogoutController implements HttpRequestHandler<InputStream, Applica
     @Override
     public HttpResponse<? extends HttpResponseBody> handle(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         sessionService.updateSession(context.getSessionId(), s -> s.setUsername(null));
-        return ResponseUtils.redirect(r, "/login");
+        return Utils.redirect(r, "/login");
     }
 }

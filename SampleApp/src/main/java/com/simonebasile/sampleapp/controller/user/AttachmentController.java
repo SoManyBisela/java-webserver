@@ -15,7 +15,7 @@ import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.*;
 import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.errors.UploadAttachmentException;
-import com.simonebasile.sampleapp.views.html.custom.AttachmentList;
+import com.simonebasile.sampleapp.views.custom.AttachmentList;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;

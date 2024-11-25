@@ -3,7 +3,7 @@ package com.simonebasile.sampleapp.controller;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.HttpResponseBody;
-import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.LoginRequest;
 import com.simonebasile.http.handlers.MethodHandler;
@@ -35,7 +35,7 @@ public class LoginController extends MethodHandler<InputStream, ApplicationReque
     @Override
     protected HttpResponse<? extends HttpResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         if(context.getLoggedUser() != null) {
-            return ResponseUtils.redirect(r, "/");
+            return Utils.redirect(r, "/");
         }
         return new HttpResponse<>(new LoginView());
     }
@@ -52,7 +52,7 @@ public class LoginController extends MethodHandler<InputStream, ApplicationReque
         LoginRequest body = FormHttpMapper.map(r.getBody(), LoginRequest.class);
         try {
             authService.login(context.getSessionId(), body);
-            return ResponseUtils.redirect(r, "/");
+            return Utils.redirect(r, "/");
         } catch (UserAuthException e) {
             return new HttpResponse<>(401, new LoginView(e.getMessage()));
         }

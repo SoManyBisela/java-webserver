@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.views.html.custom;
+package com.simonebasile.sampleapp.views.custom;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

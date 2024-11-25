@@ -3,9 +3,9 @@ package com.simonebasile.sampleapp.views;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.custom.FormButton;
-import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
-import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
+import com.simonebasile.sampleapp.views.custom.FormButton;
+import com.simonebasile.sampleapp.views.custom.MaterialIcon;
+import com.simonebasile.sampleapp.views.custom.TextInputElement;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 

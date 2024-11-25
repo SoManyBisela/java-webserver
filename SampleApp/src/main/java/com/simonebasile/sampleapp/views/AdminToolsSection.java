@@ -2,10 +2,10 @@ package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
-import com.simonebasile.sampleapp.views.html.custom.FormButton;
-import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
-import com.simonebasile.sampleapp.views.html.custom.SelectInputElement;
-import com.simonebasile.sampleapp.views.html.custom.TextInputElement;
+import com.simonebasile.sampleapp.views.custom.FormButton;
+import com.simonebasile.sampleapp.views.custom.MaterialIcon;
+import com.simonebasile.sampleapp.views.custom.SelectInputElement;
+import com.simonebasile.sampleapp.views.custom.TextInputElement;
 
 import java.util.Arrays;
 

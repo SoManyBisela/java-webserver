@@ -6,7 +6,7 @@ import com.simonebasile.http.handlers.WebsocketWriter;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.ChatMessageEncoder;
 import com.simonebasile.sampleapp.dto.ChatProtoMessage;
-import com.simonebasile.sampleapp.json.JsonMapper;
+import com.simonebasile.sampleapp.mapping.JsonMapper;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.chat.HtmxChatMessageEncoder;

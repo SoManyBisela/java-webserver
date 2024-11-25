@@ -3,7 +3,7 @@ package com.simonebasile.sampleapp.views;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
+import com.simonebasile.sampleapp.views.custom.MaterialIcon;
 
 import java.util.List;
 

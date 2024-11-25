@@ -7,7 +7,7 @@ import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
-import com.simonebasile.sampleapp.views.html.custom.Toast;
+import com.simonebasile.sampleapp.views.custom.Toast;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;

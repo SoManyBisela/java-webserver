@@ -7,7 +7,7 @@ import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
-import com.simonebasile.sampleapp.ResponseUtils;
+import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.User;
@@ -54,7 +54,7 @@ public class AuthenticationInterceptor<T> implements HttpInterceptor<T, Applicat
             }
             context.setLoggedUser(logged);
         } else if (!request.getResource().equals("/login")){
-            return ResponseUtils.redirect(request, "/login");
+            return Utils.redirect(request, "/login");
         }
         var response = next.handle(request, context);
         response.getHeaders().setCookie("session", sessionData.getId());

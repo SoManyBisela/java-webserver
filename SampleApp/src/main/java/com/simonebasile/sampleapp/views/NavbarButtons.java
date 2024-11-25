@@ -4,7 +4,7 @@ import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
+import com.simonebasile.sampleapp.views.custom.MaterialIcon;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 

@@ -1,9 +1,8 @@
-package com.simonebasile.sampleapp.views.html.custom;
+package com.simonebasile.sampleapp.views.custom;
 
 import com.simonebasile.sampleapp.model.Attachment;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.html.IHtmlElement;
-import com.simonebasile.sampleapp.views.html.NoElement;
 
 import java.io.IOException;
 import java.io.OutputStream;

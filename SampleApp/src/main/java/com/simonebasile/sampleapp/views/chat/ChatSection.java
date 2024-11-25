@@ -1,7 +1,7 @@
 package com.simonebasile.sampleapp.views.chat;
 
 import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
+import com.simonebasile.sampleapp.views.custom.MaterialIcon;
 
 /**
  * The section of the chat interface.
