@@ -30,6 +30,7 @@ package "Administration" {
     (Register) as (REG)
     (Create user) as (UCRT)
     (Change password) as (CP)
+    (REG) .> (UCRT):include
 }
 
 left to right direction
