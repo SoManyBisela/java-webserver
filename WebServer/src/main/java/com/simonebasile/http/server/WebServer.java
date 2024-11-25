@@ -83,7 +83,7 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
      * @return A new builder
      */
     public static WebServerBuilder<RequestContext> builder() {
-        return new WebServerBuilder<>(RequestContext::new);
+        return new WebServerBuilder<>(new DefaultRequestContextFactory());
     }
 
     /**
@@ -180,7 +180,7 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
                 var port = this.port == null ? 0 : this.port;
                 var backlog = this.backlog == null ? 50 : this.backlog;
                 var address = this.address;
-                serverSocketFactory = () -> new ServerSocket(port, backlog, address);
+                serverSocketFactory = new DefaultServerSocketFactory(port, backlog, address);
             }
             return new WebServer<>(
                     serverSocketFactory,
@@ -188,6 +188,7 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
             );
 
         }
+
     }
 
     /**
