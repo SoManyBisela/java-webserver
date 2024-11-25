@@ -94,6 +94,12 @@ public class TicketService {
      */
     public Ticket update(UserUpdateTicket body, User user) {
         Ticket ticket = getById(body.getId(), user);
+        if(ticket == null) {
+            throw new UpdateTicketException("Ticket not found");
+        }
+        if(ticket.getState() == TicketState.CLOSED) {
+            throw new UpdateTicketException("Ticket is closed");
+        }
         if(ticket.getState() == TicketState.DRAFT) {
             if(body.getObject() != null) {
                 if(Utils.isEmpty(body.getObject())) {

@@ -103,8 +103,10 @@ public class UserTicketDetailSection implements IHtmlElement {
                 new TextInputElement("object", "Object").value(t.getObject()).readonly(),
                 new TextAreaElement("message", "Message").value(t.getMessage()).readonly(),
                 new AttachmentList(t.getAttachments(), t.getId()),
-                new AddCommentForm(t.getId()),
-                new CommentSection(t.getComments(), t.getOwner())
+                t.getState() == TicketState.CLOSED ? NoElement.instance : new ElementGroup(
+                        new AddCommentForm(t.getId()),
+                        new CommentSection(t.getComments(), t.getOwner())
+                )
         );
     }
 

@@ -4,6 +4,7 @@ import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.custom.*;
+import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.html.IHtmlElement;
 import com.simonebasile.sampleapp.views.html.NoElement;
@@ -30,8 +31,10 @@ public class EmployeeTicketDetailSection implements IHtmlElement {
                 new TextInputElement("object", "Object").value(t.getObject()).readonly(),
                 new TextAreaElement("message", "Message").value(t.getMessage()).readonly(),
                 new AttachmentList(t.getAttachments(), t.getId()),
-                new AddCommentForm(t.getId()),
-                new CommentSection(t.getComments(), user.getUsername())
+                t.getState() == TicketState.CLOSED ? NoElement.instance : new ElementGroup(
+                        new AddCommentForm(t.getId()),
+                        new CommentSection(t.getComments(), user.getUsername())
+                )
         );
     }
 
