@@ -1,12 +1,43 @@
 @startuml chat-sequence
 
-participant "User" as U
-participant "Employee" as E
+participant "User Client" as U
+participant "Employee Client" as E
 participant "Server" as S
 
 U -> S: Connect to chat websocket
 S -> U: Connection established
+S -> U: CONNECTED
 E -> S: Connect to chat websocket
 S -> E: Connection established
+S -> E: CONNECTED
+U -> S: WANT_TO_CHAT
+S -> E: CHAT_AVAILABLE
+S -> U: WAIT_FOR_CHAT
+alt user gets bored and wants to exit
+    U -> S: ABORT_CHAT
+    S -> E: NO_CHAT_AVAILABLE
+    S -> U: CONNECTED
+else user gets connected
+    E -> S: ACCEPT_CHAT
+    S -> U: CHAT_CONNECTED
+    S -> E: CHAT_CONNECTED
+    loop message exchange
+        U -> S: SEND_MESSAGE
+        S -> U: MESSAGE_SENT
+        S -> E: MESSAGE_RECEIVED
+        E -> S: SEND_MESSAGE
+        S -> E: MESSAGE_SENT
+        S -> U: MESSAGE_RECEIVED
+    end
+    alt user wants to exit
+        U -> S: END_CHAT
+        S -> E: CHAT_DISCONNECTED
+        S -> U: CHAT_DISCONNECTED
+    else employee wants to exit
+        E -> S: END_CHAT
+        S -> E: CHAT_DISCONNECTED
+        S -> U: CHAT_DISCONNECTED
+    end
+end
 
 @enduml

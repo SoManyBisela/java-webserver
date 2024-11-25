@@ -1,0 +1,56 @@
+@startuml
+'https://plantuml.com/use-case-diagram
+
+:Admin: as ADM
+:Unknows user: as UUSR
+:User: as USR
+:Employee: as EMP
+
+package "Tickets" {
+    (View created tickets) as (VCT)
+    (Create ticket) as (CT)
+    (Edit ticket) as (ET)
+    (Submit ticket) as (ST)
+    (Delete ticket) as (DT)
+    (Upload attachment) as (UA)
+
+    (Download attachment) as (DA)
+
+    (View submitted tickets) as (VST)
+    (Assign ticket) as (AT)
+    (Close ticket) as (CT)
+
+    (View ticket) as (VT)
+
+    (VCT) .> (VT):include
+    (VST) .> (VT):include
+}
+
+package "Administration" {
+    (Register) as (REG)
+    (Create user) as (UCRT)
+    (Change password) as (CP)
+}
+
+left to right direction
+UUSR --> (REG)
+
+USR --> (VCT) #line:red
+USR --> (CT) #line:red
+USR --> (ET)#line:red
+USR --> (ST)#line:red
+USR --> (DT)#line:red
+USR --> (UA)#line:red
+
+USR --> (DA)#line:red
+EMP --> (DA)#line:green
+USR --> (CP)#line:red
+EMP --> (CP)#line:green
+
+EMP --> (VST)#line:green
+EMP --> (AT)#line:green
+EMP --> (CT)#line:green
+
+ADM --> (UCRT)#line:blue
+ADM --> (CP)#line:blue
+@enduml
