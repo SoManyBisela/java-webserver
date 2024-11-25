@@ -1,6 +1,6 @@
-package com.simonebasile.http;
+package com.simonebasile.http.unexported;
 
-import com.simonebasile.http.unpub.WebSocket;
+import com.simonebasile.http.WebsocketWriter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

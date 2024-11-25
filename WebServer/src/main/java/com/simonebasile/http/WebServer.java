@@ -1,8 +1,7 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.response.ByteResponseBody;
-import com.simonebasile.http.response.ResponseBody;
-import com.simonebasile.http.unpub.*;
+import com.simonebasile.http.unexported.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util. concurrent.locks.ReentrantLock;
 
-import static com.simonebasile.http.unpub.WebSocket.WSDataFrame.*;
+import static com.simonebasile.http.unexported.WebSocket.WSDataFrame.*;
 
 /**
  * A web server that can handle both http and websocket requests.

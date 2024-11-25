@@ -79,7 +79,7 @@ public interface WebsocketHandler<WebsocketContext, HttpRequestContext> {
      * @param websocketWriter the writer that can be used to send messages to the client
      * @param context the context of the websocket connection
      */
-    void onHandshakeComplete(WebsocketWriterImpl websocketWriter, WebsocketContext context);
+    void onHandshakeComplete(WebsocketWriter websocketWriter, WebsocketContext context);
 
     /**
      * This method is called when a client sends a message to the server.

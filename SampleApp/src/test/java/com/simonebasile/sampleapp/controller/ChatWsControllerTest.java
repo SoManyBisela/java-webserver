@@ -2,9 +2,8 @@ package com.simonebasile.sampleapp.controller;
 
 import com.simonebasile.http.WebsocketHandler;
 import com.simonebasile.http.WebsocketMessage;
-import com.simonebasile.http.WebsocketWriterImpl;
+import com.simonebasile.http.WebsocketWriter;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
-import com.simonebasile.sampleapp.dto.CPMType;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +17,7 @@ import static org.mockito.Mockito.*;
 class ChatWsControllerTest {
 
     private ChatWsController controller;
-    private WebsocketWriterImpl mockWriter;
+    private WebsocketWriter mockWriter;
 
     private User user;
     private ApplicationRequestContext userContext;
@@ -31,7 +30,7 @@ class ChatWsControllerTest {
     @BeforeEach
     void setUp() {
         controller = new ChatWsController();
-        mockWriter = mock(WebsocketWriterImpl.class);
+        mockWriter = mock(WebsocketWriter.class);
 
         userContext = new ApplicationRequestContext();
         user = new User("user123", "password", Role.user);

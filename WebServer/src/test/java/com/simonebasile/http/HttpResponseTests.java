@@ -2,8 +2,8 @@ package com.simonebasile.http;
 
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.ResponseBody;
-import com.simonebasile.http.unpub.HttpMessageUtils;
-import com.simonebasile.http.unpub.HttpOutputStream;
+import com.simonebasile.http.unexported.HttpMessageUtils;
+import com.simonebasile.http.unexported.HttpOutputStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

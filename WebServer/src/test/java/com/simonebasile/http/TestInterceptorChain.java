@@ -1,6 +1,6 @@
 package com.simonebasile.http;
 
-import com.simonebasile.http.unpub.InterceptorChainImpl;
+import com.simonebasile.http.unexported.InterceptorChainImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

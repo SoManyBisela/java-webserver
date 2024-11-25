@@ -1,10 +1,7 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.response.ByteResponseBody;
-import com.simonebasile.http.unpub.CustomException;
-import com.simonebasile.http.unpub.HttpInputStream;
-import com.simonebasile.http.unpub.HttpOutputStream;
-import com.simonebasile.http.unpub.WebSocket;
+import com.simonebasile.http.unexported.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -77,7 +74,7 @@ public class WebserverTests {
         }
 
         @Override
-        public void onHandshakeComplete(WebsocketWriterImpl websocketWriter, Void ctx) { }
+        public void onHandshakeComplete(WebsocketWriter websocketWriter, Void ctx) { }
 
         @Override
         public void onMessage(WebsocketMessage msg, Void ctx) { }
@@ -147,7 +144,7 @@ public class WebserverTests {
             }
 
             @Override
-            public void onHandshakeComplete(WebsocketWriterImpl websocketWriter, Object ctx) {
+            public void onHandshakeComplete(WebsocketWriter websocketWriter, Object ctx) {
                 try {
                     websocketWriter.sendText("Handshake Completato");
                     written[0] = true;
@@ -230,7 +227,7 @@ public class WebserverTests {
             }
 
             @Override
-            public void onHandshakeComplete(WebsocketWriterImpl websocketWriter, Object ctx) {}
+            public void onHandshakeComplete(WebsocketWriter websocketWriter, Object ctx) {}
 
             @Override
             public void onMessage(WebsocketMessage msg, Object o) {
@@ -299,7 +296,7 @@ public class WebserverTests {
             }
 
             @Override
-            public void onHandshakeComplete(WebsocketWriterImpl websocketWriter, WebsocketWriter[] ctx) {
+            public void onHandshakeComplete(WebsocketWriter websocketWriter, WebsocketWriter[] ctx) {
                 ctx[0] = websocketWriter;
             }
 

@@ -1,8 +1,8 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.response.ByteResponseBody;
-import com.simonebasile.http.unpub.CustomException;
-import com.simonebasile.http.unpub.InterceptorChainImpl;
+import com.simonebasile.http.unexported.CustomException;
+import com.simonebasile.http.unexported.InterceptorChainImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

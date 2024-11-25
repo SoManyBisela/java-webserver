@@ -1,6 +1,6 @@
 package com.simonebasile.http;
 
-import com.simonebasile.http.unpub.ChunkedWrapper;
+import com.simonebasile.http.unexported.ChunkedWrapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

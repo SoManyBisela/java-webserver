@@ -3,7 +3,6 @@ package com.simonebasile.sampleapp.controller;
 import com.simonebasile.http.WebsocketHandler;
 import com.simonebasile.http.WebsocketMessage;
 import com.simonebasile.http.WebsocketWriter;
-import com.simonebasile.http.WebsocketWriterImpl;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.ChatMessageEncoder;
 import com.simonebasile.sampleapp.dto.ChatProtoMessage;
@@ -153,7 +152,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
      * The user is added to the connectedUsers map
      */
     @Override
-    public void onHandshakeComplete(WebsocketWriterImpl websocketWriter, WsState ctx) {
+    public void onHandshakeComplete(WebsocketWriter websocketWriter, WsState ctx) {
         log.debug("Handshake completed for user: {}", ctx.user.getUsername());
         final String username = ctx.user.getUsername();
         ctx.writer = new ConnectedUser(ctx.user, websocketWriter, new HtmxChatMessageEncoder());

@@ -1,4 +1,4 @@
-package com.simonebasile.http.unpub;
+package com.simonebasile.http.unexported;
 
 import com.simonebasile.http.HttpVersion;
 

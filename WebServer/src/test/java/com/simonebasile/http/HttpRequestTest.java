@@ -1,9 +1,9 @@
 package com.simonebasile.http;
 
-import com.simonebasile.http.unpub.ConnectionClosedBeforeRequestStartException;
-import com.simonebasile.http.unpub.CustomException;
-import com.simonebasile.http.unpub.HttpInputStream;
-import com.simonebasile.http.unpub.HttpMessageUtils;
+import com.simonebasile.http.unexported.ConnectionClosedBeforeRequestStartException;
+import com.simonebasile.http.unexported.CustomException;
+import com.simonebasile.http.unexported.HttpInputStream;
+import com.simonebasile.http.unexported.HttpMessageUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

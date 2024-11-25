@@ -1,6 +1,6 @@
 package com.simonebasile.http;
 
-import com.simonebasile.http.unpub.CustomException;
+import com.simonebasile.http.unexported.CustomException;
 
 import java.util.*;
 import java.util.stream.Stream;

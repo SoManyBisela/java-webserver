@@ -1,4 +1,4 @@
-package com.simonebasile.http.unpub;
+package com.simonebasile.http.unexported;
 
 public class ConnectionClosedBeforeRequestStartException extends RuntimeException {
 }
