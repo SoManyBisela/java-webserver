@@ -1,20 +1,23 @@
 package com.simonebasile.http.server;
 
-import com.simonebasile.http.handlers.WebsocketHandler;
-import com.simonebasile.http.handlers.WebsocketMessage;
 import com.simonebasile.http.handlers.HttpInterceptor;
 import com.simonebasile.http.handlers.HttpRequestHandler;
+import com.simonebasile.http.handlers.WebsocketHandler;
+import com.simonebasile.http.handlers.WebsocketMessage;
 import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.HttpResponseBody;
-import com.simonebasile.http.routing.*;
+import com.simonebasile.http.routing.HandlerRegistry;
+import com.simonebasile.http.routing.HttpRoutingContext;
+import com.simonebasile.http.routing.HttpRoutingContextImpl;
 import com.simonebasile.http.unexported.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -31,7 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
-import java.util. concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.simonebasile.http.unexported.WebSocket.WSDataFrame.*;
 
@@ -106,10 +109,11 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
 
         /**
          * configures the port on which the server will listen.
+         * setting the port to 0 will let the system choose a random port among the available ones.
          * @param port The port number
          * @return This builder
          */
-        public WebServerBuilder<Context> port(Integer port) {
+        public WebServerBuilder<Context> port(int port) {
             this.port = port;
             return this;
         }
@@ -177,7 +181,7 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
         public WebServer<Context> build() {
             var serverSocketFactory = this.serverSocketFactory;
             if(serverSocketFactory == null) {
-                var port = this.port == null ? 0 : this.port;
+                var port = this.port == null ? 80 : this.port;
                 var backlog = this.backlog == null ? 50 : this.backlog;
                 var address = this.address;
                 serverSocketFactory = new DefaultServerSocketFactory(port, backlog, address);
