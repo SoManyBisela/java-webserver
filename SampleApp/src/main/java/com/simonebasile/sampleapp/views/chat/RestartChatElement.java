@@ -9,7 +9,8 @@ public class RestartChatElement extends HtmlElement {
     public RestartChatElement() {
         super("button");
         text("Close chat");
-        attr("class", "send-message", "ws-send", "true");
+        hxWsSend();
+        attr("class", "restart-chat" );
         hxVals("type", "NEW_CHAT");
     }
 }

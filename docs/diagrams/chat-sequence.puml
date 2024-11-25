@@ -1,0 +1,12 @@
+@startuml chat-sequence
+
+participant "User" as U
+participant "Employee" as E
+participant "Server" as S
+
+U -> S: Connect to chat websocket
+S -> U: Connection established
+E -> S: Connect to chat websocket
+S -> E: Connection established
+
+@enduml

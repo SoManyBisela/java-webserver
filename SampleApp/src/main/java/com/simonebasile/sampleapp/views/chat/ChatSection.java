@@ -10,23 +10,25 @@ import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 public class ChatSection extends HtmlElement {
     public ChatSection() {
         super("div");
-        attr("class", "chatbox closed").content(
+
+        hxExt("ws");
+        attr("class", "chatbox closed" ,"ws-connect", "/chat").content(
                 div().attr("class", "chatbox-content").content(
                         div().attr("class", "chat-header").content(
-                                chatboxToggle().content(new MaterialIcon("minimize"))
+                                new ChatTitle("Chat"),
+                                chatboxToggle("button-icon").content(new MaterialIcon("minimize", "lift")),
+                                new EndChatElement().hidden()
                         ),
                         div().attr("class", "chat-section",
-                                        "id", "chat-section",
-                                        "ws-connect", "/chat")
-                                .hxExt("ws, debug")
+                                        "id", "chat-section")
                                 .content(div().attr("id", "chat-container")
                                         .text("connecting..."))
                 ),
-                chatboxToggle().content(new MaterialIcon("contact_support"))
+                chatboxToggle("default-button").content(new MaterialIcon("contact_support"))
         );
     }
 
-    private HtmlElement chatboxToggle() {
-        return button().attr("class", "chatbox-toggle button-icon", "onclick", "htmx.closest(this, '.chatbox').classList.toggle('closed')");
+    private HtmlElement chatboxToggle(String addClass) {
+        return button().attr("class", "chatbox-toggle " + addClass, "onclick", "htmx.closest(this, '.chatbox').classList.toggle('closed')");
     }
 }

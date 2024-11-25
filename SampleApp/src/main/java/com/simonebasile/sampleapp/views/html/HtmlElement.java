@@ -250,6 +250,10 @@ public class HtmlElement extends ElementGroup{
         return attr("hx-confirm", value);
     }
 
+    public HtmlElement hxWsSend() {
+        return attr("ws-send", "true", "hx-on::wsConfigSend", "evt.detail.headers = false");
+    }
+
     /**
      * Creates the hx-vals attribute that must cotain a JSON object.
      * The JSON object is created by passing an even number of strings the same way attr works

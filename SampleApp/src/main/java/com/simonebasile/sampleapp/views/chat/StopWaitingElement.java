@@ -1,6 +1,7 @@
 package com.simonebasile.sampleapp.views.chat;
 
 import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
 
 /**
  * A button to stop waiting for a chat request.
@@ -8,8 +9,8 @@ import com.simonebasile.sampleapp.views.html.HtmlElement;
 public class StopWaitingElement extends HtmlElement {
     public StopWaitingElement() {
         super("button");
-        attr("class", "abort-button", "ws-send", "true");
+        attr("class", "abort-button default-button", "ws-send", "true");
         hxVals("type", "STOP_WAITING");
-        text("Abort");
+        content( new MaterialIcon("block"), span().text("Abort"));
     }
 }

@@ -8,16 +8,25 @@ import com.simonebasile.sampleapp.views.html.custom.MaterialIcon;
  */
 public class SendMessageElement extends HtmlElement {
     private HtmlElement input;
+    private final static String autosize = "this.style.height = ''; this.style.height = `min(${this.scrollHeight}px, calc(5rem + 12px))`";
     public SendMessageElement() {
         super("form");
         attr("class", "send-message", "id", "send-message", "ws-send", "true");
-
         hxVals("type", "SEND_MESSAGE");
-        input = input().attr("type", "text", "name", "sval").
-                hxExt("simple-loaded-event,debug");
+        input = textarea().attr("type", "text",
+                        "rows", "1",
+                        "name", "sval",
+                        "placeholder", "Type a message...",
+                        "hx-sle-onload", autosize,
+                        "oninput", autosize,
+                        "onkeypress", "if(event.key === 'Enter' && !event.shiftKey) {event.preventDefault(); this.parentElement.querySelector('button[type=\"submit\"]').click()}"
+                        )
+                .hxExt("simple-loaded-event,debug");
         content(
                 input,
-                button().content(new MaterialIcon("send")).attr("type", "submit")
+                div().attr("class", "send-btn-container").content(
+                        button().content(new MaterialIcon("send")).attr("type", "submit", "class", "button-icon")
+                )
         );
     }
 
@@ -26,7 +35,7 @@ public class SendMessageElement extends HtmlElement {
      * @return this
      */
     public SendMessageElement focusOnLoad() {
-        input.attr("hx-sle-onload", "this.focus()");
+        input.attr("hx-sle-onload", autosize + ";this.focus()");
         return this;
     }
 }
