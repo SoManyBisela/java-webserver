@@ -5,7 +5,7 @@ import java.io.*;
 /**
  * A response body that writes a file to the output stream.
  */
-public class FileResponseBody implements ResponseBody {
+public class FileResponseBody implements HttpResponseBody {
     private final File file;
 
     /**

@@ -1,6 +1,6 @@
 package com.simonebasile.sampleapp.views;
 
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.model.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import static com.simonebasile.sampleapp.TestUtils.mkTicket;
 
 class ViewsInstantiationTest {
 
-    private ResponseBody result;
+    private HttpResponseBody result;
 
     @Test
     void testAccountSectionInstantiation() {

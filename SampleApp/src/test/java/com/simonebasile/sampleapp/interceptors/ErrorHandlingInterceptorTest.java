@@ -1,7 +1,7 @@
 package com.simonebasile.sampleapp.interceptors;
 
 import com.simonebasile.http.*;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,10 +28,10 @@ class ErrorHandlingInterceptorTest {
     void testIntercept_NoException() {
         HttpRequest<InputStream> request = new HttpRequest<>("GET", "/api/resource", HttpVersion.V1_1, new HttpHeaders(), null);
         ApplicationRequestContext context = new ApplicationRequestContext();
-        final HttpResponse<ResponseBody> expectedResponse = new HttpResponse<>(200, new HttpHeaders(), null);
+        final HttpResponse<HttpResponseBody> expectedResponse = new HttpResponse<>(200, new HttpHeaders(), null);
         HttpRequestHandler<InputStream, ApplicationRequestContext> mockNextHandler = (r, c) -> expectedResponse;
 
-        HttpResponse<? extends ResponseBody> response = errorHandlingInterceptor.intercept(request, context, mockNextHandler);
+        HttpResponse<? extends HttpResponseBody> response = errorHandlingInterceptor.intercept(request, context, mockNextHandler);
 
         assertEquals(expectedResponse, response);
     }
@@ -41,7 +41,7 @@ class ErrorHandlingInterceptorTest {
         HttpRequest<InputStream> request = new HttpRequest<>("GET", "/api/resource", HttpVersion.V1_1, new HttpHeaders(), null);
         ApplicationRequestContext context = new ApplicationRequestContext();
         HttpRequestHandler<InputStream, ApplicationRequestContext> mockNextHandler = (r, c) -> { throw new ShowableException(new RuntimeException("Test showable exception")); };
-        HttpResponse<? extends ResponseBody> response = errorHandlingInterceptor.intercept(request, context, mockNextHandler);
+        HttpResponse<? extends HttpResponseBody> response = errorHandlingInterceptor.intercept(request, context, mockNextHandler);
 
         assertEquals(200, response.getStatusCode());
         assertEquals("none", response.getHeaders().getFirst("HX-Reswap"));
@@ -55,14 +55,14 @@ class ErrorHandlingInterceptorTest {
 
         HttpRequestHandler<InputStream, ApplicationRequestContext> mockNextHandler = (r, c) -> { throw new RuntimeException("Test unexpected exception"); };
 
-        HttpResponse<? extends ResponseBody> response = errorHandlingInterceptor.intercept(request, context, mockNextHandler);
+        HttpResponse<? extends HttpResponseBody> response = errorHandlingInterceptor.intercept(request, context, mockNextHandler);
 
         assertEquals(200, response.getStatusCode());
         assertEquals("none", response.getHeaders().getFirst("HX-Reswap"));
         assertTrue(bodyToString(response.getBody()).contains("An unexpected error occurred"));
     }
 
-    private String bodyToString(ResponseBody body) {
+    private String bodyToString(HttpResponseBody body) {
         var baos = new ByteArrayOutputStream();
         try {
             body.write(baos);

@@ -2,7 +2,7 @@ package com.simonebasile.sampleapp.controller.admin;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.http.handlers.MethodHandler;
@@ -37,7 +37,7 @@ public class AdminToolsController extends MethodHandler<InputStream, Application
      * @param context the context
      * @return the response
      */
-    protected HttpResponse<? extends ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         return new HttpResponse<>(new AdminToolsSection());
     }
 
@@ -48,7 +48,7 @@ public class AdminToolsController extends MethodHandler<InputStream, Application
      * @param context the context
      * @return the response
      */
-    protected HttpResponse<? extends ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         CreateUserRequest u = FormHttpMapper.map(r.getBody(), CreateUserRequest.class);
         try {
             authService.register(u);

@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * A response body that writes a byte array to the output stream.
  */
-public class ByteResponseBody implements ResponseBody {
+public class ByteResponseBody implements HttpResponseBody {
     private final byte[] content;
     private final String contentType;
 

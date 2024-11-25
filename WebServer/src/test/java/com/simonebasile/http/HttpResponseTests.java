@@ -1,7 +1,7 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.response.ByteResponseBody;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.http.unexported.HttpMessageUtils;
 import com.simonebasile.http.unexported.HttpOutputStream;
 import org.junit.jupiter.api.Assertions;
@@ -45,7 +45,7 @@ public class HttpResponseTests {
 
     @Test
     public void testResponseStreamBody() throws IOException {
-        HttpResponse<ResponseBody> response = new HttpResponse<>(new ResponseBody() {
+        HttpResponse<HttpResponseBody> response = new HttpResponse<>(new HttpResponseBody() {
 
             @Override
             public void write(OutputStream out) throws IOException {

@@ -2,7 +2,7 @@ package com.simonebasile.sampleapp.controller.user;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.model.Ticket;
@@ -33,7 +33,7 @@ public class UserTicketsController extends MethodHandler<InputStream, Applicatio
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         List<Ticket> tickets = ticketService.getByOwner(context.getLoggedUser().getUsername());
         return new HttpResponse<>(new UserTicketsSection(tickets));
     }

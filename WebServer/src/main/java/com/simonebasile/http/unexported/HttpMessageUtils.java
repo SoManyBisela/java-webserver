@@ -1,7 +1,7 @@
 package com.simonebasile.http.unexported;
 
 import com.simonebasile.http.*;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 
 import java.io.*;
 import java.util.List;
@@ -51,11 +51,11 @@ public class HttpMessageUtils {
      * @param outputStream the output stream to write the response in
      * @throws IOException if an I/O error occurs
      */
-    public static void writeResponse(HttpVersion version, HttpResponse<? extends ResponseBody> response, HttpOutputStream outputStream) throws IOException {
+    public static void writeResponse(HttpVersion version, HttpResponse<? extends HttpResponseBody> response, HttpOutputStream outputStream) throws IOException {
         var writingHeaders = new HttpHeaders(response.getHeaders());
-        ResponseBody writingBody = null;
+        HttpResponseBody writingBody = null;
         OutputStream out = outputStream;
-        ResponseBody body = response.getBody();
+        HttpResponseBody body = response.getBody();
         if(body != null) {
             Long cl = body.contentLength();
             if(body.contentType() != null) {

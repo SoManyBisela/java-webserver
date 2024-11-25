@@ -1,13 +1,11 @@
 package com.simonebasile.http;
 
-import com.simonebasile.http.response.ResponseBody;
-
 /**
  * Represents an HTTP response.
  *
  * @param <T> the type of the body of the HTTP response
  */
-public class HttpResponse<T extends ResponseBody> extends HttpMessage<T>{
+public class HttpResponse<T> extends HttpMessage<T>{
     protected final int statusCode;
 
     /**

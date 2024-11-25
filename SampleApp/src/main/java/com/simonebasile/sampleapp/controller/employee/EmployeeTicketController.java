@@ -2,7 +2,7 @@ package com.simonebasile.sampleapp.controller.employee;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.dto.*;
 import com.simonebasile.sampleapp.interceptors.ShowableException;
@@ -36,7 +36,7 @@ public class EmployeeTicketController extends MethodHandler<InputStream, Applica
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         IdRequest id = FormHttpMapper.mapHttpResource(r.getResource(), IdRequest.class);
         Ticket ticket = ticketService.getById(id.getId(), user);
@@ -54,7 +54,7 @@ public class EmployeeTicketController extends MethodHandler<InputStream, Applica
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends ResponseBody> handlePut(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handlePut(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         Ticket ticket;
         EmployeeUpdateTicket body = FormHttpMapper.map(r.getBody(), EmployeeUpdateTicket.class);

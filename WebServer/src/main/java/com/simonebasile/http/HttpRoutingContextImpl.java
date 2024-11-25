@@ -1,6 +1,7 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.response.ByteResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.http.unexported.CustomException;
 import com.simonebasile.http.unexported.InterceptorChainImpl;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class HttpRoutingContextImpl<Body, Context extends RequestContext> implem
      * @return the response to send to the client
      */
     @Override
-    public HttpResponse<?> handle(HttpRequest<? extends Body> req, Context requestContext) {
+    public HttpResponse<? extends HttpResponseBody> handle(HttpRequest<? extends Body> req, Context requestContext) {
         String prevMatched = "";
         String resource = req.getResource();
         final ResourceMatch contextMatch = requestContext.getContextMatch();

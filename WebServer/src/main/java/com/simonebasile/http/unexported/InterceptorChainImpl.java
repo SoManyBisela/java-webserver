@@ -1,7 +1,7 @@
 package com.simonebasile.http.unexported;
 
 import com.simonebasile.http.*;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class InterceptorChainImpl<Body, Context> implements HttpRequestHandler<B
      * @return the response of the interceptor or the handler
      */
     @Override
-    public HttpResponse<? extends ResponseBody> handle(HttpRequest<? extends Body> r, Context context) {
+    public HttpResponse<? extends HttpResponseBody> handle(HttpRequest<? extends Body> r, Context context) {
         if(toProcess < interceptors.size()) {
             return interceptors.get(toProcess++).intercept(r, context, this);
         } else {

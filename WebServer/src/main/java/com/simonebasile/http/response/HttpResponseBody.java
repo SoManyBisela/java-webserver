@@ -3,7 +3,7 @@ package com.simonebasile.http.response;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public interface ResponseBody {
+public interface HttpResponseBody {
     /**
      * Implementation must write the response in the output stream.
      * Number of bytes must match the return value of contentLength().

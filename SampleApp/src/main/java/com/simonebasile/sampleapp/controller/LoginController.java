@@ -2,7 +2,7 @@ package com.simonebasile.sampleapp.controller;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.LoginRequest;
@@ -33,7 +33,7 @@ public class LoginController extends MethodHandler<InputStream, ApplicationReque
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         if(context.getLoggedUser() != null) {
             return ResponseUtils.redirect(r, "/");
         }
@@ -48,7 +48,7 @@ public class LoginController extends MethodHandler<InputStream, ApplicationReque
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         LoginRequest body = FormHttpMapper.map(r.getBody(), LoginRequest.class);
         try {
             authService.login(context.getSessionId(), body);

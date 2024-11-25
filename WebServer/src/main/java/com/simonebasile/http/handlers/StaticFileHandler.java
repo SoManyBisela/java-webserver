@@ -3,7 +3,7 @@ package com.simonebasile.http.handlers;
 import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.FileResponseBody;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class StaticFileHandler<T> implements HttpRequestHandler<T, RequestContex
      * @return the response
      */
     @Override
-    public HttpResponse<? extends ResponseBody> handle(HttpRequest<? extends T> r, RequestContext ctx) {
+    public HttpResponse<? extends HttpResponseBody> handle(HttpRequest<? extends T> r, RequestContext ctx) {
         log.debug("Into static file handler");
         String method = r.getMethod();
         if ("GET".equalsIgnoreCase(method)) {
@@ -61,7 +61,7 @@ public class StaticFileHandler<T> implements HttpRequestHandler<T, RequestContex
      * @param ctx the context
      * @return the response
      */
-    private HttpResponse<? extends ResponseBody> handleGet(RequestContext ctx) {
+    private HttpResponse<? extends HttpResponseBody> handleGet(RequestContext ctx) {
         try {
             String path = getFilePath(ctx.getContextMatch().remainingPath());
             File targetFile = new File(rootDirectory + path);
@@ -104,7 +104,7 @@ public class StaticFileHandler<T> implements HttpRequestHandler<T, RequestContex
      * @param ctx the context
      * @return the response
      */
-    private HttpResponse<? extends ResponseBody> handleHead(HttpRequest<? extends T> r, RequestContext ctx) {
+    private HttpResponse<? extends HttpResponseBody> handleHead(HttpRequest<? extends T> r, RequestContext ctx) {
         return new HttpResponse<>(handleGet(ctx), null);
     }
 

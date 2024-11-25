@@ -1,7 +1,7 @@
 package com.simonebasile.sampleapp.interceptors;
 
 import com.simonebasile.http.*;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 
 import java.util.function.Predicate;
 
@@ -25,7 +25,7 @@ public abstract class ConditionalInterceptor<T, C> implements HttpInterceptor<T,
      * @return the response
      */
     @Override
-    public HttpResponse<? extends ResponseBody> intercept(HttpRequest<? extends T> request, C ctx, HttpRequestHandler<T, C> next) {
+    public HttpResponse<? extends HttpResponseBody> intercept(HttpRequest<? extends T> request, C ctx, HttpRequestHandler<T, C> next) {
         if(shouldIntercept(request)) {
             return target.intercept(request, ctx, next);
         } else {

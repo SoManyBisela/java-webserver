@@ -2,7 +2,7 @@ package com.simonebasile.sampleapp.controller.user;
 
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.IdRequest;
@@ -43,7 +43,7 @@ public class UserTicketController extends MethodHandler<InputStream, Application
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends ResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handleGet(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         IdRequest id = FormHttpMapper.mapHttpResource(r.getResource(), IdRequest.class);
         Ticket ticket = ticketService.getById(id.getId(), user);
@@ -58,7 +58,7 @@ public class UserTicketController extends MethodHandler<InputStream, Application
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends ResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         CreateTicket body = FormHttpMapper.map(r.getBody(), CreateTicket.class);
         Ticket ticket = new Ticket(body);
@@ -83,7 +83,7 @@ public class UserTicketController extends MethodHandler<InputStream, Application
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends ResponseBody> handlePut(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handlePut(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         Ticket ticket;
         UserUpdateTicket body = FormHttpMapper.map(r.getBody(), UserUpdateTicket.class);
@@ -103,7 +103,7 @@ public class UserTicketController extends MethodHandler<InputStream, Application
      * @return the response
      */
     @Override
-    protected HttpResponse<? extends ResponseBody> handleDelete(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
+    protected HttpResponse<? extends HttpResponseBody> handleDelete(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
         IdRequest id = FormHttpMapper.mapHttpResource(r.getResource(), IdRequest.class);
         if(ticketService.delete(id.getId(), user)) {

@@ -3,7 +3,7 @@ package com.simonebasile.sampleapp;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import com.simonebasile.http.*;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.controller.*;
 import com.simonebasile.sampleapp.controller.HomeController;
 import com.simonebasile.sampleapp.controller.admin.AdminToolsController;
@@ -110,7 +110,7 @@ public class Main {
         webServer.registerInterceptor((req, ctx, n) ->  {
             long start = System.currentTimeMillis();
             log.debug("Requets received {} {}", req.getMethod(), req.getResource());
-            HttpResponse<? extends ResponseBody> res = n.handle(req, ctx);
+            HttpResponse<? extends HttpResponseBody> res = n.handle(req, ctx);
             res.getHeaders().add("Connection", "Keep-Alive");
             log.debug("Response status: {}", res.getStatusCode());
             if(log.isDebugEnabled()) {

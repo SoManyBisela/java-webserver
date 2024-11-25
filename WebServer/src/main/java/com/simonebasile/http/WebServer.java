@@ -1,6 +1,7 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.response.ByteResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.http.unexported.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -417,7 +418,7 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
                     HttpRequest<InputStream> req = HttpMessageUtils.parseRequest(inputStream);
                     Context context = requestContextFactory.createContext();
                     log.debug("Incoming http request [{}] on socket [{}]", req, client);
-                    HttpResponse<?> res = new InterceptorChainImpl<>(interceptors, (r, c) -> {
+                    HttpResponse<? extends HttpResponseBody> res = new InterceptorChainImpl<>(interceptors, (r, c) -> {
                         if (r.isWebSocketConnection()) {
                             try {
                                 handleWebsocket(discardBody(r), c);

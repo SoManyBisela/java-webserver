@@ -3,10 +3,10 @@ package com.simonebasile.sampleapp;
 import com.simonebasile.http.HttpHeaders;
 import com.simonebasile.http.HttpRequest;
 import com.simonebasile.http.HttpResponse;
-import com.simonebasile.http.response.ResponseBody;
+import com.simonebasile.http.response.HttpResponseBody;
 
 public class ResponseUtils {
-    public static HttpResponse<ResponseBody> redirect(HttpRequest<?> req, String location) {
+    public static HttpResponse<HttpResponseBody> redirect(HttpRequest<?> req, String location) {
         final String hxReq = req.getHeaders().getFirst("Hx-Request");
         if(hxReq != null && hxReq.equals("true")) {
             //send hx redirect
