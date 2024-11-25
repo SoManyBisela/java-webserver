@@ -1,4 +1,6 @@
-package com.simonebasile.http;
+package com.simonebasile.http.server;
+
+import com.simonebasile.http.routing.ResourceMatch;
 
 /**
  * This class represents the context of an HTTP request.

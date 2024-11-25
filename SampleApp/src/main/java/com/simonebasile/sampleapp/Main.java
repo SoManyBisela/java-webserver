@@ -2,8 +2,11 @@ package com.simonebasile.sampleapp;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
-import com.simonebasile.http.*;
 import com.simonebasile.http.response.HttpResponseBody;
+import com.simonebasile.http.message.HttpHeaders;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
+import com.simonebasile.http.server.WebServer;
 import com.simonebasile.sampleapp.controller.*;
 import com.simonebasile.sampleapp.controller.HomeController;
 import com.simonebasile.sampleapp.controller.admin.AdminToolsController;

@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.message;
 
 /**
  * This class represents an HTTP message, which contains all common elements of an HTTP request or response.

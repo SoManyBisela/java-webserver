@@ -1,8 +1,12 @@
 package com.simonebasile.sampleapp.interceptors;
 
-import com.simonebasile.http.*;
+import com.simonebasile.http.handlers.HttpInterceptor;
+import com.simonebasile.http.handlers.HttpRequestHandler;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.HttpResponseBody;
+import com.simonebasile.http.message.HttpHeaders;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.sampleapp.ResponseUtils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.model.SessionData;

@@ -1,7 +1,7 @@
 package com.simonebasile.sampleapp.controller.admin;
 
-import com.simonebasile.http.HttpRequest;
-import com.simonebasile.http.HttpResponse;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;

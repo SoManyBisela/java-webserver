@@ -1,8 +1,8 @@
 package com.simonebasile.sampleapp.controller;
 
-import com.simonebasile.http.HttpRequest;
-import com.simonebasile.http.HttpRequestHandler;
-import com.simonebasile.http.HttpResponse;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.handlers.HttpRequestHandler;
+import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.interceptors.ShowableException;

@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.message;
 
 import com.simonebasile.http.unexported.CustomException;
 

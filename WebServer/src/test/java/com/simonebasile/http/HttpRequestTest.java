@@ -1,5 +1,7 @@
 package com.simonebasile.http;
 
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpVersion;
 import com.simonebasile.http.unexported.ConnectionClosedBeforeRequestStartException;
 import com.simonebasile.http.unexported.CustomException;
 import com.simonebasile.http.unexported.HttpInputStream;
@@ -27,7 +29,7 @@ public class HttpRequestTest {
                 """;
         HttpInputStream in = fromString(reqStr);
         HttpRequest<InputStream> request = HttpMessageUtils.parseRequest(in);
-        assertEquals(0, request.body.readAllBytes().length);
+        assertEquals(0, request.getBody().readAllBytes().length);
 
         Assertions.assertTrue(request.isWebSocketConnection());
     }

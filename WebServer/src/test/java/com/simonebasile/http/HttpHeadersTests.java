@@ -1,5 +1,6 @@
 package com.simonebasile.http;
 
+import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.unexported.CustomException;
 import com.simonebasile.http.unexported.HttpMessageUtils;
 import org.junit.jupiter.api.Assertions;

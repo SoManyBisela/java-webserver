@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.routing;
 
 
 import java.util.*;
@@ -8,7 +8,7 @@ import java.util.*;
  *
  * @param <T> the type of the handlers
  */
-class HandlerRegistry<T> {
+public class HandlerRegistry<T> {
 
     private final PrefixTreeNode<T> tree = new PrefixTreeNode<>();
 

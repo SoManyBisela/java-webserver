@@ -1,6 +1,6 @@
 package com.simonebasile.http.unexported;
 
-import com.simonebasile.http.HttpVersion;
+import com.simonebasile.http.message.HttpVersion;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;

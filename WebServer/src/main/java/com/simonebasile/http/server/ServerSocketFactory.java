@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;

@@ -1,7 +1,10 @@
 package com.simonebasile.sampleapp.interceptors;
 
-import com.simonebasile.http.*;
+import com.simonebasile.http.handlers.HttpInterceptor;
+import com.simonebasile.http.handlers.HttpRequestHandler;
 import com.simonebasile.http.response.HttpResponseBody;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
 
 import java.util.function.Predicate;
 

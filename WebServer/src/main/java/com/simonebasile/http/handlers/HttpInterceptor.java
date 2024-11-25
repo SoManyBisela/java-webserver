@@ -1,6 +1,8 @@
-package com.simonebasile.http;
+package com.simonebasile.http.handlers;
 
 import com.simonebasile.http.response.HttpResponseBody;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
 
 /**
  * This interface is used to intercept HTTP requests before they are handled by the server.

@@ -1,9 +1,9 @@
 package com.simonebasile.sampleapp.controller;
 
-import com.simonebasile.http.HttpHeaders;
-import com.simonebasile.http.HttpRequest;
-import com.simonebasile.http.HttpResponse;
-import com.simonebasile.http.HttpVersion;
+import com.simonebasile.http.message.HttpHeaders;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
+import com.simonebasile.http.message.HttpVersion;
 import com.simonebasile.sampleapp.controller.admin.AdminToolsController;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.dto.CreateUserRequest;
@@ -15,7 +15,6 @@ import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.AdminToolsSection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

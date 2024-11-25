@@ -1,5 +1,6 @@
 package com.simonebasile.http;
 
+import com.simonebasile.http.routing.HandlerRegistry;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

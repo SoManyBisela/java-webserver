@@ -1,7 +1,15 @@
-package com.simonebasile.http;
+package com.simonebasile.http.server;
 
+import com.simonebasile.http.handlers.WebsocketHandler;
+import com.simonebasile.http.handlers.WebsocketMessage;
+import com.simonebasile.http.handlers.HttpInterceptor;
+import com.simonebasile.http.handlers.HttpRequestHandler;
+import com.simonebasile.http.message.HttpHeaders;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.HttpResponseBody;
+import com.simonebasile.http.routing.*;
 import com.simonebasile.http.unexported.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -435,7 +443,7 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
                         break;
                     }
                     //consuming remaining body
-                    req.body.close();
+                    req.getBody().close();
 
                     HttpMessageUtils.writeResponse(req.getVersion(), res, outputStream);
                     //TODO handle connection and keep-alive header, handle timeouts, handle max amt of requests
@@ -456,8 +464,8 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
          * @throws IOException If an error occurs while closing the body
          */
         private HttpRequest<Void> discardBody(HttpRequest<? extends InputStream> req) throws IOException {
-            req.body.close();
-            return new HttpRequest<>(req.method, req.resource, req.version, req.headers, null);
+            req.getBody().close();
+            return new HttpRequest<>(req, null);
         }
 
         /**

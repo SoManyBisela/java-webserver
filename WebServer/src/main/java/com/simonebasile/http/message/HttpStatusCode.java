@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.message;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

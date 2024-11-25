@@ -1,8 +1,12 @@
 package com.simonebasile.http;
 
 import com.simonebasile.http.handlers.MethodHandler;
+import com.simonebasile.http.message.HttpVersion;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.HttpResponseBody;
+import com.simonebasile.http.message.HttpHeaders;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;

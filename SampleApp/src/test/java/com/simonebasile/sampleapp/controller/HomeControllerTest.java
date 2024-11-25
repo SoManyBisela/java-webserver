@@ -1,15 +1,14 @@
 package com.simonebasile.sampleapp.controller;
 
-import com.simonebasile.http.HttpHeaders;
-import com.simonebasile.http.HttpRequest;
-import com.simonebasile.http.HttpResponse;
-import com.simonebasile.http.HttpVersion;
+import com.simonebasile.http.message.HttpHeaders;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
+import com.simonebasile.http.message.HttpVersion;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.io.InputStream;
 

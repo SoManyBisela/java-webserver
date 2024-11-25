@@ -1,14 +1,10 @@
 package com.simonebasile.sampleapp.views;
 
-import com.simonebasile.http.HttpResponse;
 import com.simonebasile.sampleapp.dto.ChatProtoMessage;
-import com.simonebasile.sampleapp.dto.CPMType;
 import com.simonebasile.sampleapp.views.chat.HtmxChatMessageEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;

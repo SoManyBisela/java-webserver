@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.server;
 
 /**
  * This interface is used to create request contexts.

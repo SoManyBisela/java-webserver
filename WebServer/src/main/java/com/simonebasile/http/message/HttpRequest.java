@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.message;
 
 import java.util.List;
 import java.util.Objects;
@@ -53,7 +53,7 @@ public class HttpRequest<T> extends HttpMessage<T> {
      *
      * @return true if the request is a WebSocket connection request
      */
-    boolean isWebSocketConnection() {
+    public boolean isWebSocketConnection() {
         final List<String> connection = headers.connection();
         final String upgrade = headers.upgrade();
 

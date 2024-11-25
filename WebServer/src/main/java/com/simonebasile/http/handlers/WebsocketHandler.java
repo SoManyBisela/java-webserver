@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.handlers;
 
 /**
  * This interface is used to handle websocket connections.

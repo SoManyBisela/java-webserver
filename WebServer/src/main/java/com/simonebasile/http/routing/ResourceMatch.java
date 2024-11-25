@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.routing;
 
 /**
  * This class represents a match between a handler path and a request path.

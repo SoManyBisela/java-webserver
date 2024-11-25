@@ -1,8 +1,8 @@
 package com.simonebasile.sampleapp.controller.user;
 
-import com.simonebasile.http.HttpHeaders;
-import com.simonebasile.http.HttpRequest;
-import com.simonebasile.http.HttpResponse;
+import com.simonebasile.http.message.HttpHeaders;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.http.response.FileResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;

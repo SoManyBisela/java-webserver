@@ -1,4 +1,4 @@
-package com.simonebasile.http;
+package com.simonebasile.http.message;
 
 /**
  * This enum represents the version of the HTTP protocol.

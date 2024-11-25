@@ -1,8 +1,10 @@
 package com.simonebasile.http.handlers;
 
-import com.simonebasile.http.*;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.HttpResponseBody;
+import com.simonebasile.http.message.HttpHeaders;
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
 
 /**
  * A handler that dispatches the request to the appropriate method handler based on the HTTP method.

@@ -1,5 +1,7 @@
-package com.simonebasile.http;
+package com.simonebasile.http.handlers;
 
+import com.simonebasile.http.message.HttpRequest;
+import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.HttpResponseBody;
 
 /**

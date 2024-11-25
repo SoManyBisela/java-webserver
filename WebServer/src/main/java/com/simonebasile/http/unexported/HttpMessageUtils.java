@@ -1,6 +1,6 @@
 package com.simonebasile.http.unexported;
 
-import com.simonebasile.http.*;
+import com.simonebasile.http.message.*;
 import com.simonebasile.http.response.HttpResponseBody;
 
 import java.io.*;

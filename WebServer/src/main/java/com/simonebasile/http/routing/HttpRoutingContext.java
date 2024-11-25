@@ -1,4 +1,7 @@
-package com.simonebasile.http;
+package com.simonebasile.http.routing;
+
+import com.simonebasile.http.handlers.HttpInterceptor;
+import com.simonebasile.http.handlers.HttpRequestHandler;
 
 /**
  * This interface is used to register handlers and interceptors for HTTP requests.
