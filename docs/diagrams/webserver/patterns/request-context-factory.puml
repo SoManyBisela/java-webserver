@@ -1,0 +1,16 @@
+@startuml
+
+interface RequestContextFactory {
+    createRequestContext()
+}
+
+class DefaultRequestContextFactory {
+    createRequestContext()
+}
+
+class UserImplementedSSF {
+    createRequestContext()
+}
+RequestContextFactory <|-- DefaultRequestContextFactory
+RequestContextFactory <|-- UserImplementedSSF
+@enduml

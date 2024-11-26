@@ -1,0 +1,21 @@
+@startuml
+interface HttpRequestHandler {
+    handle(request, context)
+}
+
+class MethodHandler {
+    handle(request, context)
+}
+
+class StaticFileHandler {
+    handle(request, context)
+}
+
+class UserImplementedHandler {
+    handle(request, context)
+}
+
+MethodHandler -up-|> HttpRequestHandler
+StaticFileHandler -up-|> HttpRequestHandler
+UserImplementedHandler -up-|> HttpRequestHandler
+@enduml

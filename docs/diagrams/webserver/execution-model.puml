@@ -1,0 +1,12 @@
+@startuml
+:User: as U
+(Accepting Thread) as T
+(Connection Thread) as CT
+(Thread Pool) as TP
+
+U -> T: ConnectionRequest
+T -> TP: Accepted connection
+TP -down-> CT: demand to thread
+U -> CT: request
+CT -> U: Response
+@enduml

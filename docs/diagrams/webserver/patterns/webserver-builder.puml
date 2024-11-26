@@ -1,0 +1,11 @@
+@startuml
+interface WebServer {
+    {static} WebServerBuilder builder()
+}
+
+interface WebServerBuilder {
+    WebServer build()
+    WebServerBuilder port(port)
+    WebServerBuilder (contextFactory)(contextFactory)
+}
+@enduml

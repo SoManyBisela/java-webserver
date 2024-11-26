@@ -1,0 +1,15 @@
+@startuml
+interface InputStream {
+    int read()
+    ...()
+}
+
+class InputStreamDecorator {
+    InputStream decorated
+    int read()
+    ...()
+}
+
+InputStreamDecorator -up-|> InputStream
+InputStreamDecorator -up-* InputStream
+@enduml

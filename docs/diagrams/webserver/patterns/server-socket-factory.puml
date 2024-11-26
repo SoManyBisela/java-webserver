@@ -1,0 +1,16 @@
+@startuml
+
+interface ServerSocketFactory {
+    createServerSocket()
+}
+
+class DefaultServerSocketFactory {
+    createServerSocket()
+}
+
+class UserImplementedSSF {
+    createServerSocket()
+}
+ServerSocketFactory <|-- DefaultServerSocketFactory
+ServerSocketFactory <|-- UserImplementedSSF
+@enduml
