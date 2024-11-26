@@ -39,3 +39,5 @@ build/
 .DS_Store
 
 SampleApp/uploads
+
+docs/doc.pdf

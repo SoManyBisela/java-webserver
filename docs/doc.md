@@ -9,6 +9,7 @@ Il modulo WebServer è una libreria che permette la creazione di un webserver ja
 ### Dipendenze
 
 Il webserver è scritto in java 17 e utilizza solo una libreria di logging: `slf4j`.
+
 `slf4j` abbreviativo di Simple Logging Facade for Java è una libreria che fornisce un'interfaccia per il logging unica, e permette di utilizzare diverse libreria di logging come backend, permettendo agli utilizzatori della libreria di scegliere la libreria di logging che preferiscono.
 
 ### Componenti Principali
@@ -35,7 +36,7 @@ Si instanzia tramite il builder `WebServerBuilder` che permette di configurarne 
 L'interfaccia `HttpRequestHandler` è l'interfaccia principale per la gestione delle richieste http.
 Tutte le classi che gestiscono le richieste http implementano questa interfaccia.
 
-L'interfaccia ha un solo metodo da implementare `HttpResponse<? extends HttpResponseBody> handle(HttpRequest<? extends Body> r, Context requestContext)` che riceve come argomenti la request http e il RequestContext del webserver, e restituisce la response http 
+L'interfaccia ha un solo metodo da implementare: `HttpResponse<? extends HttpResponseBody> handle(HttpRequest<? extends Body> r, Context requestContext)` che riceve come argomenti la request http e il RequestContext del webserver, e restituisce la response http 
 
 #### HttpRequest
 
@@ -154,8 +155,11 @@ srv.start();
 - Una chiamata a `http://localhost/world/etc` risponde con `Hello World and more`
 
 la prima chiamata ha come path `/` che corrisponde al primo handler e viene quindi gestito dal primo handler
+
 la seconda chiamata ha come path `/other` che non corrisponde esattamente a nessun handler, ma essendo un sottopath di `/` viene gestito dal primo handler
+
 la terza chiamata ha come path `/world` che corrisponde sia al secondo che al terzo handler, ma dato che il terzo handler è più specifico per quel path, è quello a gestire la chiamata
+
 la quarta chiamata ha come path `/world/etc` che non corrisponde a nessun handler, ma è un sottopath sia del primo che del secondo handler. Dato che il secondo handler è più specifico è quello che gestirà la chiamata
 
 #### gestire una connessione websocket
@@ -171,7 +175,9 @@ class SimpleContext {
 class WSHandler implements WebsocketHandler<SimpleContext, RequestContext> {
 
     public SimpleContext newContext(RequestContext ctx) {
-        //Volendo è anche possibile prendere delle informazioni dal request context, ad esempio dati sull'autenticazione, e spostarli nel context della connessione
+        //Volendo è anche possibile prendere delle informazioni dal
+        //request context (ad esempio dati sull'autenticazione)
+        //e spostarli nel context della connessione
         var ctx = new SimpleContext();
         ctx.setConnectionId(UUID.randomUUID().toString());
         return ctx;
@@ -186,15 +192,18 @@ class WSHandler implements WebsocketHandler<SimpleContext, RequestContext> {
     }
 
     public void onHandshakeComplete(WebSocketWriter writer, SimpleContext ctx) {
+        //La connessione websocket è completa. Salva il writer per 
+        //poter inviare messaggi al client in seguito
         System.out.println("Connected " + ctx.getConnectionId() + " using protocol " + ctx.getProtocol);
-        //The connection is complete. Save the websocket write to send messages
         ctx.setWriter(writer);
     }
 
     public void onMessage(WebsocketMessage msg, SimpleContext ctx) {
-        //can be text or binary, we only handle text type in this example
+        //Un messaggio websocket puo contenere test o dati binari
+        //In questo esempio gestiamo solo i messaggi testuali
         assert msg.type == MsgType.TEXT; 
-        //websocket messages can be split in chunks, in this example we only build single chunk messages
+        //I messaggi websocket possono essere divisi in chunk.
+        //In questo esempio gestiamo messaggi con un singolo chunk
         assert msg.data.length == 1; 
         String message = new String(msg.content[0]);
         System.out.println("Received message from " + ctx.getConnectionId() + ": " + message);
