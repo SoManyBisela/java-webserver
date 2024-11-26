@@ -67,11 +67,11 @@ public interface WebsocketHandler<WebsocketContext, HttpRequestContext> {
      * This method is called when a client sends a websocket handshake request.
      * implementors should return a HandshakeResult object to accept or refuse the handshake.
      *
-     * @param availableService the list of services that the server can provide
+     * @param availableProtocols list of subprotocols that the server can provide
      * @param context the context of the websocket connection
      * @return the result of the handshake
      */
-    HandshakeResult onServiceHandshake(String[] availableService, WebsocketContext context);
+    HandshakeResult onServiceHandshake(String[] availableProtocols, WebsocketContext context);
 
     /**
      * This method is called when the handshake is complete.

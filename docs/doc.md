@@ -11,7 +11,7 @@ Il modulo WebServer è una libreria che permette la creazione di un webserver ja
 Il webserver è scritto in java 17 e utilizza solo una libreria di logging: `slf4j`.
 `slf4j` abbreviativo di Simple Logging Facade for Java è una libreria che fornisce un'interfaccia per il logging unica, e permette di utilizzare diverse libreria di logging come backend, permettendo agli utilizzatori della libreria di scegliere la libreria di logging che preferiscono.
 
-### Componenti
+### Componenti Principali
 
 Di seguito sono elencate le classi principali necessarie all'utilizzo del webserver.
 
@@ -32,21 +32,191 @@ Si instanzia tramite il builder `WebServerBuilder` che permette di configurarne 
 
 #### HttpRequestHandler
 
+L'interfaccia `HttpRequestHandler` è l'interfaccia principale per la gestione delle richieste http.
+Tutte le classi che gestiscono le richieste http implementano questa interfaccia.
+
+L'interfaccia ha un solo metodo da implementare `HttpResponse<? extends HttpResponseBody> handle(HttpRequest<? extends Body> r, Context requestContext)` che riceve come argomenti la request http e il RequestContext del webserver, e restituisce la response http 
+
 #### HttpRequest
 
-#### HttpHttpResponse
+La classe `HttpRequest` contiene i dati della richiesta http ricevuta dal server. 
+Contiene:
+- Metodo http
+- Path http
+- Versione protocollo http
+- Headers
+- Eventuale Body
+
+#### HttpResponse
+
+La classe `HttpRequest` contiene i dati della richiesta http ricevuta dal server. 
+Contiene:
+- Status Code http
+- Versione protocollo http
+- Headers
+- Eventuale Body
+
+#### HttpResponseBody
+
+L'interfaccia `HttpResponseBody` contiene i metodi necessari alla serializzazione del body di una response http.
+
+L'interfaccia ha 3 metodi da implementare: 
+
+- `void write(OutputStream out) throws IOException`:
+    questo metodo prende come argomento un OutputStream su cui scrivere il body della response
+- `Long contentLength()`:
+    questo metodo ritorna la lunghezza del body da scrivere nella response o null se la lunghezza non è conosciuta a priori.
+    Se si è specificata una lunghezza, il numero di byte scritti dal metodo `write` deve coincidere con quanto specificato.
+    Se non si è specificata una lunghezza la response verrà inviata con `Transfer-Encoding: chunked`
+- `String contentType()`:
+    questo metodo deve ritornare il `content-type` associato alla response.
+
 
 #### HttpInterceptor
 
+L'interfaccia `HttpInterceptor` è l'interfaccia da implementare per intercettare richieste http.
+
+L'interfaccia permette di preprocessare le request, modificare le response, o fermare una richiesta non valida rispondendo al posto dell'handler.
+
+L'interfaccia ha un solo metodo da implementare `HttpResponse<? extends HttpResponseBody> intercept(HttpRequest<? extends Body> request, Context requestContext, HttpRequestHandler<Body, Context> next)` che prende come argomenti la richiesta http ricevuta, il requestContext http e l'handler che dovrebbe gestire la risposta
+
 #### WebsocketHandler
 
-### Utilizzo
+L'interfaccia `WebsocketHandler` permette di gestire gli eventi legati alle connessioni che usano il protocollo websocket.
 
-#### Configurazione del server
+L'interfaccia prevede 5 metodi da implementare:
+
+- `WebsocketContext newContext(HttpRequestContext ctx)`: questo metodo viene invocato appena si riceve una richiesta di connessione websocket. Questo metodo serve a creare il context che conterrà lo stato relativo alla connessione websocket corrente, che verrà passato a tutte le chiamate websocket della stessa connessione
+- `HandshakeResult onServiceHandshake(String[] availableProtocols, WebsocketContext context)`: questo metodo viene invocato successivamente al metodo newContext, riceve come parametri il context creato e un array di sottoprotocolli websocket richiesti dal client. Questo metodo deve ritornare un `HandshakeResult` che può essere costruito con `HandshakeResult.accept(String protocol)` passando il protocollo selezionato tra quelli ricevuti se si accetta la richiesta di connessione websocket, o con `HandshakeResult.refuse(String message)` passando un messaggio da inviare al client, se non si accetta la richiesta di connessione.
+- `void onHandshakeComplete(WebsocketWriter websocketWriter, WebsocketContext context)`: questo metodo viene chiamato una volta che l'handshake websocket è completato. riceve come parametri il context websocket e un istanza di `WebSocketWriter` che permette di inviare messaggi al client che ha completato l'handshake
+- `void onMessage(WebsocketMessage msg, WebsocketContext context)`: questo metodo viene chiamato ogni volta che arriva un messaggio dal client. al metodo vengono passati il context websocket e il messaggio ricevuto.
+- `void onClose(WebsocketContext context)`: questo metodo viene chiamato quando il client chiude la connessione websocket. Al metodo viene passato il context websocket
+
+### Esempi di utilizzo
+
+#### registrazione di un semplice handler
 
 ```java
-
+WebServer srv = Webserver.builder().build();
+srv.registerHttpContext("/", (request, context) -> {
+    return new HttpResponse(200, new ByteResponseBody("Hello"))
+});
+srv.start();
 ```
+
+Questo esempio mostra la creazione di un server che risponde con stato `200` e `Hello` a tutte le chiamate:
+
+`WebServer srv = Webserver.builder().build()` crea un server con le configurazioni di default.
+
+`srv.registerHttpContext("/", (request, context) => { ... })` registra un handler che viene utilizzato per tutti i sottopath del path indicato.
+
+`new HttpResponse(200, new ByteResponseBody("Hello"))` crea una risposta http che ha nel body la stringa `Hello`. Il `ByteResponseBody`, quando costruito con una stringa come parametro mette la stringa nel body e configura il content type della response come `text/plain`.
+    
+####  registrazione di un interceptor
+
+```java
+WebServer srv = Webserver.builder().build();
+srv.registerHttpInterceptor((request, context, next) -> {
+    request.getHeaders().add("X-Intercepted-At", LocalDateTime.now().toString())
+    var response = next.handle(request, context);
+    response.getHeaders().add("X-Intercepted", "true");
+    return response;
+
+})
+srv.registerHttpContext("/", (r, c) => {
+    assert r.getHeaders().getFirst("X-Intercepted-At") != null; //Interceptor added data to request
+    new HttpResponse(200, new ByteResponseBody("Hello"))
+});
+srv.start();
+```
+
+Questo esempio estende quello precedente mostrando l'utilizzo di un interceptor aggiungendo un header alla request e che arriva all'handler e un header alla response che viene restituita al client.
+
+#### Specificità degli handler
+
+```java
+WebServer srv = Webserver.builder().build();
+srv.registerHttpContext("/", (request, context) -> {
+    return new HttpResponse(200, new ByteResponseBody("Hello"))
+});
+srv.registerHttpContext("/world", (request, context) -> {
+    return new HttpResponse(200, new ByteResponseBody("Hello World and more"))
+});
+srv.registerHttpHandler("/world", (request, context) -> {
+    return new HttpResponse(200, new ByteResponseBody("Hello World"))
+});
+srv.start();
+```
+
+- Una chiamata a `http://localhost/` risponde con `Hello`
+- Una chiamata a `http://localhost/other` risponde con `Hello`
+- Una chiamata a `http://localhost/world` risponde con `Hello World`
+- Una chiamata a `http://localhost/world/etc` risponde con `Hello World and more`
+
+la prima chiamata ha come path `/` che corrisponde al primo handler e viene quindi gestito dal primo handler
+la seconda chiamata ha come path `/other` che non corrisponde esattamente a nessun handler, ma essendo un sottopath di `/` viene gestito dal primo handler
+la terza chiamata ha come path `/world` che corrisponde sia al secondo che al terzo handler, ma dato che il terzo handler è più specifico per quel path, è quello a gestire la chiamata
+la quarta chiamata ha come path `/world/etc` che non corrisponde a nessun handler, ma è un sottopath sia del primo che del secondo handler. Dato che il secondo handler è più specifico è quello che gestirà la chiamata
+
+#### gestire una connessione websocket
+
+```java
+class SimpleContext {
+    private WebSocketWriter writer;
+    private String connectionId;
+    private String protocol;
+    /* GETTERS AND SETTERS */
+}
+
+class WSHandler implements WebsocketHandler<SimpleContext, RequestContext> {
+
+    public SimpleContext newContext(RequestContext ctx) {
+        //Volendo è anche possibile prendere delle informazioni dal request context, ad esempio dati sull'autenticazione, e spostarli nel context della connessione
+        var ctx = new SimpleContext();
+        ctx.setConnectionId(UUID.randomUUID().toString());
+        return ctx;
+    }
+
+    public HandshakeResult onServiceHandshake(String[] availableProtocols, SimpleContext ctx) {
+        if(availableProtocols.length == 0) return HandshakeResult.refuse("No protocol");
+        else {
+            ctx.setProtocol(availableProtocols[0]);
+            return HandshakeResult.accept(ctx.getProtocol());
+        }
+    }
+
+    public void onHandshakeComplete(WebSocketWriter writer, SimpleContext ctx) {
+        System.out.println("Connected " + ctx.getConnectionId() + " using protocol " + ctx.getProtocol);
+        //The connection is complete. Save the websocket write to send messages
+        ctx.setWriter(writer);
+    }
+
+    public void onMessage(WebsocketMessage msg, SimpleContext ctx) {
+        //can be text or binary, we only handle text type in this example
+        assert msg.type == MsgType.TEXT; 
+        //websocket messages can be split in chunks, in this example we only build single chunk messages
+        assert msg.data.length == 1; 
+        String message = new String(msg.content[0]);
+        System.out.println("Received message from " + ctx.getConnectionId() + ": " + message);
+        ctx.getWriter().sendText("Responding to: " + message)
+    }
+
+    public void onClose(SimpleContext ctx) {
+        System.out.println("Disconnected: " + ctx.getConnectionId());
+    }
+}
+```
+
+```java
+WebServer wsSrv = WebServer.builder().build();
+wsSrv.registerWebSocketHandler("/", new WSHandler());
+```
+
+Questo è un esempio di gestione di una connessione websocket.
+
+In questo esempio ogni volta che un client invia un messaggio, il server stampa a console il messaggio ricevuto e risponde al client con un acnkowledgment del messaggio ricevuto.
+
+Vengono anche stampati in console informazioni sulle connessioni effettuate e sulle connessioni terminate
 
 ### Threading model
 
@@ -67,9 +237,11 @@ Il factory pattern permette di creare oggetti senza specificare la classe concre
 È utilizzato in `ServerSocketFactory` e in `RequestContextFactory` per permettere la configurazione del webserver.
 
 ![socket context factory](diagrams/webserver/patterns/server-socket-factory.svg)
+
 In `ServerSocketFactory` è utilizzato per permettere la configurazione del socket che il server utilizza per accettare connessioni, permettendo ad esempio di utilizzare una connessione tls invece di una semplice connessione tcp, o potenzialmente di avere il server in ascolto su un unix socket.
 
 ![request context factory](diagrams/webserver/patterns/request-context-factory.svg)
+
 In `RequestContextFactory` è utilizzato per permettere di personalizzare il `RequestContext`, permettendo così ad esempio di aggiungere informazioni aggiuntive che vengono passate agli handler.
 
 Un esempio di utilizzo lo si puù trovare nel modulo `SampleApp` dove viene utilizzato per instanziare la classe `ApplicationRequestContext` che contiene informazioni aggiuntive sull'autenticazione.
