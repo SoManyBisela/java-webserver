@@ -112,11 +112,44 @@ Questo esempio mostra la creazione di un server che risponde con stato `200` e `
 `srv.registerHttpContext("/", (request, context) => { ... })` registra un handler che viene utilizzato per tutti i sottopath del path indicato.
 
 `new HttpResponse(200, new ByteResponseBody("Hello"))` crea una risposta http che ha nel body la stringa `Hello`. Il `ByteResponseBody`, quando costruito con una stringa come parametro mette la stringa nel body e configura il content type della response come `text/plain`.
-    
-####  registrazione di un interceptor
+
+#### Servire file statici
 
 ```java
 WebServer srv = Webserver.builder().build();
+srv.registerHttpContext("/resources", 
+    new StaticFileHandler("/path/to/resources")
+);
+srv.start();
+```
+
+Questo esempio mostra come servire file statici usando la classe `StaticFileHandler`.
+
+```bash
+> tree
+path
+└─ to
+   ├─ secret-file
+   └─ resources
+      ├── index.html
+      ├── script.js
+      └── style.css
+```
+
+Con il codice mostrato e le cartelle qui sopra
+
+- chiamare `http://localhost/resources/index.html` restituisce il file `index.html` con content type `text/html`
+- chiamare `http://localhost/resources/script.js` restituisce il file `script.js` con content type `text/javascript`
+- chiamare `http://localhost/resources/style.css` restituisce il file `style.css` con content type `text/css`
+- chiamare `http://localhost/resources/missing.txt` restituisce un errore `404` dato che il file non esiste
+- chiamare `http://localhost/resources/` restituisce il file `index.html` con content type `text/html`, dato che la classe `StaticFileHandler` quando il path punta ad una cartella cerca all'interno un file `index.html` 
+- chiamare `http://localhost/resources/../secret-file` restituisce un errore `404` dato che `StaticFileHandler` impedisce di accedere a file quando il percorso contiene delle parti di path con funzioni particolari, come `..` o `~`
+
+#### Registrazione di un interceptor
+
+```java
+WebServer srv = Webserver.builder().build();
+
 srv.registerHttpInterceptor((request, context, next) -> {
     request.getHeaders().add("X-Intercepted-At", LocalDateTime.now().toString())
     var response = next.handle(request, context);
@@ -124,10 +157,15 @@ srv.registerHttpInterceptor((request, context, next) -> {
     return response;
 
 })
+
 srv.registerHttpContext("/", (r, c) => {
-    assert r.getHeaders().getFirst("X-Intercepted-At") != null; //Interceptor added data to request
-    new HttpResponse(200, new ByteResponseBody("Hello"))
+    //Interceptor added data to request
+    String interceptedAt = r.getHeaders().getFirst("X-Intercepted-At");
+    assert interceptedAt != null; 
+
+    new HttpResponse(200, new ByteResponseBody("Hello at " + interceptedAt))
 });
+
 srv.start();
 ```
 
@@ -194,7 +232,8 @@ class WSHandler implements WebsocketHandler<SimpleContext, RequestContext> {
     public void onHandshakeComplete(WebSocketWriter writer, SimpleContext ctx) {
         //La connessione websocket è completa. Salva il writer per 
         //poter inviare messaggi al client in seguito
-        System.out.println("Connected " + ctx.getConnectionId() + " using protocol " + ctx.getProtocol);
+        System.out.println("Connected " + ctx.getConnectionId()
+                + " using protocol " + ctx.getProtocol);
         ctx.setWriter(writer);
     }
 
@@ -206,7 +245,8 @@ class WSHandler implements WebsocketHandler<SimpleContext, RequestContext> {
         //In questo esempio gestiamo messaggi con un singolo chunk
         assert msg.data.length == 1; 
         String message = new String(msg.content[0]);
-        System.out.println("Received message from " + ctx.getConnectionId() + ": " + message);
+        System.out.println("Received message from " + ctx.getConnectionId() 
+                + ": " + message);
         ctx.getWriter().sendText("Responding to: " + message)
     }
 

@@ -93,7 +93,7 @@ public class StaticFileHandler<T> implements HttpRequestHandler<T, RequestContex
      * @throws StatusErr if the resource contains invalid path
      */
     private String getFilePath(String resource) {
-        if(resource.contains("..")) {
+        if(resource.contains("..") || resource.contains("~")) {
             throw new StatusErr(404);
         }
         while(resource.startsWith("/")) {
