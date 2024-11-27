@@ -1,5 +1,6 @@
 @startuml
-[*] --> Draft: User creation
+left to right direction
+[*] -> Draft: User creation
 Draft --> Submitted: Submit
 Submitted --> Assigned: Assign
 Assigned --> Closed: Close
@@ -8,9 +9,15 @@ Draft: User can edit object and message
 Draft: User can upload attachment
 Draft: Employee cannot view ticket
 
-Submitted: User and Employee can add comments
+Submitted: User and Employee
+Submitted: can add comments
 
-Assigned:
-Closed: Comments can no longer be added
+Assigned: An employee is marked
+Assigned: as responsible for the
+Assigned: further processing of
+Assigned: the ticket
+
+Closed: Comments can no
+Closed: longer be added
 
 @enduml
