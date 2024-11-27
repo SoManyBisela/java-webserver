@@ -7,12 +7,12 @@
 :Employee: as EMP
 
 package "Chat" {
-    (Chat) as (Cht)
+    (Chat) as (CHT)
     (Request Support) as (RS)
     (Give Support) as (GS)
 
-    (GS) .-left-> (Cht):include
-    (RS) .-up-> (Cht):include
+    (CHT) .-> (GS):include
+    (CHT) .-> (RS):include
 }
 
 package "Tickets" {
@@ -27,7 +27,7 @@ package "Tickets" {
 
     (View submitted tickets) as (VST)
     (Assign ticket) as (AT)
-    (Close ticket) as (CT)
+    (Close ticket) as (CST)
 
     (View ticket) as (VT)
 
@@ -39,31 +39,40 @@ package "Administration" {
     (Register) as (REG)
     (Create user) as (UCRT)
     (Change password) as (CP)
+
     (UCRT) <|-- (REG)
 }
 
-left to right direction
-UUSR --> (REG)
 
-USR --> (VCT) #line:red
-USR --> (CT) #line:red
-USR --> (ET)#line:red
-USR --> (ST)#line:red
-USR --> (DT)#line:red
-USR --> (UA)#line:red
+left to right direction
+
+USR -> (VCT) #line:red
+USR -> (CT) #line:red
+USR -> (ET)#line:red
+USR -> (ST)#line:red
+USR -> (DT)#line:red
+USR -> (UA)#line:red
 
 USR --> (DA)#line:red
 EMP --> (DA)#line:green
-USR --> (CP)#line:red
-EMP --> (CP)#line:green
+USR -left-> (CP)#line:red
+EMP -left-> (CP)#line:green
 
 EMP --> (VST)#line:green
 EMP --> (AT)#line:green
-EMP --> (CT)#line:green
+EMP --> (CST)#line:green
 
-ADM --> (UCRT)#line:blue
-ADM --> (CP)#line:blue
+(UCRT) <-- ADM #line:blue
+(CP) <-- ADM #line:blue
+(REG) <-- UUSR
 
-USR --> (RS)#line:red
-EMP --> (GS)#line:green
+USR -up-> (RS)#line:red
+EMP -up-> (GS)#line:green
+
+'following instructions are for positioning
+"Chat" -[hidden]-> "Administration"
+"Chat" -[hidden]-> "Administration"
+"Chat" -[hidden]-> "Administration"
+UUSR -[hidden]- (CST)
+
 @enduml
