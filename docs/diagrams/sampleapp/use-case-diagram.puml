@@ -6,6 +6,15 @@
 :User: as USR
 :Employee: as EMP
 
+package "Chat" {
+    (Chat) as (Cht)
+    (Request Support) as (RS)
+    (Give Support) as (GS)
+
+    (GS) .-left-> (Cht):include
+    (RS) .-up-> (Cht):include
+}
+
 package "Tickets" {
     (View created tickets) as (VCT)
     (Create ticket) as (CT)
@@ -54,4 +63,7 @@ EMP --> (CT)#line:green
 
 ADM --> (UCRT)#line:blue
 ADM --> (CP)#line:blue
+
+USR --> (RS)#line:red
+EMP --> (GS)#line:green
 @enduml
