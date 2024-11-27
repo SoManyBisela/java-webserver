@@ -420,7 +420,7 @@ Gli impiegati hanno accesso alle seguenti funzionalità:
 
 Il diagramma di seguito descrive la divisione in package dell'applicazione
 
-![package diagram](diagrams/sampleapp/package-diagram.svg) //TODO
+![package diagram](diagrams/sampleapp/package-diagram.svg)
 
 #### Model
 
@@ -482,3 +482,8 @@ Il package `dto` contiene tutte le classi di dati in cui vengono mappati gli inp
 
 ### Configurazione ruoli e accessi
 
+//TODO
+
+### Testing
+
+//TODO 

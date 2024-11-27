@@ -1,0 +1,51 @@
+@startuml
+set separator none
+package com.simonebasile.sampleapp {
+    package controller [
+        http controllers
+        wesocket controllers
+    ]
+    package dto [
+        classes that hold data
+        sent by users
+    ]
+
+    package interceptors [
+        interceptors that act
+        on requests before they
+        reach handlers
+    ]
+
+    package mapping [
+        utility classes for converting
+        user input into dtos
+    ]
+
+    package model [
+        classes that hold the
+        application data
+    ]
+
+    package repository [
+        classes to access and
+        modify application data
+    ]
+
+    package security [
+        utility classes for hashing
+        and password verifying
+    ]
+
+    package service [
+        classes that hold the
+        business logic of
+        the application
+    ]
+
+    package views [
+        classes that handle
+        the rendering of the
+        pages the user sees
+    ]
+}
+@enduml
