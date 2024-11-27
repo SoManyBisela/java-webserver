@@ -468,21 +468,75 @@ Il package `dto` contiene tutte le classi di dati in cui vengono mappati gli inp
 
 ![ticket lifecycle](diagrams/sampleapp/ticket-state-diagram.svg)
 
-//TODO
+Il ciclo di vita di un ticket inizia dalla sua creazione da parte di un utente, che ne compila l'oggetto e il messaggio.
+
+Una volta creato, il ticket si trova in stato bozza, stato in cui è possibile modificare l'oggetto e il messaggio del ticket, oltre che caricare un numero arbitrario di allegati.
+
+Una volta che l'utente è convinto della correttezza dei dati inseriti può procedere con l'inivio del ticket.
+
+Una volta che un ticket viene inviato diventa visibile a tutti gli impiegati e sarà possibile aggiungervi dei commenti.
+
+Gli impiegati avranno la possibilità di visualizzare i dati caricati dall'utente, tutti i commenti dell'utente e degli altri impiegati, e potrà scaricarne gli allegati.
+
+Un impiegato a questo punto dovrà prendere in carico il ticket assegnandolo a se stesso per lavorarlo.
+
+Una volta lavorato il ticket l'impiegato avrà la possiblità di chiuderlo, impedendo così l'aggiunta di altri commenti o la modifica.
 
 #### Funzionamento della chat
 
 ![chat sequence](diagrams/sampleapp/chat_sequence.svg)
 
-//TODO
+Nel momento in cui un utente o un impiegato accedono all'applicativo, viene effettuata una connessione websocket con il server.
+
+Dalla pagina l'utente ha la possibilità in qualunque momento di richiedere di chattare con un impiegato. Da quel momento sarà messo in lista di attesa.
+
+Gli operatori potranno verificare nella finestra della chat in qualunque momento la presenza di utenti in attesa di supporto e potranno accettare le richieste di supporto degli utenti, inizindo così una chat con loro.
+
+Gli utenti rimangono in attesa finché un impiegato tra quelli connessi non accetterà la sua richiesta di chat, o finché l'utente non deciderà di annullare la richiesta.
+
+Una volta che un utente ed un operatore sono connessi in una chat avranno la possibilità di scambiarsi dei messaggi.
+
+In qualunque momento uno dei due potrà decidere di terminare la chat. Una volta disconnessa la chat entrambi avranno la possibilità di continuare a leggere la conversazione appena avvenuta, senza però poter inviare ulteriori messaggi.
 
 ### Autenticazione
 
-//TODO cookie e storage di sessione
+//TODO sequence autenticazione
 
-### Configurazione ruoli e accessi
+L'autenticazione viene gestita tramite un cookie di sessione, che viene inviato al client quando si connette all'applicativo. Tramite questo cookie sarà possibile associare l'utente che effettua la richiesta con dei dati di sessione contenuti nella classe `SessionData` e salvati sul database in una collection apposita.
 
-//TODO
+L'utente avrà la possibilità di effettuare il login dalla pagina dedicata. Quando una chiamata di login va a buon fine, il cookie di sessione dell'utente viene aggiornato con l'username dell'utente che ha effettuato il login, che avrà da quel momento accesso all'applicativo.
+
+Nello stesso modo, l'utente che cliccherà il bottone di logout nella barra di navigazioneil bottone di logout nella barra di navigazione verrà reindirizzato alla pagina di login, e il suo username verrà rimosso dalla sessione, togliendogli così accesso all'applicativo.
+
+Ad occuparsi della verifica del login è l'interceptor `AuthenticationInterceptor`.
+
+L'interceptor verifica la presenza di una sessione valida proveniente dal client, creandola in caso contrario.
+
+Verifica poi se l'utente ha già effettuato l'accesso al sito, reindirizzandolo alla pagina di login nel caso non lo fosse.
+
+Procede poi a inserire le informazioni sull'utente nel context della request e passa la request agli handler successivi.
+
+### Configurazione ruoli e controllo degli accessi
+
+La configurazione dei ruoli è per la maggior parte gestita tramite la classe `RoleBasedRouter` che permette di registrare handler diversi, sullo stesso path, indirizzando poi all'handler corrispondete al ruolo dell'utente loggato.
+
+Registrando i controller tramite un `RoleBasedRouter` è quindi possibile assicurarsi che le richieste arrivino al controller solo nel caso in cui l'utente che effettua la richiesta ha effettivamente accesso all'handler.
+
+Di seguito un esempio degli endpoint `/tickets`, accessibile solo ad utenti e ad impiegati, e per cui le richieste sono gestite da due handler diversi
+
+```java
+webServer.registerHttpHandler("/tickets", RoleBasedRouter.builder()
+        .handle(Role.user, userTicketsController)
+        .handle(Role.employee, employeeTicketsController)
+        .build());
+```
+
+E un esempio dell'endpoint `/admin-tools`, accessibile solo agli admin
+
+```java
+webServer.registerHttpHandler("/admin-tools", 
+      RoleBasedRouter.of(adminToolsController, Role.admin));
+```
 
 ### Testing
 

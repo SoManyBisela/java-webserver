@@ -40,8 +40,8 @@ public class SessionService {
      */
     public SessionData getOrCreateSession(String sessionId) {
         log.debug("Requested session: {}", sessionId);
-        SessionData data = sessionRepository.getSession(sessionId);
-        if(data == null) {
+        SessionData data;
+        if(sessionId == null || (data = sessionRepository.getSession(sessionId)) == null) {
             String string = UUID.randomUUID().toString();
             data = new SessionData(string);
             sessionRepository.createSession(data);
