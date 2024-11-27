@@ -136,7 +136,7 @@ public class Main {
         webServer.registerHttpHandler("/", homeController);
         webServer.registerHttpHandler("/account", accountController);
 
-        webServer.registerHttpHandler("/attachment", RoleBasedRouter.of(Role.user, attachmentController));
+        webServer.registerHttpHandler("/attachment", RoleBasedRouter.of(attachmentController, Role.user, Role.employee));
         webServer.registerHttpHandler("/tickets", RoleBasedRouter.builder()
                 .handle(Role.user, userTicketsController)
                 .handle(Role.employee, employeeTicketsController)
@@ -148,7 +148,7 @@ public class Main {
 
         webServer.registerWebSocketHandler("/chat", chatWsController);
 
-        webServer.registerHttpHandler("/admin-tools", RoleBasedRouter.of(Role.admin, adminToolsController));
+        webServer.registerHttpHandler("/admin-tools", RoleBasedRouter.of(adminToolsController, Role.admin));
 
 
         try {

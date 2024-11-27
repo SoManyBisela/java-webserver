@@ -8,6 +8,7 @@ import com.simonebasile.sampleapp.views.custom.MaterialIcon;
  */
 public class SendMessageElement extends HtmlElement {
     private HtmlElement input;
+    private HtmlElement button;
     private final static String autosize = "this.style.height = ''; this.style.height = `min(${this.scrollHeight}px, calc(5rem + 12px))`";
     public SendMessageElement() {
         super("form");
@@ -25,7 +26,7 @@ public class SendMessageElement extends HtmlElement {
         content(
                 input,
                 div().attr("class", "send-btn-container").content(
-                        button().content(new MaterialIcon("send")).attr("type", "submit", "class", "button-icon")
+                        button = button().content(new MaterialIcon("send")).attr("type", "submit", "class", "button-icon")
                 )
         );
     }
@@ -36,6 +37,19 @@ public class SendMessageElement extends HtmlElement {
      */
     public SendMessageElement focusOnLoad() {
         input.attr("hx-sle-onload", autosize + ";this.focus()");
+        return this;
+    }
+
+    /**
+     * Calling this method disable the inputs, the sending of the form, will show a
+     * message telling the user that the chat is disconnected
+     * @return this
+     */
+    public SendMessageElement disconnected() {
+        attr("ws-send", "false");
+        button.attr("disabled", "true");
+        input.attr("disabled", "true");
+        content(div().attr("class", "input-cover"));
         return this;
     }
 }

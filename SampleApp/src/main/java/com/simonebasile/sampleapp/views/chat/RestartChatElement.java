@@ -1,5 +1,6 @@
 package com.simonebasile.sampleapp.views.chat;
 
+import com.simonebasile.sampleapp.views.custom.MaterialIcon;
 import com.simonebasile.sampleapp.views.html.HtmlElement;
 
 /**
@@ -8,9 +9,9 @@ import com.simonebasile.sampleapp.views.html.HtmlElement;
 public class RestartChatElement extends HtmlElement {
     public RestartChatElement() {
         super("button");
-        text("Close chat");
         hxWsSend();
-        attr("class", "restart-chat" );
+        attr("class", "delete-button", "id", "close-chat-button");
         hxVals("type", "NEW_CHAT");
+        content(new MaterialIcon("autorenew"));
     }
 }

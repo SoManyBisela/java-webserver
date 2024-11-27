@@ -274,6 +274,9 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         } catch (Exception e) {
             log.error("Error sending connected messages {}", e.getMessage(), e);
         }
+        if(waitingToChat.isEmpty()) {
+            notifyFreeEmployees(ChatProtoMessage.noChatAvailable());
+        }
     }
 
     /**
@@ -281,6 +284,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
      * The message is sent to the user the current user is connected to
      */
     private void sendMessage(ConnectedUser source, String message) {
+        if(message.isEmpty()) return;
         ConnectedUser target;
         try {
             if(source.connectedTo == null || // Sender is not connected
@@ -308,15 +312,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
             waitingToChat.remove(usr.user.getUsername());
             ChatProtoMessage msg = waitingToChat.isEmpty() ?
                     ChatProtoMessage.noChatAvailable() : ChatProtoMessage.chatAvailable();
-            connectedUsers.values().forEach(v -> {
-                if(v.user.getRole() == Role.employee && v.connectedTo == null) {
-                    try {
-                        v.sendMsg(msg);
-                    } catch (Exception e) {
-                        log.error("Error while sending message request queue size to {}: {}", v.user.getUsername(), e.getMessage(), e);
-                    }
-                }
-            });
+            notifyFreeEmployees(msg);
         } else {
             log.warn("Already removed chat from queue");
         }
@@ -325,6 +321,18 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         } catch (IOException e) {
             log.error("Errore nell'invio del messaggio all'utente: {}", e.getMessage(), e);
         }
+    }
+
+    private void notifyFreeEmployees(ChatProtoMessage msg) {
+        connectedUsers.values().forEach(v -> {
+            if(v.user.getRole() == Role.employee && v.connectedTo == null) {
+                try {
+                    v.sendMsg(msg);
+                } catch (Exception e) {
+                    log.error("Error while sending message request queue size to {}: {}", v.user.getUsername(), e.getMessage(), e);
+                }
+            }
+        });
     }
 
     /**
@@ -338,15 +346,7 @@ public class ChatWsController implements WebsocketHandler<ChatWsController.WsSta
         } else {
             log.warn("Multiple requests to chat received");
         }
-        connectedUsers.values().forEach(v -> {
-            if(v.user.getRole() == Role.employee && v.connectedTo == null) {
-                try {
-                    v.sendMsg(ChatProtoMessage.chatAvailable());
-                } catch (Exception e) {
-                    log.error("Error while sending message request queue size to {}: {}", v.user.getUsername(), e.getMessage(), e);
-                }
-            }
-        });
+        notifyFreeEmployees(ChatProtoMessage.chatAvailable());
         try {
             connected.sendMsg(ChatProtoMessage.waitingForChat());
         } catch (IOException e) {

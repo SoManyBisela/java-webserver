@@ -64,15 +64,17 @@ public class RoleBasedRouter implements HttpRequestHandler<InputStream, Applicat
 
     /**
      * Creates a new RoleBasedRouter for a single handler.
-     * Useful for endpoints that are accessible only by a specific role.
-     * @param r the role
+     * Useful for endpoints that are accessible only by some specific roles.
+     * @param r the roles
      * @param handle the handler
      * @return the RoleBasedRouter
      */
-    public static RoleBasedRouter of(Role r, HttpRequestHandler<InputStream, ApplicationRequestContext> handle) {
-        return new RoleBasedRouter(new HashMap<>(1){{
-            put(r, handle);
-        }});
+    public static RoleBasedRouter of(HttpRequestHandler<InputStream, ApplicationRequestContext> handle, Role ...r) {
+        Map<Role, HttpRequestHandler<InputStream, ApplicationRequestContext>> roles = new EnumMap<>(Role.class);
+        for (Role role : r) {
+            roles.put(role, handle);
+        }
+        return new RoleBasedRouter(roles);
     }
 
     /**

@@ -42,6 +42,9 @@ public class AttachmentController extends MethodHandler<InputStream, Application
     @Override
     protected HttpResponse<? extends HttpResponseBody> handlePost(HttpRequest<? extends InputStream> r, ApplicationRequestContext context) {
         User user = context.getLoggedUser();
+        if(user.getRole() != Role.user) {
+            throw new ShowableException("Cannot upload attachment");
+        }
         UploadAttachmentRequest uploadAttachmentRequest = FormHttpMapper.mapHttpResource(r.getResource(), UploadAttachmentRequest.class);
         if(uploadAttachmentRequest.getTicketId() == null) {
             throw new UploadAttachmentException("Missing ticket id");

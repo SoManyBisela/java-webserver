@@ -47,7 +47,7 @@ class HtmxChatMessageEncoderTest {
         ChatProtoMessage message = ChatProtoMessage.chatConnected("testUser");
         byte[] result = encoder.encode(message);
         String resultString = new String(result, StandardCharsets.UTF_8);
-        assertTrue(resultString.contains("Connected with: testUser"));
+        assertTrue(resultString.contains("testUser"));
     }
 
     @Test
@@ -55,7 +55,7 @@ class HtmxChatMessageEncoderTest {
         ChatProtoMessage message = ChatProtoMessage.chatDisconnected();
         byte[] result = encoder.encode(message);
         String resultString = new String(result, StandardCharsets.UTF_8);
-        assertTrue(resultString.contains("Chat disconnected"));
+        assertTrue(resultString.toLowerCase().contains("chat disconnected"));
     }
 
     @Test

@@ -35,6 +35,7 @@ class RoleBasedRouterTest {
                 .build();
     }
 
+
     @Test
     void testHandleUserRole() {
 
@@ -91,7 +92,7 @@ class RoleBasedRouterTest {
 
     @Test
     void testContextCreation() {
-        RoleBasedRouter roleBasedRouter = RoleBasedRouter.of(Role.admin, adminHandler);
+        RoleBasedRouter roleBasedRouter = RoleBasedRouter.of(adminHandler, Role.admin);
         HttpRequest<InputStream> req = new HttpRequest<>("GET", "/", HttpVersion.V1_1, new HttpHeaders(), null);
         ApplicationRequestContext ctx = new ApplicationRequestContext();
 

@@ -288,7 +288,7 @@ class ChatWsControllerTest {
 
         controller.onClose(userWsState);
         verify(mockWriter, atLeast(1)).sendTextBytes(argThat(e ->
-                new String(e).contains("Chat disconnected")));
+                new String(e).toLowerCase().contains("chat disconnected")));
         assertNull(userWsState.getWriter().getConnectedTo());
     }
 }

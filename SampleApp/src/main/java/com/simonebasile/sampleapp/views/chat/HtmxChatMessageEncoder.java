@@ -8,6 +8,7 @@ import com.simonebasile.sampleapp.views.html.IHtmlElement;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
 
@@ -43,10 +44,14 @@ public class HtmxChatMessageEncoder implements ChatMessageEncoder {
      */
     private IHtmlElement fromMessage(ChatProtoMessage msg) {
         return  switch (msg.getType()) {
-            case CONNECTED -> obswap("chat-container", div().attr("class", "stack-vertical").content(
-                    div().text("Click to request a chat with an employee"),
-                    new WantToChatElement()
-            ));
+            case CONNECTED -> new ElementGroup(
+                    obswap("chat-container", div().attr("class", "stack-vertical").content(
+                            div().text("Click to request a chat with an employee"),
+                            new WantToChatElement()
+                    )),
+                    new ChatTitle("Chat"),
+                    new EndChatElement().hidden()
+            );
             case WAIT_FOR_CHAT -> obswap("chat-container", div().attr("class", "stack-vertical").content(
                     div().text("Waiting for available employee"),
                     new StopWaitingElement()
@@ -62,12 +67,9 @@ public class HtmxChatMessageEncoder implements ChatMessageEncoder {
                     new EndChatElement().hxSwapOob("true")
             );
             case CHAT_DISCONNECTED -> new ElementGroup(
-                    obswap("chat-inputs-container", div().content(
-                            div().text("Chat disconnected"),
-                            new RestartChatElement()
-                    )),
-                    new ChatTitle("Chat").hxSwapOob("true"),
-                    new EndChatElement().hidden().hxSwapOob("true")
+                    new SendMessageElement().disconnected(),
+                    new RestartChatElement(),
+                    new ChatTitle("Chat Disconnected").hxSwapOob("true")
             );
             case MESSAGE_RECEIVED ->
                     obswap("messages", "beforeend", div().content(
@@ -80,10 +82,14 @@ public class HtmxChatMessageEncoder implements ChatMessageEncoder {
                                             div().attr("class", "message").text(msg.getMessage()))))),
                             new SendMessageElement().focusOnLoad()
                     );
-            case CHAT_AVAILABLE -> obswap("chat-container", div().attr("class", "stack-vertical").content(
+            case CHAT_AVAILABLE -> new ElementGroup(
+                    obswap("chat-container", div().attr("class", "stack-vertical").content(
                             div().text("There are users waiting to chat"),
                             new AcceptChatElement()
-            ));
+                    )),
+                    new ChatTitle("Chat"),
+                    new EndChatElement().hidden()
+            );
             case NO_CHAT_AVAILABLE -> obswap("chat-container", div().content(
                     div().text("There are no chat requests")
             ));
