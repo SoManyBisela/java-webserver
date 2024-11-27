@@ -478,7 +478,7 @@ h1 {
         border-top-right-radius: 4px;
         border-top-left-radius: 4px;
         margin-right: 16px;
-        height: 32rem;
+        max-height: 32rem;
         width: 24rem;
         background: #fcfcfc;
         border: none;
@@ -492,6 +492,7 @@ h1 {
     }
 
     #chat-container {
+        min-height: 10rem;
         height: 100%;
         display: flex;
         justify-content: center;
@@ -524,14 +525,16 @@ h1 {
                 }
             }
 
+            .message {
+                max-width: 85%;
+                display: inline-block;
+                border-radius: 8px;
+                padding: 8px 12px;
+                white-space: pre-wrap;
+            }
+
         }
 
-        .message {
-            display: inline-block;
-            border-radius: 8px;
-            padding: 8px 12px;
-            white-space: pre-wrap;
-        }
 
     }
 
@@ -553,7 +556,7 @@ h1 {
             textarea{
                 flex: 1;
                 border: none;
-                padding: 6px 12px;
+                padding: 12px 12px;
                 resize: none;
                 overflow-y: auto;
             }
@@ -562,6 +565,11 @@ h1 {
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-end;
+                padding: 6px;
+
+                button {
+                    padding: 0
+                }
             }
 
         }

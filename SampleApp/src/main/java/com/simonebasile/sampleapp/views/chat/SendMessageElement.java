@@ -48,7 +48,7 @@ public class SendMessageElement extends HtmlElement {
     public SendMessageElement disconnected() {
         attr("ws-send", "false");
         button.attr("disabled", "true");
-        input.attr("disabled", "true");
+        input.attr("disabled", "true", "placeholder", "chat disconnected");
         content(div().attr("class", "input-cover"));
         return this;
     }
