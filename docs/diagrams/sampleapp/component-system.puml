@@ -1,0 +1,72 @@
+@startuml
+
+package "WebServer" {
+    interface HttpResponseBody{
+        void write(OutputStream out)
+        Long contentLength()
+        String contentType()
+    }
+}
+
+package SampleApp {
+    interface IHtmlElement {
+        void write(OutputStream out)
+        Long contentLength()
+        String contentType()
+    }
+
+    class HtmlElement {
+        String name
+        Map<String, String> attrbutes
+
+        void write(OutputStream out);
+        void setAttribute(IHtmlElement c)
+        many more utility methods...()
+    }
+
+    class TextElement {
+        String content
+
+        void write(OutputStream out))
+    }
+
+    class NoElement {
+        void write(OutputStream out);
+    }
+
+    class TextInputElement {
+        HtmlElement containerElement;
+        HtmlElement inputElement;
+        HtmlElement labelElement;
+
+        void write(OutputStream out);
+    }
+
+    class CustomElement {
+        ...
+        void write(OutputStream out);
+    }
+
+    class ElementGroup {
+        IHtmlElement[] content
+
+        void addContent(IHtmlElement c)
+        void write(OutputStream out);
+    }
+
+}
+
+IHtmlElement     -up-|>     HttpResponseBody
+NoElement        -up-|>     IHtmlElement
+TextElement      -up-|>     IHtmlElement
+ElementGroup     -up-|>     IHtmlElement
+HtmlElement      -up-|>     ElementGroup
+TextInputElement -left-|>   HtmlElement
+CustomElement    -right-|>  HtmlElement
+
+ElementGroup *-[norank]- IHtmlElement
+TextInputElement *-[norank]- HtmlElement
+
+'for positioning
+TextElement -[hidden]right-|> ElementGroup
+@enduml

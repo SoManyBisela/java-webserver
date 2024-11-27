@@ -4,11 +4,11 @@ Il software è composto da due moduli: un modulo contenente la libreria del webs
 
 ## Modulo WebServer
 
-Il modulo WebServer è una libreria che permette la creazione di un webserver java
+Il modulo `WebServer` è una libreria che permette la creazione di un webserver java
 
 ### Dipendenze
 
-Il webserver è scritto in java 17 e utilizza solo una libreria di logging.
+Il modulo utilizza `java 17` e utilizza solo una libreria di logging.
 
 La libreria utilizzata è `Simple Logging Facade for Java` o `slf4j` che fornisce un'interfaccia per il logging unica, e permette di utilizzare diverse libreria di logging come backend, permettendo agli utilizzatori della libreria di scegliere la libreria di logging che preferiscono.
 
@@ -73,14 +73,9 @@ L'interfaccia `HttpResponseBody` contiene i metodi necessari alla serializzazion
 
 L'interfaccia ha 3 metodi da implementare: 
 
-- `void write(OutputStream out) throws IOException`:
-    questo metodo prende come argomento un OutputStream su cui scrivere il body della response
-- `Long contentLength()`:
-    questo metodo ritorna la lunghezza del body da scrivere nella response o null se la lunghezza non è conosciuta a priori.
-    Se si è specificata una lunghezza, il numero di byte scritti dal metodo `write` deve coincidere con quanto specificato.
-    Se non si è specificata una lunghezza la response verrà inviata con `Transfer-Encoding: chunked`
-- `String contentType()`:
-    questo metodo deve ritornare il `content-type` associato alla response.
+- `void write(OutputStream out) throws IOException`: questo metodo prende come argomento un OutputStream su cui scrivere il body della response
+- `Long contentLength()`: questo metodo ritorna la lunghezza del body da scrivere nella response o null se la lunghezza non è conosciuta a priori. Se si è specificata una lunghezza, il numero di byte scritti dal metodo `write` deve coincidere con quanto specificato. Se non si è specificata una lunghezza la response verrà inviata con `Transfer-Encoding: chunked`
+- `String contentType()`: questo metodo deve ritornare il `content-type` associato alla response.
 
 
 #### HttpInterceptor
@@ -269,6 +264,7 @@ class WSHandler implements WebsocketHandler<SimpleContext, RequestContext> {
 ```java
 WebServer wsSrv = WebServer.builder().build();
 wsSrv.registerWebSocketHandler("/", new WSHandler());
+wsSrv.start();
 ```
 
 Questo è un esempio di gestione di una connessione websocket.
@@ -333,3 +329,156 @@ Il builder pattern permette di costruire un oggetto complesso passo passo, perme
 ![builder pattern](diagrams/webserver/patterns/webserver-builder.svg)
 
 È utilizzato per la costruzione del `WebServer` permettendo di configurare il socket e la creazione del contesto delle richieste
+
+### Testing
+
+//TODO 
+
+## Modulo SampleApp
+
+Il modulo `SampleApp` contiene un applicazione di esempio, creata utilizzando il modulo `WebServer`
+
+L'applicazione è un sistema di ticketing che permette a degli utenti di creare dei ticket, che verranno poi gestiti da degli impiegati dell'ente che deploya l'applicazione.
+
+Questa applicazione prevede la possibilità di comunicazione tra utenti e impiegati in due modi:
+- attraverso la creazione di ticket, che prevedono un oggetto e una descrizione, e a cui possono essere allegati file, e aggiunti commenti.
+- attraverso una chat, che permette la comunicazione in tempo reale tra gli utenti e gli impiegati
+ 
+### Dipendenze
+
+Il modulo utilizza `java 17`.
+
+Le librerie utilizzate per il backend sono:
+- il modulo `WebServer` che permette l'esposizione di un webserver http configurabile
+- la libreria `slf4j` e `slf4j-simple` per il logging
+- il driver `mongodb` per la connessine al database
+- la libreria `bouncycastle` con gli algoritmi di crittografia usati per il login e la registrazione
+- la libreria `jackson-databind` per il supporto per il json e la converisione tra oggetti
+
+Per il frontend invece sono state utilizzate:
+- la libreria `htmx` che permette la creazione di pagine web basate su server side rendering con un ridotto utilizzo di javascript
+- `google fonts` per il font `roboto` utilizzato nelle pagine e per il font contenente le `material icons`
+
+La libreria utilizzata è `Simple Logging Facade for Java` o `slf4j` che fornisce un'interfaccia per il logging unica, e permette di utilizzare diverse libreria di logging come backend, permettendo agli utilizzatori della libreria di scegliere la libreria di logging che preferiscono.
+
+### Architettura
+
+L'architettura dell'applicazione è basata sul patterm architetturale `Model View Controller`.
+
+L'intera applicazione è sviluppata con `java 17` e qualche tocco di `javascript` per estendere le funzionalità di `htmx`.
+
+Le view sono renderizzate a partire da codice java che genera html da inviare al client.
+
+### Requisiti
+
+![use case diagram](diagrams/sampleapp/use-case-diagram.svg)
+
+Questo è lo use case diagram dell'applicazione.
+ 
+L'applicazione prevede 3 ruoli più la possibilità per un utente non registrato di registrarsi.
+
+#### Utente non registrato
+
+L'utente non registrato può solo effettuare la registrazione con il ruolo di utente.
+
+#### Utenti registrati
+
+Qualunque utente registrato (admin, user, employee) può modificare la propria password.
+
+#### Admin
+
+L'admin può creare nuovi utenti, per cui selezionerà nome utente, ruolo, e una password.
+
+#### User
+
+Gli utenti hanno accesso alle seguenti funzionalità:
+
+- Creazione di un ticket, specificando oggetto e messaggio
+- Eliminazione di un ticket
+- Modifica di oggetto e messaggi dei propri ticket non inviati
+- Caricamento di allegati ai propri ticket non inviati
+- Download degli allegati dei propri ticket
+- Invio di un proprio ticket ticket
+- Aggiunta di un commento a un proprio ticket inviato
+- Visualizzare la lista dei propri ticket con il relativo stato
+- Visualizzazione in dettaglio dei propri ticket, con oggetto, messaggio, allegati e commenti
+- Possibilità di richiedere supporto tramite chat
+
+#### Employee
+
+Gli impiegati hanno accesso alle seguenti funzionalità:
+
+- Visualizzazione dei ticket inviati da tutti gli utenti
+- Visualizzazione in dettaglio dei ticket inviati dagli utenti, con oggetto, messaggio, allegati e commenti
+- Assegnazione di un ticket inviato a se stessi
+- Chiusura di un ticket assegnato a se stessi
+- Download degli allegati dei ticket inviati
+- Aggiunta di commenti ai ticket inviati
+- Accettazione di richieste di supporto tramite chat
+ 
+### Struttura
+
+Il diagramma di seguito descrive la divisione in package dell'applicazione
+
+![package diagram](diagrams/sampleapp/package-diagram.svg) //TODO
+
+#### Model
+
+I package `model`, `service` e `repository` compongono il Model (M di MVC) dell'applicativo.
+
+Il package `model` contiene le classi di dati dell'applicativo, che vengono poi usate per l'accesso e la persistenza dei dati
+Il package `service` contiene tutte le classi che gestiscono la business logic dell'applicativo.
+Il package `repository` quelle che si occupano dell'accesso e della persistenza dei dati.
+
+#### View
+
+Il package `views`, che rappresenta la parte View (V di MVC) dell'applicativo, contiene tutti i componenti necessari al rendering delle pagine visualizzate dagli utenti.
+
+Per permettere il rendering di pagine dinamiche è stato creato un sistema di componenti che possono essere renderizzati come HTML e resituiti come body di response http. Questo sistema di componenti permette anche la creazione di componenti custom riusabili, che potessero essere renderizzati singolarmente e inviati al browser per sostituire parti di pagina tramite `htmx`.
+
+![view component system](diagrams/sampleapp/component-system.svg)
+
+I componenti base in figura (`TextElement`, `NoElement`, `ElementGroup`, `HtmlElement`) permettono di creare, tramite composizione ed estensione tutti i componenti necessari al funzionamento dell'applicativo.
+
+#### Controller
+
+Il package `controller`, che rappresenta infile la parte Controller dell'applicativo (C di MVC), contiene i vari controller dell'applicativo, che implementano l'interfaccia `HttpRequestHandler`.
+
+I controller si occupano di ricevere i dati inviati dai client, aggiornare il model tramite chiamate ai `Service` e aggiornare la view, restituendo le componenti da aggiornare della pagina.
+
+#### Security
+
+Il package `security` contiene utility di hashing delle password
+
+#### Interceptors
+
+Il package `interceptors` contiene le classi dell'applicativo che implementano l'interfaccia `HttpInterceptor`
+
+#### Mapping
+
+Il package `mapping` contiene delle classi di utility per permettere la conversione dei dati ricevuti tramite http e mapparli in classi java
+
+#### DTO
+
+Il package `dto` contiene tutte le classi di dati in cui vengono mappati gli input dell'utente 
+
+### Principali flussi dell'applicativo
+
+#### Ciclo di vita di un ticket
+
+![ticket lifecycle](diagrams/sampleapp/ticket-state-diagram.svg)
+
+//TODO
+
+#### Funzionamento della chat
+
+![chat sequence](diagrams/sampleapp/chat_sequence.svg)
+
+//TODO
+
+### Autenticazione
+
+//TODO cookie e storage di sessione
+
+### Configurazione ruoli e accessi
+
