@@ -173,7 +173,7 @@ public class TicketService {
     }
 
     /**
-     * Deletes a ticket.
+     * Deletes a ticket and its attachments
      * checks if the user is allowed to delete the ticket.
      * @param id the id of the ticket
      * @param user the user that requests the deletion
@@ -183,6 +183,12 @@ public class TicketService {
         Ticket ticket = getById(id, user);
         if(ticket != null) {
             ticketRepository.deleteById(id);
+            List<Attachment> attachments = ticket.getAttachments();
+            if(attachments != null) {
+                for (Attachment attachment : attachments) {
+                    deleteFile(new File(attachment.getPath()).toPath());
+                }
+            }
             return true;
         } else {
             return false;
