@@ -1,4 +1,4 @@
-package com.simonebasile.http.unexported;
+package com.simonebasile.http.internal;
 
 public class CustomException extends RuntimeException {
     public CustomException(String s) {

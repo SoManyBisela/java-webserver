@@ -5,8 +5,8 @@ import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpResponse;
-import com.simonebasile.http.unexported.HttpMessageUtils;
-import com.simonebasile.http.unexported.HttpOutputStream;
+import com.simonebasile.http.internal.HttpMessageUtils;
+import com.simonebasile.http.internal.HttpOutputStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

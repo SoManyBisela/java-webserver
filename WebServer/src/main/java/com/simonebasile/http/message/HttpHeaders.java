@@ -1,6 +1,6 @@
 package com.simonebasile.http.message;
 
-import com.simonebasile.http.unexported.CustomException;
+import com.simonebasile.http.internal.CustomException;
 
 import java.util.*;
 import java.util.stream.Stream;

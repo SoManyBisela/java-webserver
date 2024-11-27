@@ -1,6 +1,6 @@
 package com.simonebasile.http;
 
-import com.simonebasile.http.unexported.FixedLengthInputStream;
+import com.simonebasile.http.internal.FixedLengthInputStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

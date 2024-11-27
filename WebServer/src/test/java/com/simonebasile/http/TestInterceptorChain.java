@@ -5,7 +5,7 @@ import com.simonebasile.http.handlers.HttpRequestHandler;
 import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpVersion;
-import com.simonebasile.http.unexported.InterceptorChainImpl;
+import com.simonebasile.http.internal.InterceptorChainImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

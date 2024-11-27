@@ -1,4 +1,4 @@
-package com.simonebasile.http.unexported;
+package com.simonebasile.http.internal;
 
 import java.io.BufferedInputStream;
 import java.io.EOFException;

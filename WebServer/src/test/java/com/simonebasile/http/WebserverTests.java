@@ -8,7 +8,7 @@ import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.server.RequestContext;
 import com.simonebasile.http.server.WebServer;
-import com.simonebasile.http.unexported.*;
+import com.simonebasile.http.internal.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

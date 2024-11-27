@@ -1,4 +1,4 @@
-package com.simonebasile.http.unexported;
+package com.simonebasile.http.internal;
 
 import com.simonebasile.http.handlers.HttpInterceptor;
 import com.simonebasile.http.handlers.HttpRequestHandler;
