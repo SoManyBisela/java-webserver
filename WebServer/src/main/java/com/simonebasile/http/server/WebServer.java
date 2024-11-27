@@ -1,9 +1,6 @@
 package com.simonebasile.http.server;
 
-import com.simonebasile.http.handlers.HttpInterceptor;
-import com.simonebasile.http.handlers.HttpRequestHandler;
-import com.simonebasile.http.handlers.WebsocketHandler;
-import com.simonebasile.http.handlers.WebsocketMessage;
+import com.simonebasile.http.handlers.*;
 import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;

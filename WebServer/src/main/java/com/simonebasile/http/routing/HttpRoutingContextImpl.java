@@ -7,7 +7,7 @@ import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.response.HttpResponseBody;
-import com.simonebasile.http.server.RequestContext;
+import com.simonebasile.http.handlers.RequestContext;
 import com.simonebasile.http.internal.CustomException;
 import com.simonebasile.http.internal.InterceptorChainImpl;
 import org.slf4j.Logger;

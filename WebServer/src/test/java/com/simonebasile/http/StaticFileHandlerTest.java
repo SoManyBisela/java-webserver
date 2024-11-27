@@ -9,7 +9,7 @@ import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.routing.HttpRoutingContextImpl;
-import com.simonebasile.http.server.RequestContext;
+import com.simonebasile.http.handlers.RequestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -1,0 +1,38 @@
+@startuml
+set separator none
+package com.simonebasile.http {
+    package server [
+        server class
+        configuration classes
+    ]
+    package routing [
+        classes used to route
+        requests to handler
+    ]
+    package response [
+        response bodies
+    ]
+    package message [
+        http messages:
+        request
+        response
+        serialization and
+        deserialization
+    ]
+    package internal [
+        Classes providing
+        functionalities that don't
+        need to be exposed outside
+        the http module
+    ]
+    package handlers [
+        handler interfaces
+        useful handler classes
+    ]
+    package format [
+        serialization and
+        deserialization of
+        http specific formats
+    ]
+}
+@enduml

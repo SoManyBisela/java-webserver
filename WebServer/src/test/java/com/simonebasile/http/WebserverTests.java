@@ -6,7 +6,7 @@ import com.simonebasile.http.handlers.WebsocketWriter;
 import com.simonebasile.http.response.ByteResponseBody;
 import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpResponse;
-import com.simonebasile.http.server.RequestContext;
+import com.simonebasile.http.handlers.RequestContext;
 import com.simonebasile.http.server.WebServer;
 import com.simonebasile.http.internal.*;
 import org.junit.jupiter.api.Assertions;

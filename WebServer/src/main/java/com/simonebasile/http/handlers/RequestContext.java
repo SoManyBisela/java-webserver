@@ -1,4 +1,4 @@
-package com.simonebasile.http.server;
+package com.simonebasile.http.handlers;
 
 import com.simonebasile.http.routing.ResourceMatch;
 

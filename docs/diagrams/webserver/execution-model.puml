@@ -5,8 +5,8 @@
 (Thread Pool) as TP
 
 U -> T: ConnectionRequest
-T -> TP: Accepted connection
-TP -down-> CT: demand to thread
-U -> CT: request
-CT -> U: Response
+T --> TP: Accepted connection
+TP --> CT: demand to thread
+U -> CT: requests
+CT -> U: Responses
 @enduml

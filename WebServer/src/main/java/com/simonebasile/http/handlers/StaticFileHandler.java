@@ -7,7 +7,6 @@ import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
-import com.simonebasile.http.server.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,5 +1,7 @@
 package com.simonebasile.http.server;
 
+import com.simonebasile.http.handlers.RequestContext;
+
 /**
  * This interface is used to create request contexts.
  * It can be overridden by application developers to configure how request contexts are initialized by the web server.

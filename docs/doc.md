@@ -8,11 +8,21 @@ Il modulo WebServer è una libreria che permette la creazione di un webserver ja
 
 ### Dipendenze
 
-Il webserver è scritto in java 17 e utilizza solo una libreria di logging: `slf4j`.
+Il webserver è scritto in java 17 e utilizza solo una libreria di logging.
 
-`slf4j` abbreviativo di Simple Logging Facade for Java è una libreria che fornisce un'interfaccia per il logging unica, e permette di utilizzare diverse libreria di logging come backend, permettendo agli utilizzatori della libreria di scegliere la libreria di logging che preferiscono.
+La libreria utilizzata è `Simple Logging Facade for Java` o `slf4j` che fornisce un'interfaccia per il logging unica, e permette di utilizzare diverse libreria di logging come backend, permettendo agli utilizzatori della libreria di scegliere la libreria di logging che preferiscono.
 
-### Componenti Principali
+### Struttura
+
+Il diagramma di seguito descrive la divisione in package del webserver e una breve descrizione del contenuto di ogni package
+
+![package diagram](diagrams/webserver/package-diagram.svg)
+
+La gestione dei package esposti dal modulo WebServer è effettuata tramite module system di java, introdotto con `java 9`.
+La lista dei package esposti è controllata dal file `module-info.java`.
+Tutti i package descritti sono esposti, ad esclusione del package `internals`.
+
+### Componenti principali
 
 Di seguito sono elencate le classi principali necessarie all'utilizzo del webserver.
 
@@ -118,7 +128,7 @@ Questo esempio mostra la creazione di un server che risponde con stato `200` e `
 ```java
 WebServer srv = Webserver.builder().build();
 srv.registerHttpContext("/resources", 
-    new StaticFileHandler("/path/to/resources")
+    new StaticFileHandler<>("/path/to/resources")
 );
 srv.start();
 ```
