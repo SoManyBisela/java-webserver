@@ -5,10 +5,8 @@ participant "Employee Client" as E
 participant "Server" as S
 
 U -> S: Connect to chat websocket
-S -> U: Connection established
 S -> U: CONNECTED
 E -> S: Connect to chat websocket
-S -> E: Connection established
 S -> E: CONNECTED
 U -> S: WANT_TO_CHAT
 S -> E: CHAT_AVAILABLE
@@ -31,13 +29,11 @@ else user gets connected
     end
     alt user wants to exit
         U -> S: END_CHAT
-        S -> E: CHAT_DISCONNECTED
-        S -> U: CHAT_DISCONNECTED
     else employee wants to exit
         E -> S: END_CHAT
-        S -> E: CHAT_DISCONNECTED
-        S -> U: CHAT_DISCONNECTED
     end
+    S -> E: CHAT_DISCONNECTED
+    S -> U: CHAT_DISCONNECTED
 end
 
 @enduml

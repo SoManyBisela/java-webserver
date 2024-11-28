@@ -14,6 +14,8 @@ Il software allegato è quindi composto da due moduli, un modulo `WebServer` con
 
 Per lo sviluppo del progetto si è cercato di ridurre al minimo le librerie utilizzate e di sviluppare da zero le funzionalità necessarie al funzionamento dell'applicativo per avere modo di familiarizzare, in modo il più possibile approfondito, con le tecnologie e i protocolli su cui si basano moltissime delle applicazioni che si utilizzano ogni giorno.
 
+<div class="page">
+
 ## Modulo WebServer
 
 Il modulo `WebServer` è una libreria che permette la creazione di un webserver java
@@ -33,6 +35,8 @@ Il diagramma di seguito descrive la divisione in package del webserver e una bre
 La gestione dei package esposti dal modulo WebServer è effettuata tramite module system di java, introdotto con `java 9`.
 La lista dei package esposti è controllata dal file `module-info.java`.
 Tutti i package descritti sono esposti, a esclusione del package `internals`.
+
+<div class="page">
 
 ### Componenti principali
 
@@ -69,6 +73,8 @@ Nello specifico:
 - Versione protocollo http
 - Headers
 - Eventuale Body
+
+<div class="page">
 
 #### HttpResponse
 
@@ -132,6 +138,8 @@ Questo esempio mostra la creazione di un server che risponde con stato `200` e `
 
 `new HttpResponse(200, new ByteResponseBody("Hello"))` crea una risposta http che ha nel body la stringa `Hello`. Il `ByteResponseBody`, quando costruito con una stringa come parametro mette la stringa nel body e configura il content type della response come `text/plain`.
 
+<div class="page"/>
+
 #### Servire file statici
 
 ```java
@@ -163,6 +171,8 @@ Con il codice mostrato e le cartelle qui sopra:
 - chiamare `http://localhost/resources/missing.txt` restituisce un errore `404` dato che il file non esiste
 - chiamare `http://localhost/resources/` restituisce il file `index.html` con content type `text/html`, dato che la classe `StaticFileHandler` quando il path punta a una cartella cerca all'interno un file `index.html` 
 - chiamare `http://localhost/resources/../secret-file` restituisce un errore `404` dato che `StaticFileHandler` impedisce di accedere a file quando il percorso contiene delle parti di path con funzioni particolari, come `..` o `~`
+
+<div class="page">
 
 #### Registrazione di un interceptor
 
@@ -292,6 +302,8 @@ In questo esempio ogni volta che un client invia un messaggio, il server stampa 
 
 Vengono anche stampati in console informazioni sulle connessioni effettuate e sulle connessioni terminate.
 
+<div class="page">
+
 ### Threading model
 
 Il webserver è basato su un thread principale, che accetta le connessioni, e su una thread pool che esegue i task per gestire le richieste.
@@ -352,6 +364,8 @@ Il builder pattern permette di costruire un oggetto complesso passo passo, perme
 
 È utilizzato per la costruzione del `WebServer` permettendo di configurare il socket e la creazione del contesto delle richieste.
 
+<div class="page">
+
 ### Testing
 
 Per testare dell'applicativo sono stati effettuati dei test unitari con junit delle classi che compongono l'applicativo.
@@ -401,6 +415,8 @@ public void testWebserverHttp() throws IOException, InterruptedException {
 
 Infine l'applicazione di esempio realizzata nel modulo `SampleApp` costituisce un test del funzionamento del webserver.
 
+<div class="page">
+
 ## Modulo SampleApp
 
 Il modulo `SampleApp` contiene un applicazione di esempio, creata utilizzando il modulo `WebServer`
@@ -436,11 +452,13 @@ L'intera applicazione è sviluppata con `java 17` e qualche tocco di `javascript
 
 Le view sono renderizzate a partire da codice java che genera html da inviare al client.
 
+<div class="page">
+
 ### Requisiti
 
-![use case diagram](diagrams/sampleapp/use-case-diagram.svg)
-
 Questo è lo use case diagram dell'applicazione.
+
+![use case diagram](diagrams/sampleapp/use-case-diagram.svg)
  
 L'applicazione prevede 3 ruoli più la possibilità per un utente non registrato di registrarsi.
 
@@ -455,6 +473,8 @@ Qualunque utente registrato (admin, user, employee) può modificare la propria p
 #### Admin
 
 L'admin può creare nuovi utenti, per cui selezionerà nome utente, ruolo, e una password.
+
+<div class="page">
 
 #### User
 
@@ -517,6 +537,8 @@ I controller si occupano di ricevere i dati inviati dai client, aggiornare il mo
 
 Il package `security` contiene utility di hashing delle password
 
+<div class="page">
+
 #### Interceptors
 
 Il package `interceptors` contiene le classi dell'applicativo che implementano l'interfaccia `HttpInterceptor`
@@ -549,6 +571,8 @@ Un impiegato a questo punto dovrà prendere in carico il ticket assegnandolo a s
 
 Una volta lavorato il ticket l'impiegato avrà la possiblità di chiuderlo, impedendo così l'aggiunta di altri commenti o la modifica.
 
+<div class="page">
+
 #### Funzionamento della chat
 
 ![chat sequence](diagrams/sampleapp/chat_sequence.svg)
@@ -566,8 +590,6 @@ Una volta che un utente ed un operatore sono connessi in una chat avranno la pos
 In qualunque momento uno dei due potrà decidere di terminare la chat. Una volta disconnessa la chat entrambi avranno la possibilità di continuare a leggere la conversazione appena avvenuta, senza però poter inviare ulteriori messaggi.
 
 ### Autenticazione
-
-//TODO sequence autenticazione
 
 L'autenticazione viene gestita tramite un cookie di sessione, che viene inviato al client quando si connette all'applicativo. Tramite questo cookie sarà possibile associare l'utente che effettua la richiesta con dei dati di sessione contenuti nella classe `SessionData` e salvati sul database in una collection apposita.
 
