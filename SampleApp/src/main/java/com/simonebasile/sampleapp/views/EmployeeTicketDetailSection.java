@@ -12,7 +12,8 @@ import com.simonebasile.sampleapp.views.html.NoElement;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
+import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
+import static com.simonebasile.sampleapp.views.html.HtmlElement.h;
 
 /**
  * Represents the section of the page that shows the details of a ticket for an employee.
@@ -31,8 +32,8 @@ public class EmployeeTicketDetailSection implements IHtmlElement {
                 new TextInputElement("object", "Object").value(t.getObject()).readonly(),
                 new TextAreaElement("message", "Message").value(t.getMessage()).readonly(),
                 new AttachmentList(t.getAttachments(), t.getId()),
-                t.getState() == TicketState.CLOSED ? NoElement.instance : new ElementGroup(
-                        new AddCommentForm(t.getId()),
+                new ElementGroup(
+                         t.getState() == TicketState.CLOSED ? NoElement.instance : new AddCommentForm(t.getId()),
                         new CommentSection(t.getComments(), user.getUsername())
                 )
         );

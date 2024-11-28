@@ -1,7 +1,7 @@
 package com.simonebasile.sampleapp.views.chat;
 
-import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.custom.MaterialIcon;
+import com.simonebasile.sampleapp.views.html.HtmlElement;
 
 /**
  * The section of the chat interface.
@@ -11,8 +11,12 @@ public class ChatSection extends HtmlElement {
     public ChatSection() {
         super("div");
 
-        hxExt("ws");
-        attr("class", "chatbox closed" ,"ws-connect", "/chat").content(
+        hxExt("ws, simple-loaded-event");
+        attr("class", "chatbox closed" ,"ws-connect", "/chat",
+                "hx-sle-onload", """
+                            htmx.createWebSocket = (url) => {
+                                return new WebSocket(url, 'chat');
+                            };""").content(
                 div().attr("class", "chatbox-content").content(
                         div().attr("class", "chat-header").content(
                                 new ChatTitle("Chat"),
