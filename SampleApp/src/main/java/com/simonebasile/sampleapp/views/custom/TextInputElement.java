@@ -53,4 +53,8 @@ public class TextInputElement implements IHtmlElement {
         return this;
     }
 
+    public IHtmlElement disableAutoSubmit() {
+        input.attr("onkeypress", "return event.key !== 'Enter'");
+        return this;
+    }
 }

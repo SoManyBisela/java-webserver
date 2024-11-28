@@ -4,16 +4,10 @@ import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.HttpResponseBody;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
 
 public class Utils {
     public static boolean isEmpty(String str) {
         return str == null || str.isEmpty();
-    }
-
-    public static IHtmlElement oobAdd(String targetId, IHtmlElement content) {
-        return HtmlElement.div().attr("id", targetId).hxSwapOob("beforeend").content(content);
     }
 
     public static HttpResponse<HttpResponseBody> redirect(HttpRequest<?> req, String location) {

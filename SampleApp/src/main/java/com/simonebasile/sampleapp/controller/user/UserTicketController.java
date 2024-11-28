@@ -1,14 +1,13 @@
 package com.simonebasile.sampleapp.controller.user;
 
+import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
 import com.simonebasile.http.response.HttpResponseBody;
-import com.simonebasile.sampleapp.Utils;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
+import com.simonebasile.sampleapp.dto.CreateTicket;
 import com.simonebasile.sampleapp.dto.IdRequest;
 import com.simonebasile.sampleapp.dto.UserUpdateTicket;
-import com.simonebasile.sampleapp.dto.CreateTicket;
-import com.simonebasile.http.handlers.MethodHandler;
 import com.simonebasile.sampleapp.interceptors.ShowableException;
 import com.simonebasile.sampleapp.mapping.FormHttpMapper;
 import com.simonebasile.sampleapp.model.Ticket;
@@ -17,8 +16,8 @@ import com.simonebasile.sampleapp.service.TicketService;
 import com.simonebasile.sampleapp.service.errors.CreateTicketException;
 import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
 import com.simonebasile.sampleapp.views.UserTicketDetailSection;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.custom.Toast;
+import com.simonebasile.sampleapp.views.html.ElementGroup;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
@@ -71,7 +70,7 @@ public class UserTicketController extends MethodHandler<InputStream, Application
         Ticket t = ticketService.getById(id, user);
         return new HttpResponse<>(new ElementGroup(
                 new UserTicketDetailSection(t),
-                Utils.oobAdd("main", new Toast("Ticket saved", "success"))
+                new Toast("Ticket saved", "success")
         ));
     }
 

@@ -19,11 +19,11 @@ import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
  */
 public class UserTicketDetailSection implements IHtmlElement {
     private final HtmlElement container;
-    private HtmlElement messageTarget;
 
     private static boolean ticketExists(Ticket t) {
         return t != null && t.getId() != null;
     }
+
     public UserTicketDetailSection(Ticket ticket) {
         if(!ticketExists(ticket) || ticket.getState() == TicketState.DRAFT) {
             container = draftTicket(ticket);
@@ -42,7 +42,7 @@ public class UserTicketDetailSection implements IHtmlElement {
         String formId = IdGenerator.get();
         final boolean createTicket = t != null && t.getId() != null;
         var editForm = createTicket ? form().hxPut("/ticket").hxVals("id", t.getId()) : form().hxPost("/ticket");
-        return messageTarget = div().attr("class", "stack-vertical")
+        return div().attr("class", "stack-vertical")
                 .content(
                         h(1).text(createTicket ? "Modifica ticket" : "Crea ticket"),
                         editForm
@@ -51,7 +51,7 @@ public class UserTicketDetailSection implements IHtmlElement {
                                 .content(
                                         div().attr("class", "stack-vertical")
                                                 .content(
-                                                        new TextInputElement("object", "Object").value(object),
+                                                        new TextInputElement("object", "Object").value(object).disableAutoSubmit(),
                                                         new TextAreaElement("message", "Message").value(message)
                                                 )
                                 ),
@@ -98,7 +98,7 @@ public class UserTicketDetailSection implements IHtmlElement {
     }
 
     HtmlElement ticket(Ticket t) {
-        return messageTarget = div().attr("class", "stack-vertical").content(
+        return div().attr("class", "stack-vertical").content(
                 h(1).text("Ticket detail"),
                 new TextInputElement("object", "Object").value(t.getObject()).readonly(),
                 new TextAreaElement("message", "Message").value(t.getMessage()).readonly(),
