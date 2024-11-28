@@ -5,6 +5,10 @@ interface HttpRequestHandler {
 
 class MethodHandler {
     handle(request, context)
+    #handleGet(request, context)
+    #handlePost(request, context)
+    #handlePut(request, context)
+    #handleDelete(request, context)
 }
 
 class StaticFileHandler {

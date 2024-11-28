@@ -32,7 +32,7 @@ Il diagramma di seguito descrive la divisione in package del webserver e una bre
 
 La gestione dei package esposti dal modulo WebServer è effettuata tramite module system di java, introdotto con `java 9`.
 La lista dei package esposti è controllata dal file `module-info.java`.
-Tutti i package descritti sono esposti, ad esclusione del package `internals`.
+Tutti i package descritti sono esposti, a esclusione del package `internals`.
 
 ### Componenti principali
 
@@ -45,13 +45,13 @@ La classe `WebServer` è la classe principale del webserver, contiene la logica 
 I metodi principali sono:
 - `void start()` avvia il server
 - `void stop()` ferma il server
-- `void registerHttpContext(String path, HttpRequestHandler<Body, ? super Context> handler)` registra un handler http associato ad un path e ai subpath
-- `void registerHttpHandler(String path, HttpRequestHandler<Body, ? super Context> handler)` registra un handler http associato ad un path specifico
+- `void registerHttpContext(String path, HttpRequestHandler<Body, ? super Context> handler)` registra un handler http associato a un path e ai subpath
+- `void registerHttpHandler(String path, HttpRequestHandler<Body, ? super Context> handler)` registra un handler http associato a un path specifico
 - `void registerInterceptor(HttpInterceptor<Body, Context> interceptor)` registra un interceptor che intercetta le richieste
-- `void registerWebSocketContext(String path, WebsocketHandler<?, ? super Context> handler)` registra un handler websocket associato ad un path e ai subpath
-- `void registerWebSocketHandler(String path, WebsocketHandler<?, ? super Context> handler)` registra un handler websocket associato ad un path specifico
+- `void registerWebSocketContext(String path, WebsocketHandler<?, ? super Context> handler)` registra un handler websocket associato a un path e ai subpath
+- `void registerWebSocketHandler(String path, WebsocketHandler<?, ? super Context> handler)` registra un handler websocket associato a un path specifico
   
-Si instanzia tramite il builder `WebServerBuilder` che permette di configurarne il funzionamento.
+Si istanzia tramite il builder `WebServerBuilder` che permette di configurarne il funzionamento.
 
 #### HttpRequestHandler
 
@@ -63,7 +63,7 @@ L'interfaccia ha un solo metodo da implementare: `HttpResponse<? extends HttpRes
 #### HttpRequest
 
 La classe `HttpRequest` contiene i dati della richiesta http ricevuta dal server. 
-Contiene:
+Nello specifico:
 - Metodo http
 - Path http
 - Versione protocollo http
@@ -73,7 +73,7 @@ Contiene:
 #### HttpResponse
 
 La classe `HttpRequest` contiene i dati della richiesta http ricevuta dal server. 
-Contiene:
+Nello specifico:
 - Status Code http
 - Versione protocollo http
 - Headers
@@ -85,9 +85,9 @@ L'interfaccia `HttpResponseBody` contiene i metodi necessari alla serializzazion
 
 L'interfaccia ha 3 metodi da implementare: 
 
-- `void write(OutputStream out) throws IOException`: questo metodo prende come argomento un OutputStream su cui scrivere il body della response
-- `Long contentLength()`: questo metodo ritorna la lunghezza del body da scrivere nella response o null se la lunghezza non è conosciuta a priori. Se si è specificata una lunghezza, il numero di byte scritti dal metodo `write` deve coincidere con quanto specificato. Se non si è specificata una lunghezza la response verrà inviata con `Transfer-Encoding: chunked`
-- `String contentType()`: questo metodo deve ritornare il `content-type` associato alla response.
+- `void write(OutputStream out) throws IOException` prende come argomento un OutputStream su cui scrivere il body della response
+- `Long contentLength()` ritorna la lunghezza del body da scrivere nella response o null se la lunghezza non è conosciuta a priori. Se si è specificata una lunghezza, il numero di byte scritti dal metodo `write` deve coincidere con quanto specificato. Se non si è specificata una lunghezza la response verrà inviata con `Transfer-Encoding: chunked`
+- `String contentType()` deve ritornare il `content-type` associato alla response.
 
 
 #### HttpInterceptor
@@ -96,7 +96,9 @@ L'interfaccia `HttpInterceptor` è l'interfaccia da implementare per intercettar
 
 L'interfaccia permette di preprocessare le request, modificare le response, o fermare una richiesta non valida rispondendo al posto dell'handler.
 
-L'interfaccia ha un solo metodo da implementare `HttpResponse<? extends HttpResponseBody> intercept(HttpRequest<? extends Body> request, Context requestContext, HttpRequestHandler<Body, Context> next)` che prende come argomenti la richiesta http ricevuta, il requestContext http e l'handler che dovrebbe gestire la risposta
+L'interfaccia ha un solo metodo da implementare:
+
+- `HttpResponse<? extends HttpResponseBody> intercept(HttpRequest<? extends Body> request, Context requestContext, HttpRequestHandler<Body, Context> next)` che prende come argomenti la richiesta http ricevuta, il requestContext http e l'handler che dovrebbe gestire la risposta.
 
 #### WebsocketHandler
 
@@ -104,15 +106,15 @@ L'interfaccia `WebsocketHandler` permette di gestire gli eventi legati alle conn
 
 L'interfaccia prevede 5 metodi da implementare:
 
-- `WebsocketContext newContext(HttpRequestContext ctx)`: questo metodo viene invocato appena si riceve una richiesta di connessione websocket. Questo metodo serve a creare il context che conterrà lo stato relativo alla connessione websocket corrente, che verrà passato a tutte le chiamate websocket della stessa connessione
-- `HandshakeResult onServiceHandshake(String[] availableProtocols, WebsocketContext context)`: questo metodo viene invocato successivamente al metodo newContext, riceve come parametri il context creato e un array di sottoprotocolli websocket richiesti dal client. Questo metodo deve ritornare un `HandshakeResult` che può essere costruito con `HandshakeResult.accept(String protocol)` passando il protocollo selezionato tra quelli ricevuti se si accetta la richiesta di connessione websocket, o con `HandshakeResult.refuse(String message)` passando un messaggio da inviare al client, se non si accetta la richiesta di connessione.
-- `void onHandshakeComplete(WebsocketWriter websocketWriter, WebsocketContext context)`: questo metodo viene chiamato una volta che l'handshake websocket è completato. riceve come parametri il context websocket e un istanza di `WebSocketWriter` che permette di inviare messaggi al client che ha completato l'handshake
-- `void onMessage(WebsocketMessage msg, WebsocketContext context)`: questo metodo viene chiamato ogni volta che arriva un messaggio dal client. al metodo vengono passati il context websocket e il messaggio ricevuto.
-- `void onClose(WebsocketContext context)`: questo metodo viene chiamato quando il client chiude la connessione websocket. Al metodo viene passato il context websocket
+- `WebsocketContext newContext(HttpRequestContext ctx)` viene invocato appena si riceve una richiesta di connessione websocket. Questo metodo serve a creare il context che conterrà lo stato relativo alla connessione websocket corrente, che verrà passato a tutte le chiamate websocket della stessa connessione
+- `HandshakeResult onServiceHandshake(String[] availableProtocols, WebsocketContext context)` viene invocato successivamente al metodo newContext, riceve come parametri il context creato e un array di sottoprotocolli websocket richiesti dal client. Questo metodo deve ritornare un `HandshakeResult` che può essere costruito con `HandshakeResult.accept(String protocol)` passando il protocollo selezionato tra quelli ricevuti se si accetta la richiesta di connessione websocket, o con `HandshakeResult.refuse(String message)` passando un messaggio da inviare al client, se non si accetta la richiesta di connessione.
+- `void onHandshakeComplete(WebsocketWriter websocketWriter, WebsocketContext context)` viene chiamato una volta che l'handshake websocket è completato. riceve come parametri il context websocket e un istanza di `WebSocketWriter` che permette di inviare messaggi al client che ha completato l'handshake
+- `void onMessage(WebsocketMessage msg, WebsocketContext context)` viene chiamato ogni volta che arriva un messaggio dal client. al metodo vengono passati il context websocket e il messaggio ricevuto.
+- `void onClose(WebsocketContext context)` viene chiamato quando il client chiude la connessione websocket. Al metodo viene passato il context websocket
 
 ### Esempi di utilizzo
 
-#### registrazione di un semplice handler
+#### Registrazione di un semplice handler
 
 ```java
 WebServer<?> srv = WebServer.builder().build();
@@ -122,7 +124,7 @@ srv.registerHttpContext("/", (request, context) -> {
 srv.start();
 ```
 
-Questo esempio mostra la creazione di un server che risponde con stato `200` e `Hello` a tutte le chiamate:
+Questo esempio mostra la creazione di un server che risponde con stato `200` e `Hello` a tutte le chiamate.
 
 `WebServer srv = Webserver.builder().build()` crea un server con le configurazioni di default.
 
@@ -140,8 +142,6 @@ srv.registerHttpContext("/resources",
 srv.start();
 ```
 
-Questo esempio mostra come servire file statici usando la classe `StaticFileHandler`.
-
 ```bash
 > tree
 path
@@ -153,13 +153,15 @@ path
       └── style.css
 ```
 
-Con il codice mostrato e le cartelle qui sopra
+Questo esempio mostra come servire file statici usando la classe `StaticFileHandler`.
+
+Con il codice mostrato e le cartelle qui sopra:
 
 - chiamare `http://localhost/resources/index.html` restituisce il file `index.html` con content type `text/html`
 - chiamare `http://localhost/resources/script.js` restituisce il file `script.js` con content type `text/javascript`
 - chiamare `http://localhost/resources/style.css` restituisce il file `style.css` con content type `text/css`
 - chiamare `http://localhost/resources/missing.txt` restituisce un errore `404` dato che il file non esiste
-- chiamare `http://localhost/resources/` restituisce il file `index.html` con content type `text/html`, dato che la classe `StaticFileHandler` quando il path punta ad una cartella cerca all'interno un file `index.html` 
+- chiamare `http://localhost/resources/` restituisce il file `index.html` con content type `text/html`, dato che la classe `StaticFileHandler` quando il path punta a una cartella cerca all'interno un file `index.html` 
 - chiamare `http://localhost/resources/../secret-file` restituisce un errore `404` dato che `StaticFileHandler` impedisce di accedere a file quando il percorso contiene delle parti di path con funzioni particolari, come `..` o `~`
 
 #### Registrazione di un interceptor
@@ -185,8 +187,11 @@ srv.registerHttpContext("/", (r, c) -> {
 
 srv.start();
 ```
+Questo esempio estende quello precedente mostrando l'utilizzo di un interceptor.
 
-Questo esempio estende quello precedente mostrando l'utilizzo di un interceptor aggiungendo un header alla request e che arriva all'handler e un header alla response che viene restituita al client.
+L'interceptor aggiunto fa 2 cose: 
+- Aggiunge un header alla request che arriva all'handler 
+- Attiunge un header alla risposta restituite dal client
 
 #### Specificità degli handler
 
@@ -209,15 +214,15 @@ srv.start();
 - Una chiamata a `http://localhost/world` risponde con `Hello World`
 - Una chiamata a `http://localhost/world/etc` risponde con `Hello World and more`
 
-la prima chiamata ha come path `/` che corrisponde al primo handler e viene quindi gestito dal primo handler
+La prima chiamata ha come path `/` che corrisponde al primo handler e viene quindi gestito dal primo handler
 
-la seconda chiamata ha come path `/other` che non corrisponde esattamente a nessun handler, ma essendo un sottopath di `/` viene gestito dal primo handler
+La seconda chiamata ha come path `/other` che non corrisponde esattamente a nessun handler, ma essendo un sottopath di `/` viene gestito dal primo handler
 
-la terza chiamata ha come path `/world` che corrisponde sia al secondo che al terzo handler, ma dato che il terzo handler è più specifico per quel path, è quello a gestire la chiamata
+La terza chiamata ha come path `/world` che corrisponde sia al secondo che al terzo handler, ma dato che il terzo handler è più specifico per quel path, è quello a gestire la chiamata
 
-la quarta chiamata ha come path `/world/etc` che non corrisponde a nessun handler, ma è un sottopath sia del primo che del secondo handler. Dato che il secondo handler è più specifico è quello che gestirà la chiamata
+La quarta chiamata ha come path `/world/etc` che non corrisponde a nessun handler, ma è un sottopath sia del primo che del secondo handler. Dato che il secondo handler è più specifico è quello che gestirà la chiamata
 
-#### gestire una connessione websocket
+#### Gestire una connessione websocket
 
 ```java
 class SimpleContext {
@@ -230,8 +235,8 @@ class SimpleContext {
 class WSHandler implements WebsocketHandler<SimpleContext, RequestContext> {
 
     public SimpleContext newContext(RequestContext ctx) {
-        //Volendo è anche possibile prendere delle informazioni dal
-        //request context (ad esempio dati sull'autenticazione)
+        //In questo metodo è anche possibile prendere delle informazioni dal
+        //request context (per esempio dati sull'autenticazione)
         //e spostarli nel context della connessione
         var connCtx = new SimpleContext();
         connCtx.connectionId = UUID.randomUUID().toString();
@@ -283,9 +288,9 @@ wsSrv.registerWebSocketHandler("/", new WSHandler());
 
 Questo è un esempio di gestione di una connessione websocket.
 
-In questo esempio ogni volta che un client invia un messaggio, il server stampa a console il messaggio ricevuto e risponde al client con un acnkowledgment del messaggio ricevuto.
+In questo esempio ogni volta che un client invia un messaggio, il server stampa a console il messaggio ricevuto e risponde al client con un acknowledgement del messaggio ricevuto.
 
-Vengono anche stampati in console informazioni sulle connessioni effettuate e sulle connessioni terminate
+Vengono anche stampati in console informazioni sulle connessioni effettuate e sulle connessioni terminate.
 
 ### Threading model
 
@@ -295,7 +300,7 @@ Il webserver è basato su un thread principale, che accetta le connessioni, e su
 
 Ogni connessione viene gestita da un thread della thread pool, su cui viene eseguito un task che legge le richieste in arrivo sulla connessione e le gestisce tramite gli handler registrati.
 
-Nel caso in cui il server riceva una richiesta di passaggio a websocket, lo stesso thread che si occupava di gestire le richieste http si occupa di gestire i messaggi websocket, chiamando l'handler registrato per i messaggi websocket.
+Quando si riceve una richiesta di handshake websocket su una delle connessioni, il thread responsabile di gestire quella connessione viene convertito in un server per la gestione del protocollo websocket, e i messaggi websocket successivi all'handshake verrebbero gestiti tramite l'handler registrato sul path della richiesta.
 
 ### Design patterns
 
@@ -307,25 +312,28 @@ Il factory pattern permette di creare oggetti senza specificare la classe concre
 
 ![socket context factory](diagrams/webserver/patterns/server-socket-factory.svg)
 
-In `ServerSocketFactory` è utilizzato per permettere la configurazione del socket che il server utilizza per accettare connessioni, permettendo ad esempio di utilizzare una connessione tls invece di una semplice connessione tcp, o potenzialmente di avere il server in ascolto su un unix socket.
+`ServerSocketFactory` permette la configurazione del socket che il server utilizza per accettare connessioni, permettendo ad esempio di utilizzare una connessione tls invece di una semplice connessione tcp, o anche di utilizzare uno unix socket.
 
 ![request context factory](diagrams/webserver/patterns/request-context-factory.svg)
 
-In `RequestContextFactory` è utilizzato per permettere di personalizzare il `RequestContext`, permettendo così ad esempio di aggiungere informazioni aggiuntive che vengono passate agli handler.
+`RequestContextFactory` permette di personalizzare il `RequestContext` utilizzato dal webserver, permettendo così di aggiungere informazioni aggiuntive da passare agli handler.
 
-Un esempio di utilizzo lo si puù trovare nel modulo `SampleApp` dove viene utilizzato per instanziare la classe `ApplicationRequestContext` che contiene informazioni aggiuntive sull'autenticazione.
+Un esempio di utilizzo lo si può trovare nel modulo `SampleApp`, dove viene utilizzato per istanziare la classe `ApplicationRequestContext` che contiene informazioni aggiuntive sull'autenticazione.
 
 #### Strategy pattern
 
-Lo strategy pattern permette di incapsulare comportamenti diversi in classi separate e di utilizzarli intercambiabilmente a runtime
+Lo strategy pattern permette di incapsulare comportamenti diversi in classi separate e di utilizzarli intercambiabilmente a runtime.
 
 ![strategy pattern](diagrams/webserver/patterns/handler-strategy.svg)
 
-È utilizzato in `RequestHandler` per permettere di registrare diversi handler per gestire le richieste.
+Ne è un esempio `HttpRequestHandler` cha permette di creare handler che gestiscono in vario modo le richiesta http in entrata:
+
+- `StaticFileHandler` restituisce in risposta dei file statici contenuti sul filesystem che corrispondono al path richiesto
+- `MethodHandler` che permette alle classi che lo estendono di gestire semplicemente le richieste su dei metodi specifici facendo l'override dei suoi metodi `handleGet`, `handlePut`, `handlePost` e `handleDelete`.
 
 #### Decorator pattern
 
-Il decorator pattern permette di aggiungere o modificare le funzionalità di un oggetto senza modificarne la struttura
+Il decorator pattern permette di aggiungere o modificare le funzionalità di un oggetto senza modificarne la struttura.
 
 ![decorator pattern](diagrams/webserver/patterns/input-stream-decorator.svg)
 
@@ -338,17 +346,17 @@ Il decorator pattern permette di aggiungere o modificare le funzionalità di un 
 
 #### Builder pattern
 
-Il builder pattern permette di costruire un oggetto complesso passo passo, permettendo di configurare l'oggetto in modo flessibile
+Il builder pattern permette di costruire un oggetto complesso passo passo, permettendo di configurare l'oggetto in modo flessibile.
 
 ![builder pattern](diagrams/webserver/patterns/webserver-builder.svg)
 
-È utilizzato per la costruzione del `WebServer` permettendo di configurare il socket e la creazione del contesto delle richieste
+È utilizzato per la costruzione del `WebServer` permettendo di configurare il socket e la creazione del contesto delle richieste.
 
 ### Testing
 
 Per testare dell'applicativo sono stati effettuati dei test unitari con junit delle classi che compongono l'applicativo.
 
-Di seguito i dati sulla coverage dei test:
+Di seguito i dati sulla coverage dei test raggruppati per package test:
 
 | Package                                        | Class       | Method       | Line           |
 |------------------------------------------------|-------------|--------------|----------------|
@@ -362,7 +370,7 @@ Di seguito i dati sulla coverage dei test:
 
 Per i test della classe `WebServer` è stato necessario, all'interno degli unit test, lanciare il webserver e collegarvisi tramite connessione tcp per effettuare delle richieste e verificarne il corretto funzionamento.
 
-Di seguito un esempio di questo tipo di test
+Di seguito un esempio di questo tipo di test:
 
 ```java
 @Test
@@ -391,7 +399,7 @@ public void testWebserverHttp() throws IOException, InterruptedException {
 }
 ```
 
-Infine l'applicazione di esempio realizzata costituisce anch'essa un test del funzionamento del webserver.
+Infine l'applicazione di esempio realizzata nel modulo `SampleApp` costituisce un test del funzionamento del webserver.
 
 ## Modulo SampleApp
 
@@ -601,9 +609,11 @@ webServer.registerHttpHandler("/admin-tools",
 
 Per testare dell'applicativo sono stati effettuati dei test unitari con junit e mockito.
 
-Ogni layer, ad eccezione delle view, è stato testato separatamente, mockando i layer da cui dipendevano e verificando che i dati di output fossero coerenti con i dati di input mockati
+Ogni layer, a eccezione delle view, è stato testato separatamente, mockando i layer da cui dipendevano e verificando che i dati di output fossero coerenti con i dati di input mockati
 
-Per le view, a cause della complessità di verificare programmaticamente la validità dell'html generato, si è testato solo che l'istanziazione dei componenti, e la generazione di html a partire dai componenti istanziati non generasse errori
+Per le view, a cause della complessità di verificare programmaticamente la validità dell'html generato, si è testato solo che l'istanziazione dei componenti, e la generazione di html a partire dai componenti istanziati non generasse errori.
+
+Di seguito i dati sulla coverage dei test raggruppati per package test:
 
 | Package                                        | Class       | Method       | Line           |
 |------------------------------------------------|-------------|--------------|----------------|
