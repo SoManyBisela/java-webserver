@@ -1,6 +1,18 @@
 # Documentazione software
 
-Il software è composto da due moduli: un modulo contenente la libreria del webserver, e un modulo applicativo che utilizza la libreria a scopo dimostrativo
+__Nome__: Simone Basile
+__Matricola__: 913859
+__Codice persona__: 10671975
+
+## Scopo del progetto e premesse
+
+Lo scopo del progetto è la realizzazione di un webserver da zero, in grado di supportare lo sviluppo di applicazioni web, interamente utilizzando `java SE 17`.
+
+Il progetto comprende sia il webserver sia un'applicazione web, costruita allo scopo di dimostrare le funzionalità e l'utilizzabilità del webserver.
+
+Il software allegato è quindi composto da due moduli, un modulo `WebServer` contenente la libreria, e un modulo `SampleApp` che contiene l'applicazione di esempio.
+
+Per lo sviluppo del progetto si è cercato di ridurre al minimo le librerie utilizzate e di sviluppare da zero le funzionalità necessarie al funzionamento dell'applicativo per avere modo di familiarizzare, in modo il più possibile approfondito, con le tecnologie e i protocolli su cui si basano moltissime delle applicazioni che si utilizzano ogni giorno.
 
 ## Modulo WebServer
 
@@ -332,7 +344,52 @@ Il builder pattern permette di costruire un oggetto complesso passo passo, perme
 
 ### Testing
 
-//TODO 
+Per testare dell'applicativo sono stati effettuati dei test unitari con junit delle classi che compongono l'applicativo.
+
+Di seguito i dati sulla coverage dei test:
+
+| Package                                        | Class       | Method       | Line           |
+|------------------------------------------------|-------------|--------------|----------------|
+| com.simonebasile.http.format                   | 100%(1/1)   | 75%(3/4)     | 97.7%(42/43)   |
+| com.simonebasile.http.handlers                 | 100%(8/8)   | 100%(25/25)  | 89.8%(53/59)   |
+| com.simonebasile.http.internal                 | 100%(13/13) | 90.6%(48/53) | 91.3%(232/254) |
+| com.simonebasile.http.message                  | 100%(6/6)   | 94.9%(37/39) | 80.9%(89/110)  |
+| com.simonebasile.http.response                 | 100%(2/2)   | 100%(14/14)  | 100%(34/34)    |
+| com.simonebasile.http.routing                  | 100%(5/5)   | 94.4%(17/18) | 95.5%(85/89)   |
+| com.simonebasile.http.server                   | 100%(5/5)   | 91.2%(31/34) | 87.6%(156/178) |
+
+Per i test della classe `WebServer` è stato necessario, all'interno degli unit test, lanciare il webserver e collegarvisi tramite connessione tcp per effettuare delle richieste e verificarne il corretto funzionamento.
+
+Di seguito un esempio di questo tipo di test
+
+```java
+@Test
+public void testWebserverHttp() throws IOException, InterruptedException {
+    var webServer = WebServer.builder().build();
+    boolean[] called = new boolean[1];
+    webServer.registerHttpContext("/", (r, c) -> {
+        called[0] = true;
+        return new HttpResponse<>(200, null);
+    });
+    Semaphore semaphore = new Semaphore(0);
+    Thread thread = new Thread(() -> webServer.start(semaphore::release));
+    thread.start();
+    semaphore.acquire();
+    try (Socket c = new Socket("localhost", webServer.getPort())) {
+        String request = """
+                GET /index.html HTTP/1.1\r
+                Accept: text/html\r
+                \r
+                """;
+        c.getOutputStream().write(request.getBytes());
+    }
+    webServer.stop();
+    thread.join();
+    assertTrue(called[0]);
+}
+```
+
+Infine l'applicazione di esempio realizzata costituisce anch'essa un test del funzionamento del webserver.
 
 ## Modulo SampleApp
 
@@ -540,4 +597,28 @@ webServer.registerHttpHandler("/admin-tools",
 
 ### Testing
 
-//TODO 
+Per testare dell'applicativo sono stati effettuati dei test unitari con junit e mockito.
+
+Ogni layer, ad eccezione delle view, è stato testato separatamente, mockando i layer da cui dipendevano e verificando che i dati di output fossero coerenti con i dati di input mockati
+
+Per le view, a cause della complessità di verificare programmaticamente la validità dell'html generato, si è testato solo che l'istanziazione dei componenti, e la generazione di html a partire dai componenti istanziati non generasse errori
+
+| Package                                        | Class       | Method       | Line           |
+|------------------------------------------------|-------------|--------------|----------------|
+| com.simonebasile.sampleapp.controller          | 100%(11/11) | 95.3%(41/43) | 91.8%(157/171) |
+| com.simonebasile.sampleapp.controller.admin    | 100%(1/1)   | 100%(4/4)    | 100%(9/9)      |
+| com.simonebasile.sampleapp.controller.employee | 100%(2/2)   | 100%(7/7)    | 94.7%(18/19)   |
+| com.simonebasile.sampleapp.controller.user     | 100%(3/3)   | 100%(13/13)  | 91.1%(51/56)   |
+| com.simonebasile.sampleapp.dto                 | 85.7%(6/7)  | 95.2%(20/21) | 93.5%(43/46)   |
+| com.simonebasile.sampleapp.interceptors        | 100%(5/5)   | 100%(13/13)  | 100%(41/41)    |
+| com.simonebasile.sampleapp.mapping             | 66.7%(2/3)  | 58.3%(7/12)  | 68.8%(22/32)   |
+| com.simonebasile.sampleapp.model               | 100%(5/5)   | 100%(7/7)    | 100%(17/17)    |
+| com.simonebasile.sampleapp.repository          | 100%(3/3)   | 100%(17/17)  | 100%(33/33)    |
+| com.simonebasile.sampleapp.security            | 100%(1/1)   | 85.7%(6/7)   | 96.3%(26/27)   |
+| com.simonebasile.sampleapp.service             | 100%(4/4)   | 95.8%(23/24) | 90.1%(128/142) |
+| com.simonebasile.sampleapp.service.errors      | 100%(4/4)   | 100%(4/4)    | 100%(4/4)      |
+| com.simonebasile.sampleapp.views               | 100%(11/11) | 100%(25/25)  | 96.6%(258/267) |
+| com.simonebasile.sampleapp.views.base          | 100%(2/2)   | 87.5%(7/8)   | 88.4%(38/43)   |
+| com.simonebasile.sampleapp.views.chat          | 100%(11/11) | 100%(20/20)  | 99%(99/100)    |
+| com.simonebasile.sampleapp.views.custom        | 100%(12/12) | 96.8%(30/31) | 95.7%(112/117) |
+| com.simonebasile.sampleapp.views.html          | 85.7%(6/7)  | 87.1%(54/62) | 87.7%(135/154) |
