@@ -10,35 +10,35 @@ __Repository Github__: [java-webserver](https://github.com/SoManyBisela/java-web
 
 ## Scopo del progetto e premesse
 
-Lo scopo del progetto è la realizzazione di un webserver da zero, in grado di supportare lo sviluppo di applicazioni web, interamente utilizzando `java SE 17`.
+Lo scopo del progetto è la realizzazione di un webserver da zero, in grado di supportare lo sviluppo di applicazioni web, utilizzando interamente `java SE 17`.
 
 Il progetto comprende sia il webserver sia un'applicazione web, costruita allo scopo di dimostrare le funzionalità e l'utilizzabilità del webserver.
 
-Il software allegato è quindi composto da due moduli, un modulo `WebServer` contenente la libreria, e un modulo `SampleApp` che contiene l'applicazione di esempio.
+Il software allegato è quindi composto da due moduli, un modulo `WebServer` contenente la libreria e un modulo `SampleApp` che contiene l'applicazione di esempio.
 
-Per lo sviluppo del progetto si è cercato di ridurre al minimo le librerie utilizzate e di sviluppare da zero le funzionalità necessarie al funzionamento dell'applicativo per avere modo di familiarizzare, in modo il più possibile approfondito, con le tecnologie e i protocolli su cui si basano moltissime delle applicazioni che si utilizzano ogni giorno.
+Per lo sviluppo del progetto si è cercato di ridurre al minimo le librerie utilizzate e di sviluppare da zero le funzionalità necessarie al funzionamento dell'applicativo, per avere modo di familiarizzare, nel modo più approfondito possibile, con le tecnologie e i protocolli su cui si basano moltissime delle applicazioni che si utilizzano ogni giorno.
 
 <div class="page">
 
 ## Modulo WebServer
 
-Il modulo `WebServer` è una libreria che permette la creazione di un webserver java
+Il modulo `WebServer` è una libreria che permette la creazione di un webserver java.
 
 ### Dipendenze
 
 Il modulo utilizza `java 17` e utilizza solo una libreria di logging.
 
-La libreria utilizzata è `Simple Logging Facade for Java` o `slf4j` che fornisce un'interfaccia per il logging unica, e permette di utilizzare diverse libreria di logging come backend, permettendo agli utilizzatori della libreria di scegliere la libreria di logging che preferiscono.
+La libreria utilizzata è `Simple Logging Facade for Java` o `slf4j` che fornisce un'interfaccia per il logging unica e permette di utilizzare diverse librerie di logging come backend, permettendo agli utilizzatori di scegliere la libreria che preferiscono.
 
 ### Struttura
 
-Il diagramma di seguito descrive la divisione in package del webserver e una breve descrizione del contenuto di ogni package
+Il diagramma di seguito descrive la divisione in package del webserver e una breve descrizione del contenuto di ogni package.
 
 ![package diagram](diagrams/webserver/package-diagram.svg)
 
 La gestione dei package esposti dal modulo WebServer è effettuata tramite module system di java, introdotto con `java 9`.
 La lista dei package esposti è controllata dal file `module-info.java`.
-Tutti i package descritti sono esposti, a esclusione del package `internals`.
+Tutti i package descritti sono esposti a esclusione del package `internals`.
 
 <div class="page">
 
@@ -48,9 +48,10 @@ Di seguito sono elencate le classi principali necessarie all'utilizzo del webser
 
 #### WebServer
 
-La classe `WebServer` è la classe principale del webserver, contiene la logica per accettare e gestire le connessioni html e websocket. Attraverso il webserver è possibile registrare degli handler per gestire le richieste http e websocket e aggiungere degli interceptor che vengono eseuti prima di passare la richiesta all'handler.
+La classe `WebServer` è la classe principale, contiene la logica per accettare e gestire le connessioni http e websocket. Attraverso il webserver è possibile registrare degli handler per gestire le richieste http e websocket e aggiungere degli interceptor che vengono eseguiti prima di passare la richiesta all'handler.
 
 I metodi principali sono:
+
 - `void start()` avvia il server
 - `void stop()` ferma il server
 - `void registerHttpContext(String path, HttpRequestHandler<Body, ? super Context> handler)` registra un handler http associato a un path e ai subpath
@@ -66,12 +67,14 @@ Si istanzia tramite il builder `WebServerBuilder` che permette di configurarne i
 L'interfaccia `HttpRequestHandler` è l'interfaccia principale per la gestione delle richieste http.
 Tutte le classi che gestiscono le richieste http implementano questa interfaccia.
 
-L'interfaccia ha un solo metodo da implementare: `HttpResponse<? extends HttpResponseBody> handle(HttpRequest<? extends Body> r, Context requestContext)` che riceve come argomenti la request http e il RequestContext del webserver, e restituisce la response http 
+L'interfaccia ha un solo metodo da implementare:
+
+- `HttpResponse<? extends HttpResponseBody> handle(HttpRequest<? extends Body> r, Context requestContext)` che riceve come argomenti la request http e il RequestContext del webserver e restituisce la response http
 
 #### HttpRequest
 
-La classe `HttpRequest` contiene i dati della richiesta http ricevuta dal server. 
-Nello specifico:
+La classe `HttpRequest` contiene i dati della richiesta http ricevuta dal server. Nello specifico:
+
 - Metodo http
 - Path http
 - Versione protocollo http
@@ -82,8 +85,8 @@ Nello specifico:
 
 #### HttpResponse
 
-La classe `HttpRequest` contiene i dati della richiesta http ricevuta dal server. 
-Nello specifico:
+La classe `HttpRequest` contiene i dati della richiesta http ricevuta dal server. Nello specifico:
+
 - Status Code http
 - Versione protocollo http
 - Headers
@@ -93,22 +96,21 @@ Nello specifico:
 
 L'interfaccia `HttpResponseBody` contiene i metodi necessari alla serializzazione del body di una response http.
 
-L'interfaccia ha 3 metodi da implementare: 
+L'interfaccia ha 3 metodi da implementare:
 
 - `void write(OutputStream out) throws IOException` prende come argomento un OutputStream su cui scrivere il body della response
 - `Long contentLength()` ritorna la lunghezza del body da scrivere nella response o null se la lunghezza non è conosciuta a priori. Se si è specificata una lunghezza, il numero di byte scritti dal metodo `write` deve coincidere con quanto specificato. Se non si è specificata una lunghezza la response verrà inviata con `Transfer-Encoding: chunked`
-- `String contentType()` deve ritornare il `content-type` associato alla response.
-
+- `String contentType()` deve ritornare il `content-type` associato alla response
 
 #### HttpInterceptor
 
 L'interfaccia `HttpInterceptor` è l'interfaccia da implementare per intercettare richieste http.
 
-L'interfaccia permette di preprocessare le request, modificare le response, o fermare una richiesta non valida rispondendo al posto dell'handler.
+Permette di preprocessare le request, modificare le response, o fermare una richiesta non valida rispondendo al posto dell'handler.
 
 L'interfaccia ha un solo metodo da implementare:
 
-- `HttpResponse<? extends HttpResponseBody> intercept(HttpRequest<? extends Body> request, Context requestContext, HttpRequestHandler<Body, Context> next)` che prende come argomenti la richiesta http ricevuta, il requestContext http e l'handler che dovrebbe gestire la risposta.
+- `HttpResponse<? extends HttpResponseBody> intercept(HttpRequest<? extends Body> request, Context requestContext, HttpRequestHandler<Body, Context> next)` che prende come argomenti la richiesta http ricevuta, il requestContext http e l'handler che dovrebbe gestire la risposta
 
 #### WebsocketHandler
 
@@ -117,9 +119,9 @@ L'interfaccia `WebsocketHandler` permette di gestire gli eventi legati alle conn
 L'interfaccia prevede 5 metodi da implementare:
 
 - `WebsocketContext newContext(HttpRequestContext ctx)` viene invocato appena si riceve una richiesta di connessione websocket. Questo metodo serve a creare il context che conterrà lo stato relativo alla connessione websocket corrente, che verrà passato a tutte le chiamate websocket della stessa connessione
-- `HandshakeResult onServiceHandshake(String[] availableProtocols, WebsocketContext context)` viene invocato successivamente al metodo newContext, riceve come parametri il context creato e un array di sottoprotocolli websocket richiesti dal client. Questo metodo deve ritornare un `HandshakeResult` che può essere costruito con `HandshakeResult.accept(String protocol)` passando il protocollo selezionato tra quelli ricevuti se si accetta la richiesta di connessione websocket, o con `HandshakeResult.refuse(String message)` passando un messaggio da inviare al client, se non si accetta la richiesta di connessione.
-- `void onHandshakeComplete(WebsocketWriter websocketWriter, WebsocketContext context)` viene chiamato una volta che l'handshake websocket è completato. riceve come parametri il context websocket e un istanza di `WebSocketWriter` che permette di inviare messaggi al client che ha completato l'handshake
-- `void onMessage(WebsocketMessage msg, WebsocketContext context)` viene chiamato ogni volta che arriva un messaggio dal client. al metodo vengono passati il context websocket e il messaggio ricevuto.
+- `HandshakeResult onServiceHandshake(String[] availableProtocols, WebsocketContext context)` viene invocato successivamente al metodo newContext, riceve come parametri il context creato e un array di sottoprotocolli websocket richiesti dal client. Questo metodo deve ritornare un `HandshakeResult` che può essere costruito con `HandshakeResult.accept(String protocol)` passando il protocollo selezionato tra quelli ricevuti se si accetta la richiesta di connessione websocket, o con `HandshakeResult.refuse(String message)` passando un messaggio da inviare al client, se non si accetta la richiesta di connessione
+- `void onHandshakeComplete(WebsocketWriter websocketWriter, WebsocketContext context)` viene chiamato una volta che l'handshake websocket è completato. riceve come parametri il context websocket e un'istanza di `WebSocketWriter` che permette di inviare messaggi al client che ha completato l'handshake
+- `void onMessage(WebsocketMessage msg, WebsocketContext context)` viene chiamato ogni volta che arriva un messaggio dal client. Al metodo vengono passati il context websocket e il messaggio ricevuto
 - `void onClose(WebsocketContext context)` viene chiamato quando il client chiude la connessione websocket. Al metodo viene passato il context websocket
 
 ### Esempi di utilizzo
@@ -134,13 +136,11 @@ srv.registerHttpContext("/", (request, context) -> {
 srv.start();
 ```
 
-Questo esempio mostra la creazione di un server che risponde con stato `200` e `Hello` a tutte le chiamate.
+Questo esempio mostra la creazione di un server che risponde con stato `200` e `Hello` a tutte le chiamate:
 
-`WebServer srv = Webserver.builder().build()` crea un server con le configurazioni di default.
-
-`srv.registerHttpContext("/", (request, context) => { ... })` registra un handler che viene utilizzato per tutti i sottopath del path indicato.
-
-`new HttpResponse(200, new ByteResponseBody("Hello"))` crea una risposta http che ha nel body la stringa `Hello`. Il `ByteResponseBody`, quando costruito con una stringa come parametro mette la stringa nel body e configura il content type della response come `text/plain`.
+- `WebServer srv = Webserver.builder().build()` crea un server con le configurazioni di default
+- `srv.registerHttpContext("/", (request, context) => { ... })` registra un handler che viene utilizzato per tutti i sottopath del path indicato
+- `new HttpResponse(200, new ByteResponseBody("Hello"))` crea una risposta http che ha nel body la stringa `Hello`. Il `ByteResponseBody`, quando costruito con una stringa come parametro mette la stringa nel body e configura il content type della response come `text/plain`
 
 <div class="page"/>
 
@@ -173,7 +173,7 @@ Con il codice mostrato e le cartelle qui sopra:
 - chiamare `http://localhost/resources/script.js` restituisce il file `script.js` con content type `text/javascript`
 - chiamare `http://localhost/resources/style.css` restituisce il file `style.css` con content type `text/css`
 - chiamare `http://localhost/resources/missing.txt` restituisce un errore `404` dato che il file non esiste
-- chiamare `http://localhost/resources/` restituisce il file `index.html` con content type `text/html`, dato che la classe `StaticFileHandler` quando il path punta a una cartella cerca all'interno un file `index.html` 
+- chiamare `http://localhost/resources/` restituisce il file `index.html` con content type `text/html`, dato che la classe `StaticFileHandler` quando il path punta a una cartella cerca all'interno un file `index.html`
 - chiamare `http://localhost/resources/../secret-file` restituisce un errore `404` dato che `StaticFileHandler` impedisce di accedere a file quando il percorso contiene delle parti di path con funzioni particolari, come `..` o `~`
 
 <div class="page">
@@ -201,10 +201,12 @@ srv.registerHttpContext("/", (r, c) -> {
 
 srv.start();
 ```
+
 Questo esempio estende quello precedente mostrando l'utilizzo di un interceptor.
 
-L'interceptor aggiunto fa 2 cose: 
-- Aggiunge un header alla request che arriva all'handler 
+L'interceptor aggiunto ha 2 funzionalità:
+
+- Aggiunge un header alla request che arriva all'handler
 - Attiunge un header alla risposta restituite dal client
 
 #### Specificità degli handler
@@ -228,13 +230,13 @@ srv.start();
 - Una chiamata a `http://localhost/world` risponde con `Hello World`
 - Una chiamata a `http://localhost/world/etc` risponde con `Hello World and more`
 
-La prima chiamata ha come path `/` che corrisponde al primo handler e viene quindi gestito dal primo handler
+La prima chiamata ha come path `/` che corrisponde al primo handler e viene quindi gestito dal primo handler.
 
-La seconda chiamata ha come path `/other` che non corrisponde esattamente a nessun handler, ma essendo un sottopath di `/` viene gestito dal primo handler
+La seconda chiamata ha come path `/other` che non corrisponde esattamente a nessun handler, ma essendo un sottopath di `/` viene gestito dal primo handler.
 
-La terza chiamata ha come path `/world` che corrisponde sia al secondo che al terzo handler, ma dato che il terzo handler è più specifico per quel path, è quello a gestire la chiamata
+La terza chiamata ha come path `/world` che corrisponde sia al secondo che al terzo handler, ma dato che il terzo handler è più specifico per quel path, è quello a gestire la chiamata.
 
-La quarta chiamata ha come path `/world/etc` che non corrisponde a nessun handler, ma è un sottopath sia del primo che del secondo handler. Dato che il secondo handler è più specifico è quello che gestirà la chiamata
+La quarta chiamata ha come path `/world/etc` che non corrisponde a nessun handler, ma è un sottopath sia del primo che del secondo handler. Dato che il secondo handler è più specifico è quello che gestirà la chiamata.
 
 #### Gestire una connessione websocket
 
@@ -316,7 +318,7 @@ Il webserver è basato su un thread principale, che accetta le connessioni, e su
 
 Ogni connessione viene gestita da un thread della thread pool, su cui viene eseguito un task che legge le richieste in arrivo sulla connessione e le gestisce tramite gli handler registrati.
 
-Quando si riceve una richiesta di handshake websocket su una delle connessioni, il thread responsabile di gestire quella connessione viene convertito in un server per la gestione del protocollo websocket, e i messaggi websocket successivi all'handshake verrebbero gestiti tramite l'handler registrato sul path della richiesta.
+Quando si riceve una richiesta di handshake websocket su una delle connessioni, il thread responsabile di gestire quella connessione viene convertito in un server per la gestione del protocollo websocket e i messaggi websocket successivi all'handshake verrebbero gestiti tramite l'handler registrato sul path della richiesta.
 
 ### Design patterns
 
@@ -334,7 +336,7 @@ Il factory pattern permette di creare oggetti senza specificare la classe concre
 
 `RequestContextFactory` permette di personalizzare il `RequestContext` utilizzato dal webserver, permettendo così di aggiungere informazioni aggiuntive da passare agli handler.
 
-Un esempio di utilizzo lo si può trovare nel modulo `SampleApp`, dove viene utilizzato per istanziare la classe `ApplicationRequestContext` che contiene informazioni aggiuntive sull'autenticazione.
+Un esempio di utilizzo si può trovare nel modulo `SampleApp`, dove viene utilizzato per istanziare la classe `ApplicationRequestContext` che contiene informazioni aggiuntive sull'autenticazione.
 
 #### Strategy pattern
 
@@ -345,7 +347,7 @@ Lo strategy pattern permette di incapsulare comportamenti diversi in classi sepa
 Ne è un esempio `HttpRequestHandler` cha permette di creare handler che gestiscono in vario modo le richiesta http in entrata:
 
 - `StaticFileHandler` restituisce in risposta dei file statici contenuti sul filesystem che corrispondono al path richiesto
-- `MethodHandler` che permette alle classi che lo estendono di gestire semplicemente le richieste su dei metodi specifici facendo l'override dei suoi metodi `handleGet`, `handlePut`, `handlePost` e `handleDelete`.
+- `MethodHandler` che permette alle classi che lo estendono di gestire semplicemente le richieste su metodi specifici facendo l'override dei suoi metodi `handleGet`, `handlePut`, `handlePost` e `handleDelete`
 
 #### Decorator pattern
 
@@ -358,7 +360,7 @@ Il decorator pattern permette di aggiungere o modificare le funzionalità di un 
 - `FixedLengthInputStream` permette di leggere un numero fisso di byte da un input stream, in questo modo passando l'input stream ad un handler ci si può assicurare che non vengano letti byte appartenenti alla richiesta successiva
 - `ChunkedInputStream` permette di scrivere il body di una risposta in chunk, senza conoscerne a priori la lunghezza, come definito per le richieste con `Transfer-Encoding: chunked`
 - `UnmaskingInputStream` permette di decodificare i dati ricevuti da un client websocket, facendo il bitwise xor dei dati con la maschera ricevuta
-- `HttpInputStream` e `HttpOutputStream` aggiungono metodi di utility utili per leggere request e scrivere response http
+- `HttpInputStream` e `HttpOutputStream` aggiungono metodi di utility per leggere request e scrivere response http
 
 #### Builder pattern
 
@@ -372,9 +374,9 @@ Il builder pattern permette di costruire un oggetto complesso passo passo, perme
 
 ### Testing
 
-Per testare dell'applicativo sono stati effettuati dei test unitari con junit delle classi che compongono l'applicativo.
+Per testare l'applicativo sono stati effettuati dei test unitari con `junit` delle classi che compongono l'applicativo.
 
-Di seguito i dati sulla coverage dei test raggruppati per package test:
+Di seguito i dati sulla coverage dei test raggruppati per package:
 
 | Package                                        | Class       | Method       | Line           |
 |------------------------------------------------|-------------|--------------|----------------|
@@ -423,19 +425,21 @@ Infine l'applicazione di esempio realizzata nel modulo `SampleApp` costituisce u
 
 ## Modulo SampleApp
 
-Il modulo `SampleApp` contiene un applicazione di esempio, creata utilizzando il modulo `WebServer`
+Il modulo `SampleApp` contiene un'applicazione di esempio, creata utilizzando il modulo `WebServer`.
 
-L'applicazione è un sistema di ticketing che permette a degli utenti di creare dei ticket, che verranno poi gestiti da degli impiegati dell'ente che deploya l'applicazione.
+L'applicazione è un sistema di ticketing che permette a degli utenti di creare dei ticket, che verranno poi gestiti da impiegati dell'ente immaginario che deploya l'applicazione.
 
 Questa applicazione prevede la possibilità di comunicazione tra utenti e impiegati in due modi:
-- attraverso la creazione di ticket, che prevedono un oggetto e una descrizione, e a cui possono essere allegati file, e aggiunti commenti.
+
+- attraverso la creazione di ticket, che prevedono un oggetto e una descrizione e a cui possono essere allegati file e aggiunti commenti
 - attraverso una chat, che permette la comunicazione in tempo reale tra gli utenti e gli impiegati
- 
+
 ### Dipendenze
 
 Il modulo utilizza `java 17`.
 
 Le librerie utilizzate per il backend sono:
+
 - il modulo `WebServer` che permette l'esposizione di un webserver http configurabile
 - la libreria `slf4j` e `slf4j-simple` per il logging
 - il driver `mongodb` per la connessine al database
@@ -443,10 +447,9 @@ Le librerie utilizzate per il backend sono:
 - la libreria `jackson-databind` per il supporto per il json e la converisione tra oggetti
 
 Per il frontend invece sono state utilizzate:
+
 - la libreria `htmx` che permette la creazione di pagine web basate su server side rendering con un ridotto utilizzo di javascript
 - `google fonts` per il font `roboto` utilizzato nelle pagine e per il font contenente le `material icons`
-
-La libreria utilizzata è `Simple Logging Facade for Java` o `slf4j` che fornisce un'interfaccia per il logging unica, e permette di utilizzare diverse libreria di logging come backend, permettendo agli utilizzatori della libreria di scegliere la libreria di logging che preferiscono.
 
 ### Architettura
 
@@ -463,7 +466,7 @@ Le view sono renderizzate a partire da codice java che genera html da inviare al
 Questo è lo use case diagram dell'applicazione.
 
 ![use case diagram](diagrams/sampleapp/use-case-diagram.svg)
- 
+
 L'applicazione prevede 3 ruoli più la possibilità per un utente non registrato di registrarsi.
 
 #### Utente non registrato
@@ -476,7 +479,7 @@ Qualunque utente registrato (admin, user, employee) può modificare la propria p
 
 #### Admin
 
-L'admin può creare nuovi utenti, per cui selezionerà nome utente, ruolo, e una password.
+L'admin può creare nuovi utenti, per cui selezionerà nome utente, ruolo e password.
 
 <div class="page">
 
@@ -489,10 +492,10 @@ Gli utenti hanno accesso alle seguenti funzionalità:
 - Modifica di oggetto e messaggi dei propri ticket non inviati
 - Caricamento di allegati ai propri ticket non inviati
 - Download degli allegati dei propri ticket
-- Invio di un proprio ticket ticket
+- Invio di un proprio ticket
 - Aggiunta di un commento a un proprio ticket inviato
 - Visualizzare la lista dei propri ticket con il relativo stato
-- Visualizzazione in dettaglio dei propri ticket, con oggetto, messaggio, allegati e commenti
+- Visualizzazione in dettaglio dei propri ticket con oggetto, messaggio, allegati e commenti
 - Possibilità di richiedere supporto tramite chat
 
 #### Employee
@@ -500,16 +503,18 @@ Gli utenti hanno accesso alle seguenti funzionalità:
 Gli impiegati hanno accesso alle seguenti funzionalità:
 
 - Visualizzazione dei ticket inviati da tutti gli utenti
-- Visualizzazione in dettaglio dei ticket inviati dagli utenti, con oggetto, messaggio, allegati e commenti
+- Visualizzazione in dettaglio dei ticket inviati dagli utenti con oggetto, messaggio, allegati e commenti
 - Assegnazione di un ticket inviato a se stessi
 - Chiusura di un ticket assegnato a se stessi
 - Download degli allegati dei ticket inviati
 - Aggiunta di commenti ai ticket inviati
 - Accettazione di richieste di supporto tramite chat
- 
+
+<div class="page">
+
 ### Struttura
 
-Il diagramma di seguito descrive la divisione in package dell'applicazione
+Il diagramma di seguito descrive la divisione in package dell'applicazione.
 
 ![package diagram](diagrams/sampleapp/package-diagram.svg)
 
@@ -517,7 +522,7 @@ Il diagramma di seguito descrive la divisione in package dell'applicazione
 
 I package `model`, `service` e `repository` compongono il Model (M di MVC) dell'applicativo.
 
-Il package `model` contiene le classi di dati dell'applicativo, che vengono poi usate per l'accesso e la persistenza dei dati
+Il package `model` contiene le classi di dati dell'applicativo, che vengono poi usate per l'accesso e la persistenza dei dati.
 Il package `service` contiene tutte le classi che gestiscono la business logic dell'applicativo.
 Il package `repository` quelle che si occupano dell'accesso e della persistenza dei dati.
 
@@ -525,35 +530,35 @@ Il package `repository` quelle che si occupano dell'accesso e della persistenza 
 
 Il package `views`, che rappresenta la parte View (V di MVC) dell'applicativo, contiene tutti i componenti necessari al rendering delle pagine visualizzate dagli utenti.
 
-Per permettere il rendering di pagine dinamiche è stato creato un sistema di componenti che possono essere renderizzati come HTML e resituiti come body di response http. Questo sistema di componenti permette anche la creazione di componenti custom riusabili, che potessero essere renderizzati singolarmente e inviati al browser per sostituire parti di pagina tramite `htmx`.
+Per permettere il rendering di pagine dinamiche è stato creato un sistema di componenti che possono essere renderizzati come HTML e restituiti come body di response http. Questo sistema di componenti permette anche la creazione di componenti custom riusabili, che possono essere renderizzati singolarmente e inviati al browser per sostituire parti di pagina tramite `htmx`.
 
 ![view component system](diagrams/sampleapp/component-system.svg)
 
-I componenti base in figura (`TextElement`, `NoElement`, `ElementGroup`, `HtmlElement`) permettono di creare, tramite composizione ed estensione tutti i componenti necessari al funzionamento dell'applicativo.
+I componenti base in figura (`TextElement`, `NoElement`, `ElementGroup`, `HtmlElement`) permettono di creare, tramite composizione ed estensione, tutti i componenti necessari al funzionamento dell'applicativo.
 
 #### Controller
 
-Il package `controller`, che rappresenta infile la parte Controller dell'applicativo (C di MVC), contiene i vari controller dell'applicativo, che implementano l'interfaccia `HttpRequestHandler`.
+Il package `controller` rappresenta infine la parte Controller dell'applicativo (C di MVC) e contiene i vari controller che implementano l'interfaccia `HttpRequestHandler`.
 
-I controller si occupano di ricevere i dati inviati dai client, aggiornare il model tramite chiamate ai `Service` e aggiornare la view, restituendo le componenti da aggiornare della pagina.
+I controller si occupano di ricevere i dati inviati dai client, di aggiornare il model tramite chiamate ai `Service` e di aggiornare la view, restituendo le componenti da aggiornare della pagina.
 
 #### Security
 
-Il package `security` contiene utility di hashing delle password
+Il package `security` contiene utility di hashing delle password.
 
 <div class="page">
 
 #### Interceptors
 
-Il package `interceptors` contiene le classi dell'applicativo che implementano l'interfaccia `HttpInterceptor`
+Il package `interceptors` contiene le classi dell'applicativo che implementano l'interfaccia `HttpInterceptor`.
 
 #### Mapping
 
-Il package `mapping` contiene delle classi di utility per permettere la conversione dei dati ricevuti tramite http e mapparli in classi java
+Il package `mapping` contiene delle classi di utility per permettere la conversione dei dati ricevuti tramite http e mapparli in classi java.
 
 #### DTO
 
-Il package `dto` contiene tutte le classi di dati in cui vengono mappati gli input dell'utente 
+Il package `dto` contiene tutte le classi di dati in cui vengono mappati gli input dell'utente.
 
 ### Principali flussi dell'applicativo
 
@@ -561,19 +566,19 @@ Il package `dto` contiene tutte le classi di dati in cui vengono mappati gli inp
 
 ![ticket lifecycle](diagrams/sampleapp/ticket-state-diagram.svg)
 
-Il ciclo di vita di un ticket inizia dalla sua creazione da parte di un utente, che ne compila l'oggetto e il messaggio.
+Il ciclo di vita di un ticket inizia dalla sua creazione da parte di un utente che ne compila l'oggetto e il messaggio.
 
-Una volta creato, il ticket si trova in stato bozza, stato in cui è possibile modificare l'oggetto e il messaggio del ticket, oltre che caricare un numero arbitrario di allegati.
+Il ticket creato si trova in stato bozza, stato in cui è possibile modificare l'oggetto e il messaggio del ticket oltre che caricare un numero arbitrario di allegati.
 
 Una volta che l'utente è convinto della correttezza dei dati inseriti può procedere con l'inivio del ticket.
 
-Una volta che un ticket viene inviato diventa visibile a tutti gli impiegati e sarà possibile aggiungervi dei commenti.
+Quando un ticket viene inviato diventa visibile a tutti gli impiegati e sarà possibile aggiungervi dei commenti.
 
-Gli impiegati avranno la possibilità di visualizzare i dati caricati dall'utente, tutti i commenti dell'utente e degli altri impiegati, e potrà scaricarne gli allegati.
+Gli impiegati avranno la possibilità di visualizzare i dati caricati dall'utente, tutti i commenti dell'utente e degli altri impiegati e potrà scaricarne gli allegati.
 
 Un impiegato a questo punto dovrà prendere in carico il ticket assegnandolo a se stesso per lavorarlo.
 
-Una volta lavorato il ticket l'impiegato avrà la possiblità di chiuderlo, impedendo così l'aggiunta di altri commenti o la modifica.
+Una volta lavorato il ticket, l'impiegato avrà la possiblità di chiuderlo, impedendo così l'aggiunta di altri commenti o la modifica.
 
 <div class="page">
 
@@ -585,13 +590,13 @@ Nel momento in cui un utente o un impiegato accedono all'applicativo, viene effe
 
 Dalla pagina l'utente ha la possibilità in qualunque momento di richiedere di chattare con un impiegato. Da quel momento sarà messo in lista di attesa.
 
-Gli operatori potranno verificare nella finestra della chat in qualunque momento la presenza di utenti in attesa di supporto e potranno accettare le richieste di supporto degli utenti, inizindo così una chat con loro.
+Gli operatori potranno, in qualunque momento, verificare nella finestra della chat la presenza di utenti in attesa di supporto e potranno accettarne le richieste e iniziare così una chat con loro.
 
-Gli utenti rimangono in attesa finché un impiegato tra quelli connessi non accetterà la sua richiesta di chat, o finché l'utente non deciderà di annullare la richiesta.
+Gli utenti rimangono in attesa finché un impiegato tra quelli connessi non accetterà la sua richiesta di chat o finché l'utente non deciderà di annullare la richiesta.
 
 Una volta che un utente ed un operatore sono connessi in una chat avranno la possibilità di scambiarsi dei messaggi.
 
-In qualunque momento uno dei due potrà decidere di terminare la chat. Una volta disconnessa la chat entrambi avranno la possibilità di continuare a leggere la conversazione appena avvenuta, senza però poter inviare ulteriori messaggi.
+In qualunque momento uno dei due potrà decidere di terminare la chat. Disconnessa la chat entrambi avranno la possibilità di continuare a leggere la conversazione appena avvenuta, senza però poter inviare ulteriori messaggi.
 
 ### Autenticazione
 
@@ -599,7 +604,7 @@ L'autenticazione viene gestita tramite un cookie di sessione, che viene inviato 
 
 L'utente avrà la possibilità di effettuare il login dalla pagina dedicata. Quando una chiamata di login va a buon fine, il cookie di sessione dell'utente viene aggiornato con l'username dell'utente che ha effettuato il login, che avrà da quel momento accesso all'applicativo.
 
-Nello stesso modo, l'utente che cliccherà il bottone di logout nella barra di navigazioneil bottone di logout nella barra di navigazione verrà reindirizzato alla pagina di login, e il suo username verrà rimosso dalla sessione, togliendogli così accesso all'applicativo.
+Nello stesso modo, l'utente che cliccherà il bottone di logout nella barra di navigazione verrà reindirizzato alla pagina di login e il suo username verrà rimosso dalla sessione, togliendogli così accesso all'applicativo.
 
 Ad occuparsi della verifica del login è l'interceptor `AuthenticationInterceptor`.
 
@@ -611,11 +616,11 @@ Procede poi a inserire le informazioni sull'utente nel context della request e p
 
 ### Configurazione ruoli e controllo degli accessi
 
-La configurazione dei ruoli è per la maggior parte gestita tramite la classe `RoleBasedRouter` che permette di registrare handler diversi, sullo stesso path, indirizzando poi all'handler corrispondete al ruolo dell'utente loggato.
+La configurazione dei ruoli è per la maggior parte gestita tramite la classe `RoleBasedRouter` che permette di registrare handler diversi, sullo stesso path, indirizzando la chiamata all'handler corrispondente al ruolo dell'utente loggato.
 
-Registrando i controller tramite un `RoleBasedRouter` è quindi possibile assicurarsi che le richieste arrivino al controller solo nel caso in cui l'utente che effettua la richiesta ha effettivamente accesso all'handler.
+Registrando i controller tramite un `RoleBasedRouter` è quindi possibile assicurarsi che le richieste arrivino al controller solo nel caso in cui l'utente che effettua la richiesta abbia effettivamente accesso all'handler.
 
-Di seguito un esempio degli endpoint `/tickets`, accessibile solo ad utenti e ad impiegati, e per cui le richieste sono gestite da due handler diversi
+Di seguito un esempio degli endpoint `/tickets`, accessibile solo ad utenti e ad impiegati, e per cui le richieste sono gestite da due handler diversi.
 
 ```java
 webServer.registerHttpHandler("/tickets", RoleBasedRouter.builder()
@@ -624,7 +629,7 @@ webServer.registerHttpHandler("/tickets", RoleBasedRouter.builder()
         .build());
 ```
 
-E un esempio dell'endpoint `/admin-tools`, accessibile solo agli admin
+E un esempio dell'endpoint `/admin-tools`, accessibile solo agli admin.
 
 ```java
 webServer.registerHttpHandler("/admin-tools", 
@@ -633,13 +638,13 @@ webServer.registerHttpHandler("/admin-tools",
 
 ### Testing
 
-Per testare dell'applicativo sono stati effettuati dei test unitari con junit e mockito.
+Per testare l'applicativo sono stati effettuati dei test unitari con `junit` e `mockito`.
 
-Ogni layer, a eccezione delle view, è stato testato separatamente, mockando i layer da cui dipendevano e verificando che i dati di output fossero coerenti con i dati di input mockati
+Ogni layer, a eccezione delle view, è stato testato separatamente, mockando i layer da cui dipendevano e verificando che i dati di output fossero coerenti con i dati di input mockati.
 
-Per le view, a cause della complessità di verificare programmaticamente la validità dell'html generato, si è testato solo che l'istanziazione dei componenti, e la generazione di html a partire dai componenti istanziati non generasse errori.
+Per le view, a cause della complessità di verificare programmaticamente la validità dell'html generato, si è testato solo che l'istanziazione dei componenti e la generazione di html, a partire dai componenti istanziati, non generasse errori.
 
-Di seguito i dati sulla coverage dei test raggruppati per package test:
+Di seguito i dati sulla coverage dei test raggruppati per package:
 
 | Package                                        | Class       | Method       | Line           |
 |------------------------------------------------|-------------|--------------|----------------|
