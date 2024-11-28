@@ -478,6 +478,14 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
          */
         private void handleWebsocket(HttpRequest<Void> req, Context context) throws IOException {
             var match = websocketHandlers.getHandler(req.getResource());
+            if(match == null) {
+                HttpMessageUtils.writeResponse(req.getVersion(), new HttpResponse<>(
+                        404,
+                        new HttpHeaders(),
+                        new ByteResponseBody("Resource not found")
+                ), outputStream);
+                return;
+            }
             WebsocketHandler<?, ? super Context> wsHandler = match.handler();
             context.setContextMatch(match.match());
             _handleWebsocket(req, context, wsHandler);
@@ -502,6 +510,7 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
                 httpHeaders.add("Upgrade",  "websocket");
                 httpHeaders.add("Connection", "Upgrade");
                 httpHeaders.add("Sec-WebSocket-Accept", wsAccept);
+                httpHeaders.add("Sec-WebSocket-Protocol", handshakeResult.protocol);
                 HttpMessageUtils.writeResponse(req.getVersion(), new HttpResponse<>(101, httpHeaders, null), outputStream);
                 boolean hsComplete = false;
                 try {
@@ -567,9 +576,8 @@ public class WebServer<Context extends RequestContext> implements HttpRoutingCon
                         wsHandler.onClose(ctx);
                     }
                 } catch (Exception e) {
-                    if(hsComplete) wsHandler.onClose(ctx);
-                    //TODO review error handling
                     log.error("Error in websocket", e);
+                    if(hsComplete) wsHandler.onClose(ctx);
                 }
             } else {
                 HttpMessageUtils.writeResponse(req.getVersion(), new HttpResponse<>(

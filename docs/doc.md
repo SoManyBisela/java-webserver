@@ -43,13 +43,13 @@ Di seguito sono elencate le classi principali necessarie all'utilizzo del webser
 La classe `WebServer` è la classe principale del webserver, contiene la logica per accettare e gestire le connessioni html e websocket. Attraverso il webserver è possibile registrare degli handler per gestire le richieste http e websocket e aggiungere degli interceptor che vengono eseuti prima di passare la richiesta all'handler.
 
 I metodi principali sono:
-- `void start()` per avviare il server
-- `void stop()` per fermare il server
-- `void registerHttpContext(String path, HttpRequestHandler<Body, ? super Context> handler)` per registrare un handler http associato ad un path e ai subpath
-- `void registerHttpHandler(String path, HttpRequestHandler<Body, ? super Context> handler)` per registrare un handler http associato ad un path specifico
-- `void registerInterceptor(HttpInterceptor<Body, Context> interceptor)` per registrare un interceptor che intercetta le richieste
-- `void registerWebSocketContext(String path, WebsocketHandler<?, ? super Context> handler)` per registrare un handler websocket associato ad un path e ai subpath
-- `void registerWebSocketHandler(String path, WebsocketHandler<?, ? super Context> handler)` per registrare un handler websocket associato ad un path specifico
+- `void start()` avvia il server
+- `void stop()` ferma il server
+- `void registerHttpContext(String path, HttpRequestHandler<Body, ? super Context> handler)` registra un handler http associato ad un path e ai subpath
+- `void registerHttpHandler(String path, HttpRequestHandler<Body, ? super Context> handler)` registra un handler http associato ad un path specifico
+- `void registerInterceptor(HttpInterceptor<Body, Context> interceptor)` registra un interceptor che intercetta le richieste
+- `void registerWebSocketContext(String path, WebsocketHandler<?, ? super Context> handler)` registra un handler websocket associato ad un path e ai subpath
+- `void registerWebSocketHandler(String path, WebsocketHandler<?, ? super Context> handler)` registra un handler websocket associato ad un path specifico
   
 Si instanzia tramite il builder `WebServerBuilder` che permette di configurarne il funzionamento.
 
@@ -115,9 +115,9 @@ L'interfaccia prevede 5 metodi da implementare:
 #### registrazione di un semplice handler
 
 ```java
-WebServer srv = Webserver.builder().build();
+WebServer<?> srv = WebServer.builder().build();
 srv.registerHttpContext("/", (request, context) -> {
-    return new HttpResponse(200, new ByteResponseBody("Hello"))
+    return new HttpResponse(200, new ByteResponseBody("Hello"));
 });
 srv.start();
 ```
@@ -133,7 +133,7 @@ Questo esempio mostra la creazione di un server che risponde con stato `200` e `
 #### Servire file statici
 
 ```java
-WebServer srv = Webserver.builder().build();
+WebServer<?> srv = WebServer.builder().build();
 srv.registerHttpContext("/resources", 
     new StaticFileHandler<>("/path/to/resources")
 );
@@ -165,22 +165,22 @@ Con il codice mostrato e le cartelle qui sopra
 #### Registrazione di un interceptor
 
 ```java
-WebServer srv = Webserver.builder().build();
+WebServer<?> srv = WebServer.builder().build();
 
-srv.registerHttpInterceptor((request, context, next) -> {
-    request.getHeaders().add("X-Intercepted-At", LocalDateTime.now().toString())
+srv.registerInterceptor((request, context, next) -> {
+    request.getHeaders().add("X-Intercepted-At", LocalDateTime.now().toString());
     var response = next.handle(request, context);
     response.getHeaders().add("X-Intercepted", "true");
     return response;
+});
 
-})
-
-srv.registerHttpContext("/", (r, c) => {
+srv.registerHttpContext("/", (r, c) -> {
     //Interceptor added data to request
     String interceptedAt = r.getHeaders().getFirst("X-Intercepted-At");
     assert interceptedAt != null; 
 
-    new HttpResponse(200, new ByteResponseBody("Hello at " + interceptedAt))
+    return new HttpResponse<>(200, 
+        new ByteResponseBody("Hello at " + interceptedAt));
 });
 
 srv.start();
@@ -191,15 +191,15 @@ Questo esempio estende quello precedente mostrando l'utilizzo di un interceptor 
 #### Specificità degli handler
 
 ```java
-WebServer srv = Webserver.builder().build();
+WebServer<?> srv = WebServer.builder().build();
 srv.registerHttpContext("/", (request, context) -> {
-    return new HttpResponse(200, new ByteResponseBody("Hello"))
+    return new HttpResponse<>(200, new ByteResponseBody("Hello"));
 });
 srv.registerHttpContext("/world", (request, context) -> {
-    return new HttpResponse(200, new ByteResponseBody("Hello World and more"))
+    return new HttpResponse<>(200, new ByteResponseBody("Hello World and more"));
 });
 srv.registerHttpHandler("/world", (request, context) -> {
-    return new HttpResponse(200, new ByteResponseBody("Hello World"))
+    return new HttpResponse<>(200, new ByteResponseBody("Hello World"));
 });
 srv.start();
 ```
@@ -221,9 +221,9 @@ la quarta chiamata ha come path `/world/etc` che non corrisponde a nessun handle
 
 ```java
 class SimpleContext {
-    private WebSocketWriter writer;
-    private String connectionId;
-    private String protocol;
+    WebsocketWriter writer;
+    String connectionId;
+    String protocol;
     /* GETTERS AND SETTERS */
 }
 
@@ -233,50 +233,52 @@ class WSHandler implements WebsocketHandler<SimpleContext, RequestContext> {
         //Volendo è anche possibile prendere delle informazioni dal
         //request context (ad esempio dati sull'autenticazione)
         //e spostarli nel context della connessione
-        var ctx = new SimpleContext();
-        ctx.setConnectionId(UUID.randomUUID().toString());
-        return ctx;
+        var connCtx = new SimpleContext();
+        connCtx.connectionId = UUID.randomUUID().toString();
+        return connCtx;
     }
 
     public HandshakeResult onServiceHandshake(String[] availableProtocols, SimpleContext ctx) {
-        if(availableProtocols.length == 0) return HandshakeResult.refuse("No protocol");
+        if (availableProtocols.length == 0) return HandshakeResult.refuse("No protocol");
         else {
-            ctx.setProtocol(availableProtocols[0]);
-            return HandshakeResult.accept(ctx.getProtocol());
+            ctx.protocol = availableProtocols[0];
+            return HandshakeResult.accept(ctx.protocol);
         }
     }
 
-    public void onHandshakeComplete(WebSocketWriter writer, SimpleContext ctx) {
+    public void onHandshakeComplete(WebsocketWriter writer, SimpleContext ctx) {
         //La connessione websocket è completa. Salva il writer per 
         //poter inviare messaggi al client in seguito
-        System.out.println("Connected " + ctx.getConnectionId()
-                + " using protocol " + ctx.getProtocol);
-        ctx.setWriter(writer);
+        System.out.println("Connected " + ctx.connectionId
+                + " using protocol " + ctx.protocol);
+        ctx.writer = writer;
     }
 
     public void onMessage(WebsocketMessage msg, SimpleContext ctx) {
         //Un messaggio websocket puo contenere test o dati binari
         //In questo esempio gestiamo solo i messaggi testuali
-        assert msg.type == MsgType.TEXT; 
+        assert msg.type == WebsocketMessage.MsgType.TEXT;
         //I messaggi websocket possono essere divisi in chunk.
         //In questo esempio gestiamo messaggi con un singolo chunk
-        assert msg.data.length == 1; 
-        String message = new String(msg.content[0]);
-        System.out.println("Received message from " + ctx.getConnectionId() 
+        assert msg.data.length == 1;
+        String message = new String(msg.data[0]);
+        System.out.println("Received message from " + ctx.connectionId
                 + ": " + message);
-        ctx.getWriter().sendText("Responding to: " + message)
+        try {
+            ctx.writer.sendText("Responding to: " + message);
+        } catch (IOException e) {
+            System.err.println("An error occurred while writing message");
+        }
     }
 
     public void onClose(SimpleContext ctx) {
-        System.out.println("Disconnected: " + ctx.getConnectionId());
+        System.out.println("Disconnected: " + ctx.connectionId);
     }
 }
-```
 
-```java
-WebServer wsSrv = WebServer.builder().build();
+WebServer<?> wsSrv = WebServer.builder().build();
 wsSrv.registerWebSocketHandler("/", new WSHandler());
-wsSrv.start();
+        wsSrv.start();
 ```
 
 Questo è un esempio di gestione di una connessione websocket.
