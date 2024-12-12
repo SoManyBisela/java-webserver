@@ -1,13 +1,13 @@
 package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.model.Ticket;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.custom.MaterialIcon;
+import com.simonebasile.web.ssr.component.ElementGroup;
+import com.simonebasile.web.ssr.component.HtmlElement;
 
 import java.util.List;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
+import static com.simonebasile.web.ssr.component.HtmlElement.*;
 /**
  * Represents the list of tickets accessible to a user.
  */

@@ -1,9 +1,8 @@
-package com.simonebasile.sampleapp.views.base;
+package com.simonebasile.sampleapp.views;
 
-import com.simonebasile.sampleapp.views.html.HtmlElement;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
-
+import com.simonebasile.web.ssr.component.HtmlElement;
+import com.simonebasile.web.ssr.view.Html5View;
 /**
  * Represents a view of the page.
  * It includes the common css and js files.

@@ -3,11 +3,11 @@ package com.simonebasile.sampleapp.views;
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.chat.ChatSection;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.NoElement;
+import com.simonebasile.web.ssr.component.HtmlElement;
+import com.simonebasile.web.ssr.component.NoElement;
+import com.simonebasile.web.ssr.view.HtmxView;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
-
+import static com.simonebasile.web.ssr.component.HtmlElement.div;
 /**
  * Represents the main view of the page.
  * This view contains the header with the links to the other sections and the main content.

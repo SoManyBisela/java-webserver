@@ -2,15 +2,14 @@ package com.simonebasile.sampleapp.views.chat;
 
 import com.simonebasile.sampleapp.dto.ChatMessageEncoder;
 import com.simonebasile.sampleapp.dto.ChatProtoMessage;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
+import com.simonebasile.web.ssr.component.ElementGroup;
+import com.simonebasile.web.ssr.component.HtmlElement;
+import com.simonebasile.web.ssr.component.IHtmlElement;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.stream.Stream;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
+import static com.simonebasile.web.ssr.component.HtmlElement.div;
 
 /**
  * Class that encodes a ChatProtoMessage into htmx elements to be rendered in the page

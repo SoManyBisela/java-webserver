@@ -1,14 +1,14 @@
 package com.simonebasile.sampleapp.views.custom;
 
 import com.simonebasile.sampleapp.model.Attachment;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
+import com.simonebasile.web.ssr.component.HtmlElement;
+import com.simonebasile.web.ssr.component.IHtmlElement;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
+import static com.simonebasile.web.ssr.component.HtmlElement.*;
 
 /**
  * Represents a list of attachments in an HTML page.

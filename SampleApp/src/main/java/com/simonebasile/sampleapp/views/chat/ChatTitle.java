@@ -1,6 +1,7 @@
 package com.simonebasile.sampleapp.views.chat;
 
-import com.simonebasile.sampleapp.views.html.HtmlElement;
+
+import com.simonebasile.web.ssr.component.HtmlElement;
 
 public class ChatTitle extends HtmlElement {
 

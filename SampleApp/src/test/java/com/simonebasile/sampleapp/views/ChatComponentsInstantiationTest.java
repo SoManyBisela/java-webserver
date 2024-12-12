@@ -1,8 +1,7 @@
 package com.simonebasile.sampleapp.views;
 
-import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.views.chat.*;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
+import com.simonebasile.web.ssr.component.IHtmlElement;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +9,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ChatComponentsInstantiationTest {
 

@@ -1,6 +1,7 @@
 package com.simonebasile.sampleapp.views.chat;
 
-import com.simonebasile.sampleapp.views.html.HtmlElement;
+
+import com.simonebasile.web.ssr.component.HtmlElement;
 
 /**
  * A section to inform the user that they are already connected to the chat system.

@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.views.html;
+package com.simonebasile.web.ssr.component;
 
 import java.io.IOException;
 import java.io.OutputStream;

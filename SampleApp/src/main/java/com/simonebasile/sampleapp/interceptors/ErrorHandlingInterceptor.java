@@ -2,18 +2,17 @@ package com.simonebasile.sampleapp.interceptors;
 
 import com.simonebasile.http.handlers.HttpInterceptor;
 import com.simonebasile.http.handlers.HttpRequestHandler;
-import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.views.custom.Toast;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
-
+import static com.simonebasile.web.ssr.component.HtmlElement.div;
 
 /**
  * Interceptor that taks care of error handling.

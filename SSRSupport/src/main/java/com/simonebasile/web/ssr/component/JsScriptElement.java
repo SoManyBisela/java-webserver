@@ -1,4 +1,4 @@
-package com.simonebasile.sampleapp.views.html;
+package com.simonebasile.web.ssr.component;
 
 import java.util.HashMap;
 import java.util.Map;

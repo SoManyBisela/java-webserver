@@ -2,31 +2,31 @@ package com.simonebasile.sampleapp;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
-import com.simonebasile.http.response.HttpResponseBody;
+import com.mongodb.client.model.Filters;
+import com.simonebasile.http.handlers.StaticFileHandler;
 import com.simonebasile.http.message.HttpHeaders;
 import com.simonebasile.http.message.HttpRequest;
 import com.simonebasile.http.message.HttpResponse;
+import com.simonebasile.http.response.HttpResponseBody;
 import com.simonebasile.http.server.WebServer;
 import com.simonebasile.sampleapp.controller.*;
-import com.simonebasile.sampleapp.controller.HomeController;
 import com.simonebasile.sampleapp.controller.admin.AdminToolsController;
 import com.simonebasile.sampleapp.controller.employee.EmployeeTicketController;
 import com.simonebasile.sampleapp.controller.employee.EmployeeTicketsController;
 import com.simonebasile.sampleapp.controller.user.AttachmentController;
-import com.simonebasile.sampleapp.controller.user.UserTicketsController;
 import com.simonebasile.sampleapp.controller.user.UserTicketController;
+import com.simonebasile.sampleapp.controller.user.UserTicketsController;
 import com.simonebasile.sampleapp.dto.ApplicationRequestContext;
 import com.simonebasile.sampleapp.interceptors.AuthenticationInterceptor;
-import com.simonebasile.sampleapp.interceptors.ErrorHandlingInterceptor;
 import com.simonebasile.sampleapp.interceptors.ConditionalInterceptor;
+import com.simonebasile.sampleapp.interceptors.ErrorHandlingInterceptor;
 import com.simonebasile.sampleapp.model.Role;
+import com.simonebasile.sampleapp.model.SessionData;
 import com.simonebasile.sampleapp.model.Ticket;
+import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.repository.SessionRepository;
 import com.simonebasile.sampleapp.repository.TicketRepository;
 import com.simonebasile.sampleapp.repository.UserRepository;
-import com.simonebasile.sampleapp.model.SessionData;
-import com.simonebasile.http.handlers.StaticFileHandler;
-import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.SessionService;
 import com.simonebasile.sampleapp.service.TicketService;
@@ -156,6 +156,31 @@ public class Main {
         } finally {
             mongoClient.close();
         }
+
+    }
+
+    static void customConfig() {
+        var dbName = "AssistenzaDB";
+        var userCollection = "users";
+        var sessionCollection = "sessions";
+        var ticketsCollection = "tickets";
+        var pojoCodecRegistry = CodecRegistries.fromRegistries(
+                MongoClientSettings.getDefaultCodecRegistry(),
+                CodecRegistries.fromProviders(
+                        PojoCodecProvider.builder().automatic(true).build()
+                ));
+        var mongoClient = MongoClients.create();
+        var database = mongoClient.getDatabase(dbName);
+        var usersColl = database.getCollection(userCollection, User.class).withCodecRegistry(pojoCodecRegistry);
+        var sessionColl = database.getCollection(sessionCollection, SessionData.class).withCodecRegistry(pojoCodecRegistry);
+        var ticketColl = database.getCollection(ticketsCollection, Ticket.class).withCodecRegistry(pojoCodecRegistry);
+
+        //Repository config
+        var userRepository = new UserRepository(usersColl);
+        var sessionRepository = new SessionRepository(sessionColl);
+        var ticketRepository = new TicketRepository(ticketColl);
+
+        usersColl.deleteOne(Filters.eq("username", "utente_prova"));
 
     }
 }

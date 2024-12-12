@@ -1,7 +1,6 @@
-package com.simonebasile.sampleapp.views;
+package com.simonebasile.web.ssr.view;
 
-import com.simonebasile.sampleapp.views.base.Html5View;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
+import com.simonebasile.web.ssr.component.HtmlElement;
 
 /**
  * Represents a view that uses htmx.

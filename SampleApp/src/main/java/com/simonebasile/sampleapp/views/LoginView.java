@@ -1,14 +1,12 @@
 package com.simonebasile.sampleapp.views;
 
-import com.simonebasile.sampleapp.views.base.View;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.custom.ErrorMessage;
 import com.simonebasile.sampleapp.views.custom.FormButton;
 import com.simonebasile.sampleapp.views.custom.MaterialIcon;
 import com.simonebasile.sampleapp.views.custom.TextInputElement;
+import com.simonebasile.web.ssr.component.HtmlElement;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
-
+import static com.simonebasile.web.ssr.component.HtmlElement.*;
 /**
  * Represents the login view of the page.
  */

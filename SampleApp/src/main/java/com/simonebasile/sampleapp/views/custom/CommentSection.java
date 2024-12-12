@@ -1,9 +1,9 @@
 package com.simonebasile.sampleapp.views.custom;
 
 import com.simonebasile.sampleapp.model.Comment;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
-import com.simonebasile.sampleapp.views.html.NoElement;
+import com.simonebasile.web.ssr.component.HtmlElement;
+import com.simonebasile.web.ssr.component.IHtmlElement;
+import com.simonebasile.web.ssr.component.NoElement;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
+import static com.simonebasile.web.ssr.component.HtmlElement.div;
 
 /**
  * Represents the commment section of a ticket in an HTML page.

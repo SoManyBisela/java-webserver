@@ -13,7 +13,7 @@ import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.AccountSection;
 import com.simonebasile.sampleapp.views.custom.Toast;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
+import com.simonebasile.web.ssr.component.ElementGroup;
 
 import java.io.InputStream;
 

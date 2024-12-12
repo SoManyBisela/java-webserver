@@ -12,7 +12,7 @@ import com.simonebasile.sampleapp.service.AuthenticationService;
 import com.simonebasile.sampleapp.service.errors.UserAuthException;
 import com.simonebasile.sampleapp.views.AdminToolsSection;
 import com.simonebasile.sampleapp.views.custom.Toast;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
+import com.simonebasile.web.ssr.component.ElementGroup;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;

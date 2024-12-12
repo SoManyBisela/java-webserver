@@ -1,9 +1,9 @@
-package com.simonebasile.sampleapp.views.base;
+package com.simonebasile.web.ssr.view;
 
-import com.simonebasile.sampleapp.views.html.CssStylesheetElement;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
-import com.simonebasile.sampleapp.views.html.JsScriptElement;
+import com.simonebasile.web.ssr.component.CssStylesheetElement;
+import com.simonebasile.web.ssr.component.HtmlElement;
+import com.simonebasile.web.ssr.component.IHtmlElement;
+import com.simonebasile.web.ssr.component.JsScriptElement;
 
 import java.io.IOException;
 import java.io.OutputStream;

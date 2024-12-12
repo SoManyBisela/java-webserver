@@ -1,6 +1,7 @@
 package com.simonebasile.sampleapp.views.custom;
 
-import com.simonebasile.sampleapp.views.html.HtmlElement;
+
+import com.simonebasile.web.ssr.component.HtmlElement;
 
 /**
  * Represents a toast message in an HTML page.

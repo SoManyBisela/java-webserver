@@ -3,16 +3,15 @@ package com.simonebasile.sampleapp.views;
 import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.views.custom.*;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
-import com.simonebasile.sampleapp.views.html.NoElement;
+import com.simonebasile.web.ssr.component.ElementGroup;
+import com.simonebasile.web.ssr.component.HtmlElement;
+import com.simonebasile.web.ssr.component.IHtmlElement;
+import com.simonebasile.web.ssr.component.NoElement;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
-
+import static com.simonebasile.web.ssr.component.HtmlElement.*;
 /**
  * Represents the section of the page that shows the details of a ticket for a user.
  * It allows the user to create a new ticket or edit an existing one that is in draft state.

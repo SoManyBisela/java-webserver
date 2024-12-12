@@ -4,16 +4,16 @@ import com.simonebasile.sampleapp.model.Ticket;
 import com.simonebasile.sampleapp.model.TicketState;
 import com.simonebasile.sampleapp.model.User;
 import com.simonebasile.sampleapp.views.custom.*;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
-import com.simonebasile.sampleapp.views.html.NoElement;
+import com.simonebasile.web.ssr.component.ElementGroup;
+import com.simonebasile.web.ssr.component.HtmlElement;
+import com.simonebasile.web.ssr.component.IHtmlElement;
+import com.simonebasile.web.ssr.component.NoElement;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.div;
-import static com.simonebasile.sampleapp.views.html.HtmlElement.h;
+import static com.simonebasile.web.ssr.component.HtmlElement.div;
+import static com.simonebasile.web.ssr.component.HtmlElement.h;
 
 /**
  * Represents the section of the page that shows the details of a ticket for an employee.

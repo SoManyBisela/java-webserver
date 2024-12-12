@@ -1,15 +1,15 @@
 package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.model.Role;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
 import com.simonebasile.sampleapp.views.custom.FormButton;
 import com.simonebasile.sampleapp.views.custom.MaterialIcon;
 import com.simonebasile.sampleapp.views.custom.SelectInputElement;
 import com.simonebasile.sampleapp.views.custom.TextInputElement;
+import com.simonebasile.web.ssr.component.ElementGroup;
 
 import java.util.Arrays;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
+import static com.simonebasile.web.ssr.component.HtmlElement.*;
 
 /**
  * Represents the admin tools section of the page.

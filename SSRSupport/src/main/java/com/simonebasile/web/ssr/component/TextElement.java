@@ -1,12 +1,10 @@
-package com.simonebasile.sampleapp.views.html;
+package com.simonebasile.web.ssr.component;
 
-import lombok.Getter;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-@Getter
 /**
  * Represents the text content of an HTML tag.
  * it escapes the characters <, > and & to their respective HTML entities.

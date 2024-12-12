@@ -1,8 +1,11 @@
 package com.simonebasile.sampleapp.views;
 
-import com.simonebasile.http.response.HttpResponseBody;
-import com.simonebasile.sampleapp.model.*;
-import com.simonebasile.sampleapp.views.html.IHtmlElement;
+import com.simonebasile.sampleapp.model.Role;
+import com.simonebasile.sampleapp.model.Ticket;
+import com.simonebasile.sampleapp.model.TicketState;
+import com.simonebasile.sampleapp.model.User;
+import com.simonebasile.web.ssr.component.IHtmlElement;
+import com.simonebasile.web.ssr.view.HtmxView;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 

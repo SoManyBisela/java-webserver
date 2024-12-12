@@ -17,7 +17,7 @@ import com.simonebasile.sampleapp.service.errors.CreateTicketException;
 import com.simonebasile.sampleapp.service.errors.UpdateTicketException;
 import com.simonebasile.sampleapp.views.UserTicketDetailSection;
 import com.simonebasile.sampleapp.views.custom.Toast;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
+import com.simonebasile.web.ssr.component.ElementGroup;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;

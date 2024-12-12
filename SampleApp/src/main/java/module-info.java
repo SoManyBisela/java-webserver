@@ -1,6 +1,7 @@
 module SampleApp {
     requires org.slf4j;
     requires WebServer;
+    requires SSRSupport;
     requires org.bouncycastle.provider;
     requires com.fasterxml.jackson.databind;
     requires org.mongodb.driver.sync.client;

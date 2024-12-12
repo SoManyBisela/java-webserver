@@ -2,12 +2,12 @@ package com.simonebasile.sampleapp.views;
 
 import com.simonebasile.sampleapp.model.Role;
 import com.simonebasile.sampleapp.model.User;
-import com.simonebasile.sampleapp.views.html.ElementGroup;
-import com.simonebasile.sampleapp.views.html.HtmlElement;
 import com.simonebasile.sampleapp.views.custom.MaterialIcon;
+import com.simonebasile.web.ssr.component.ElementGroup;
+import com.simonebasile.web.ssr.component.HtmlElement;
 
-import static com.simonebasile.sampleapp.views.html.HtmlElement.*;
-
+import static com.simonebasile.web.ssr.component.HtmlElement.div;
+import static com.simonebasile.web.ssr.component.HtmlElement.span;
 /**
  * Represents the buttons in the header of the page.
  * Buttons are different based on the user role.
